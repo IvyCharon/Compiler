@@ -7,7 +7,7 @@ program
 programSection
     :   funcDecl
     |   classDecl
-    |   variableDecl
+    |   varDecl
     ;
 
 SimpleType
@@ -36,18 +36,18 @@ paraDeclList
     ;
 
 classDecl
-    : Class Identifier '{' (funcDecl | variableDecl)* '}'
+    : Class Identifier '{' (funcDecl | varDecl)* '}'
     ;
 
-variableDecl
-    : Type variableList ';'
+varDecl
+    : Type varList ';'
     ;
 
-variableList
-    : singleVariableDecl (',' singleVariableDecl)*
+varList
+    : singleVarDecl (',' singleVarDecl)*
     ;
 
-singleVariableDecl
+singleVarDecl
     : Identifier ('=' expression) ? 
     ;
 
@@ -57,7 +57,7 @@ suite
 
 statement
     : suite                                                 #block
-    | varDef                                                #vardefStmt
+    | varDecl                                                #vardefStmt
     | If '(' expression ')' trueStmt=statement 
         (Else falseStmt=statement)?                         #ifStmt
     | loopStmt
