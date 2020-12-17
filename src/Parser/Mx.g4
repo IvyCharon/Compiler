@@ -1,7 +1,7 @@
 grammar Mx;
 
 program
-    :   programSection*
+    :   programSection* suite EOF
     ;
 
 programSection
@@ -10,29 +10,29 @@ programSection
     |   varDecl
     ;
 
-SimpleType
+simpleType
     : Int
     | Bool
     | String
     | Identifier
     ;
 
-Type
-    : SimpleType
-    | Type '[' ']'
+type
+    : simpleType
+    | simpleType ('[' ']')+
     ;
 
-FuncType
-    : Type
+funcType
+    : type
     | Void
     ;
 
 funcDecl
-    : FuncType? Identifier '(' paraDeclList? ')' suite
+    : funcType? Identifier '(' paraDeclList? ')' suite
     ;
 
 paraDeclList
-    : Type Identifier (',' Type Identifier)*
+    : type Identifier (',' type Identifier)*
     ;
 
 classDecl
@@ -40,7 +40,7 @@ classDecl
     ;
 
 varDecl
-    : Type varList ';'
+    : type varList ';'
     ;
 
 varList
@@ -48,20 +48,20 @@ varList
     ;
 
 singleVarDecl
-    : Identifier ('=' expression) ? 
+    : Identifier ('=' expression)?
     ;
 
-suite 
+suite
     : '{' statement* '}'
     ;
 
 statement
     : suite                                                 #block
     | varDecl                                                #vardefStmt
-    | If '(' expression ')' trueStmt=statement 
+    | If '(' expression ')' trueStmt=statement
         (Else falseStmt=statement)?                         #ifStmt
-    | loopStmt
-    | jumpStmt
+    | loopStmt                                              #loopstmt
+    | jumpStmt                                              #jumpstmt
     | expression ';'                                        #pureExprStmt
     | ';'                                                   #emptyStmt
     ;
@@ -92,14 +92,14 @@ expression
     | expression op='||' expression                         #binaryExpr
     | <assoc=right> expression '=' expression               #assignExpr
     | expression '.' Identifier                             #MemberAccess
-    | New SimpleType ('[' expression ']')+                  #NewArray
-    | New SimpleType '(' expressionList? ')'                #NewObject
-    | New SimpleType                                        #NewObject
+    | New simpleType ('[' expression ']')+                  #NewArray
+    | New simpleType '(' expressionList? ')'                #NewObject
+    | New simpleType                                        #NewObject
     | expression op=('++' | '--')                           #PostfixIncDec
     | <assoc=right> op=('++' | '--') expression             #UnaryExpr
     | <assoc=right> op=('+' | '-')  expression              #UnaryExpr
-    | <assoc=right> op=('!' | '~')  expression              #UnaryExpr 
-    | expression '(' expressionList? ')'                    #FunctionCall    
+    | <assoc=right> op=('!' | '~')  expression              #UnaryExpr
+    | expression '(' expressionList? ')'                    #FunctionCall
     | array = expression '[' index = expression ']'         #Subscript
     ;
 
@@ -109,8 +109,8 @@ expressionList
 
 primary
     : '(' expression ')'
-    | Identifier 
-    | literal 
+    | Identifier
+    | literal
     | This
     ;
 
@@ -139,42 +139,42 @@ New : 'new';
 Class : 'class';
 This : 'this';
 
-LeftParen : '(';
-RightParen : ')';
-LeftBracket : '[';
-RightBracket : ']';
-LeftBrace : '{';
-RightBrace : '}';
+//LeftParen : '(';
+//RightParen : ')';
+//LeftBracket : '[';
+//RightBracket : ']';
+//LeftBrace : '{';
+//RightBrace : '}';
 
-Less : '<';
-LessEqual : '<=';
-Greater : '>';
-GreaterEqual : '>=';
-LeftShift : '<<';
-RightShift : '>>';
+//Less : '<';
+//LessEqual : '<=';
+//Greater : '>';
+//GreaterEqual : '>=';
+//LeftShift : '<<';
+//RightShift : '>>';
 
-Plus : '+';
-Minus : '-';
-Multi : '*';
-Div : '/';
-Mod : '%';
+//Plus : '+';
+//Minus : '-';
+//Multi : '*';
+//Div : '/';
+//Mod : '%';
 
-And : '&';
-Or : '|';
-AndAnd : '&&';
-OrOr : '||';
-Caret : '^';
-Not : '!';
-Tilde : '~';
+//And : '&';
+//Or : '|';
+//AndAnd : '&&';
+//OrOr : '||';
+//Caret : '^';
+//Not : '!';
+//Tilde : '~';
 
-Question : '?';
-Colon : ':';
-Semi : ';';
-Comma : ',';
+//Question : '?';
+//Colon : ':';
+//Semi : ';';
+//Comma : ',';
 
-Assign : '=';
-Equal : '==';
-NotEqual : '!=';
+//Assign : '=';
+//Equal : '==';
+//NotEqual : '!=';
 
 // Constant
 StringConstant
@@ -197,7 +197,7 @@ NullConstant
 
 Identifier
     : [a-zA-Z] [a-zA-Z_0-9]*
-    ;    
+    ;
 
 Whitespace
     :   [ \t]+
