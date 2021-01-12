@@ -56,29 +56,17 @@ suite
     ;
 
 statement
-    : suite                                                 #block
-    | varDecl                                               #vardefStmt
-    | ifStmt                                                #ifstmt
-    | loopStmt                                              #loopstmt
-    | jumpStmt                                              #jumpstmt
-    | expression ';'                                        #pureExprStmt
-    | ';'                                                   #emptyStmt
-    ;
-
-ifStmt
-    : If '(' expression ')' trueStmt = statement
-              (Else falseStmt = statement)?
-    ;
-
-loopStmt
-    : For '(' expression? ';' expression? ';' expression? ')' #forStmt
+    : suite                                                   #block
+    | varDecl                                                 #vardefStmt
+    | If '(' expression ')' trueStmt = statement
+                    (Else falseStmt = statement)?             #ifstmt
+    | For '(' expression? ';' expression? ';' expression? ')' #forStmt
     | While '(' expression ')'                                #whileStmt
-    ;
-
-jumpStmt
-    : Return expression? ';'                                #returnStmt
-    | Break ';'                                             #breakStmt
-    | Continue ';'                                          #continueStmt
+    | Return expression? ';'                                  #returnStmt
+    | Break ';'                                               #breakStmt
+    | Continue ';'                                            #continueStmt
+    | expression ';'                                          #exprStmt
+    | ';'                                                     #emptyStmt
     ;
 
 expression
