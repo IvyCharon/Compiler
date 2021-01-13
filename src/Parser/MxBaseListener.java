@@ -1,5 +1,3 @@
-package Parser;
-
 // Generated from C:/Users/skysz/Desktop/study/Computer_System/Compiler/Compiler/src/Parser\Mx.g4 by ANTLR 4.9
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -72,18 +70,6 @@ public class MxBaseListener implements MxListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVarDecl(MxParser.VarDeclContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFuncType(MxParser.FuncTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFuncType(MxParser.FuncTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -185,13 +171,13 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIf_stmt(MxParser.If_stmtContext ctx) { }
+	@Override public void enterIfstmt(MxParser.IfstmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIf_stmt(MxParser.If_stmtContext ctx) { }
+	@Override public void exitIfstmt(MxParser.IfstmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -257,13 +243,13 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPureExprStmt(MxParser.PureExprStmtContext ctx) { }
+	@Override public void enterExprStmt(MxParser.ExprStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitPureExprStmt(MxParser.PureExprStmtContext ctx) { }
+	@Override public void exitExprStmt(MxParser.ExprStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

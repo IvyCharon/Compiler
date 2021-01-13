@@ -1,5 +1,3 @@
-package Parser;
-
 // Generated from C:/Users/skysz/Desktop/study/Computer_System/Compiler/Compiler/src/Parser\Mx.g4 by ANTLR 4.9
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -41,12 +39,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarDecl(MxParser.VarDeclContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link MxParser#funcType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFuncType(MxParser.FuncTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#paraDeclList}.
 	 * @param ctx the parse tree
@@ -98,12 +90,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVardefStmt(MxParser.VardefStmtContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code if_stmt}
+	 * Visit a parse tree produced by the {@code ifstmt}
 	 * labeled alternative in {@link MxParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIf_stmt(MxParser.If_stmtContext ctx);
+	T visitIfstmt(MxParser.IfstmtContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code forStmt}
 	 * labeled alternative in {@link MxParser#statement}.
@@ -140,12 +132,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitContinueStmt(MxParser.ContinueStmtContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code pureExprStmt}
+	 * Visit a parse tree produced by the {@code exprStmt}
 	 * labeled alternative in {@link MxParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPureExprStmt(MxParser.PureExprStmtContext ctx);
+	T visitExprStmt(MxParser.ExprStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code emptyStmt}
 	 * labeled alternative in {@link MxParser#statement}.

@@ -4,12 +4,12 @@ import Util.position;
 
 import java.util.ArrayList;
 
-public class blockStmtNode extends StmtNode {
+public class programNode extends ASTNode {
+    public ArrayList<programSectionNode> decls;
     public ArrayList<StmtNode> stmts;
 
-    public blockStmtNode(position pos) {
+    public programNode(position pos) {
         super(pos);
-        this.stmts = new ArrayList<>();
     }
 
     @Override

@@ -11,7 +11,7 @@ programSection
     ;
 
 funcDecl
-    : funcType? Identifier '(' paraDeclList? ')' suite
+    : type? Identifier '(' paraDeclList? ')' suite
     ;
 
 classDecl
@@ -20,11 +20,6 @@ classDecl
 
 varDecl
     : type varList ';'
-    ;
-
-funcType
-    : type
-    | Void
     ;
 
 paraDeclList

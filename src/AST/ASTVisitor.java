@@ -1,6 +1,14 @@
 package AST;
 
 public interface ASTVisitor {
+    void visit(programNode it);
+
+    void visit(paraDeclNode it);
+    void visit(funcDeclNode it);
+    void visit(classDeclNode it);
+    void visit(singleVarDeclNode it);
+    void visit(varDeclNode it);
+
     void visit(blockStmtNode it);
     void visit(breakStmtNode it);
     void visit(continueStmtNode it);
@@ -10,4 +18,24 @@ public interface ASTVisitor {
     void visit(returnStmtNode it);
     void visit(varDeclStmtNode it);
     void visit(whileStmtNode it);
+
+    void visit(binaryExprNode it);
+    void visit(unaryExprNode it);
+    void visit(newExprNode it);
+    void visit(postfixExprNode it);
+    void visit(funcCallExprNode it);
+    void visit(assignExprNode it);
+    void visit(memberAccessExprNode it);
+    void visit(subscriptExprNode it);
+    void visit(thisExprNode it);
+    void visit(identifierExprNode it);
+
+    void visit(intConstNode it);
+    void visit(boolConstNode it);
+    void visit(nullConstNode it);
+    void visit(stringConstNode it);
+
+    void visit(arrayTypeNode it);
+    void visit(classTypeNode it);
+    void visit(simpleTypeNode it);
 }
