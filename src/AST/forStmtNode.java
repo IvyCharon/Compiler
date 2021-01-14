@@ -5,7 +5,7 @@ import Util.position;
 public class forStmtNode extends StmtNode {
     public ExprNode ex1, ex2, ex3;
 
-    public forStmtNode(ExprNode e1, ExprNode e2, ExprNode e3, position pos) {
+    public forStmtNode(position pos, ExprNode e1, ExprNode e2, ExprNode e3) {
         super(pos);
         this.ex1 = e1;
         this.ex2 = e2;

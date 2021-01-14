@@ -1,7 +1,7 @@
 grammar Mx;
 
 program
-    :   programSection* suite EOF
+    :   programSection* EOF
     ;
 
 programSection
@@ -11,7 +11,7 @@ programSection
     ;
 
 funcDecl
-    : type? Identifier '(' paraDeclList? ')' suite
+    : funcType = type? funcName = Identifier '(' (type Identifier (',' type Identifier)*)? ')' suite
     ;
 
 classDecl
@@ -19,12 +19,9 @@ classDecl
     ;
 
 varDecl
-    : type varList ';'
+    : type singleVarDecl (',' singleVarDecl)* ';'
     ;
 
-paraDeclList
-    : type Identifier (',' type Identifier)*
-    ;
 
 simpleType
     : Int
@@ -35,11 +32,7 @@ simpleType
 
 type
     : simpleType
-    | simpleType ('[' ']')+
-    ;
-
-varList
-    : singleVarDecl (',' singleVarDecl)*
+    | type '[' ']'
     ;
 
 singleVarDecl
@@ -55,7 +48,9 @@ statement
     | varDecl                                                 #vardefStmt
     | If '(' expression ')' trueStmt = statement
                     (Else falseStmt = statement)?             #ifstmt
-    | For '(' expression? ';' expression? ';' expression? ')' #forStmt
+    | For '(' i    = expression? ';'
+              con  = expression? ';' 
+              step = expression? ')'                          #forStmt
     | While '(' expression ')'                                #whileStmt
     | Return expression? ';'                                  #returnStmt
     | Break ';'                                               #breakStmt
@@ -65,40 +60,32 @@ statement
     ;
 
 expression
-    : primary                                               #atomExpr
-    | expression op=('+' | '-') expression                  #binaryExpr
-    | expression op=('==' | '!=' ) expression               #binaryExpr
-    | expression op=('*' | '/' | '%' ) expression           #binaryExpr
-    | expression op=('<<' | '>>' ) expression               #binaryExpr
-    | expression op=('<' | '>' ) expression                 #binaryExpr
-    | expression op=('<=' | '>=' ) expression               #binaryExpr
-    | expression op='&'  expression                         #binaryExpr
-    | expression op='^'  expression                         #binaryExpr
-    | expression op='|'  expression                         #binaryExpr
-    | expression op='&&' expression                         #binaryExpr
-    | expression op='||' expression                         #binaryExpr
-    | <assoc=right> expression '=' expression               #assignExpr
-    | expression '.' Identifier                             #MemberAccess
-    | New simpleType ('[' expression ']')+                  #NewArray
-    | New simpleType '(' expressionList? ')'                #NewObject
-    | New simpleType                                        #NewObject
-    | expression op=('++' | '--')                           #PostfixIncDec
-    | <assoc=right> op=('++' | '--') expression             #UnaryExpr
-    | <assoc=right> op=('+' | '-')  expression              #UnaryExpr
-    | <assoc=right> op=('!' | '~')  expression              #UnaryExpr
-    | expression '(' expressionList? ')'                    #FunctionCall
-    | array = expression '[' index = expression ']'         #Subscript
-    ;
-
-expressionList
-    : expression (',' expression)*
-    ;
-
-primary
-    : '(' expression ')'
-    | Identifier
-    | literal
-    | This
+    : '(' expression ')'                                             #atomExpr
+    | Identifier                                                     #atomExpr
+    | literal                                                        #atomExpr
+    | This                                                           #atomExpr
+    | expression op=('+' | '-') expression                           #binaryExpr
+    | expression op=('==' | '!=' ) expression                        #binaryExpr
+    | expression op=('*' | '/' | '%' ) expression                    #binaryExpr
+    | expression op=('<<' | '>>' ) expression                        #binaryExpr
+    | expression op=('<' | '>' ) expression                          #binaryExpr
+    | expression op=('<=' | '>=' ) expression                        #binaryExpr
+    | expression op='&'  expression                                  #binaryExpr
+    | expression op='^'  expression                                  #binaryExpr
+    | expression op='|'  expression                                  #binaryExpr
+    | expression op='&&' expression                                  #binaryExpr
+    | expression op='||' expression                                  #binaryExpr
+    | <assoc=right> expression '=' expression                        #assignExpr
+    | expression '.' Identifier                                      #MemberAccess
+    | New simpleType ('[' expression ']')+                           #NewArray
+    | New simpleType '(' (expression (',' expression)*)? ')'         #NewInitObject
+    | New simpleType                                                 #NewObject
+    | expression op=('++' | '--')                                    #PostfixIncDec
+    | <assoc=right> op=('++' | '--') expression                      #UnaryExpr
+    | <assoc=right> op=('+' | '-')  expression                       #UnaryExpr
+    | <assoc=right> op=('!' | '~')  expression                       #UnaryExpr
+    | funcName = expression '(' (expression (',' expression)*)? ')'  #FunctionCall
+    | array = expression '[' index = expression ']'                  #Subscript
     ;
 
 literal

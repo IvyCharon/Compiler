@@ -16,12 +16,14 @@ public interface ASTVisitor {
     void visit(forStmtNode it);
     void visit(ifStmtNode it);
     void visit(returnStmtNode it);
-    void visit(varDeclStmtNode it);
     void visit(whileStmtNode it);
+    void visit(emptyStmtNode it);
 
     void visit(binaryExprNode it);
     void visit(unaryExprNode it);
-    void visit(newExprNode it);
+    void visit(newArrayExprNode it);
+    void visit(newInitObjectExprNode it);
+    void visit(newObjectExprNode it);
     void visit(postfixExprNode it);
     void visit(funcCallExprNode it);
     void visit(assignExprNode it);
@@ -36,6 +38,5 @@ public interface ASTVisitor {
     void visit(stringConstNode it);
 
     void visit(arrayTypeNode it);
-    void visit(classTypeNode it);
     void visit(simpleTypeNode it);
 }

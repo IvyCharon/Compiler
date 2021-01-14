@@ -5,7 +5,7 @@ import Util.position;
 public class whileStmtNode extends StmtNode {
     public ExprNode con;
 
-    public whileStmtNode(ExprNode co, position pos) {
+    public whileStmtNode(position pos, ExprNode co) {
         super(pos);
         this.con = co;
     }

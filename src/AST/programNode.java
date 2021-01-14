@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 public class programNode extends ASTNode {
     public ArrayList<programSectionNode> decls;
-    public ArrayList<StmtNode> stmts;
 
-    public programNode(position pos) {
+    public programNode(position pos, ArrayList<programSectionNode> d) {
         super(pos);
+        this.decls = d;
     }
 
     @Override

@@ -6,7 +6,7 @@ public class ifStmtNode extends StmtNode {
     public ExprNode condition;
     public StmtNode thenstmt, elsestmt;
 
-    public ifStmtNode(ExprNode con, StmtNode ths, StmtNode els, position pos) {
+    public ifStmtNode(position pos, ExprNode con, StmtNode ths, StmtNode els) {
         super(pos);
         this.condition = con;
         this.thenstmt = ths;
