@@ -2,6 +2,8 @@ package Util.error;
 import Util.position;
 
 abstract public class error extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
     private position pos;
     private String message;
 

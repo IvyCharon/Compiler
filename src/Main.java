@@ -23,7 +23,7 @@ public class Main {
 
         try {
             programNode ASTRoot;
-            globalScope gScope = new globalScope(null);
+            globalScope gScope = new globalScope();
 
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
             lexer.removeErrorListeners();

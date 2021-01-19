@@ -1,7 +1,5 @@
 package Util.Type;
 
-import java.util.ArrayList;
-
 import Util.Entity.varEntity;
 import Util.Scope.*;
 
