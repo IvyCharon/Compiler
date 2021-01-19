@@ -3,11 +3,11 @@ package AST;
 import Util.position;
 
 public class newObjectExprNode extends ExprNode {
-    public simpleTypeNode type;
+    public simpleTypeNode typeNode;
 
     public newObjectExprNode(position pos, simpleTypeNode type) {
         super(pos);
-        this.type = type;
+        this.typeNode = type;
     }
 
     @Override

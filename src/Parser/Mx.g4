@@ -50,8 +50,9 @@ statement
                     (Else falseStmt = statement)?             #ifstmt
     | For '(' i    = expression? ';'
               con  = expression? ';' 
-              step = expression? ')'                          #forStmt
-    | While '(' expression ')'                                #whileStmt
+              step = expression? ')'  
+              statement                                       #forStmt
+    | While '(' expression ')' statement                      #whileStmt
     | Return expression? ';'                                  #returnStmt
     | Break ';'                                               #breakStmt
     | Continue ';'                                            #continueStmt

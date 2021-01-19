@@ -1,8 +1,11 @@
 package AST;
 
+import Util.Type.*;
 import Util.position;
 
 public class thisExprNode extends ExprNode {
+    public classType type;
+    
     public thisExprNode(position pos) {
         super(pos);
     }    

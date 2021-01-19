@@ -3,6 +3,7 @@ package AST;
 import Util.position;
 
 public class singleVarDeclNode extends ASTNode {
+    public TypeNode type;
     public String identifier;
     public ExprNode expr;
 

@@ -3,7 +3,6 @@ package AST;
 public interface ASTVisitor {
     void visit(programNode it);
 
-    void visit(paraDeclNode it);
     void visit(funcDeclNode it);
     void visit(classDeclNode it);
     void visit(singleVarDeclNode it);
@@ -30,7 +29,6 @@ public interface ASTVisitor {
     void visit(memberAccessExprNode it);
     void visit(subscriptExprNode it);
     void visit(thisExprNode it);
-    void visit(identifierExprNode it);
 
     void visit(intConstNode it);
     void visit(boolConstNode it);
@@ -39,4 +37,8 @@ public interface ASTVisitor {
 
     void visit(arrayTypeNode it);
     void visit(simpleTypeNode it);
+
+    void visit(varNode it);
+    void visit(funcNode it);
+    void visit(methodNode it);
 }

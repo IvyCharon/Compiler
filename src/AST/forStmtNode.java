@@ -3,13 +3,15 @@ package AST;
 import Util.position;
 
 public class forStmtNode extends StmtNode {
-    public ExprNode ex1, ex2, ex3;
+    public ExprNode init, condition, incr;
+    public StmtNode stmts;
 
-    public forStmtNode(position pos, ExprNode e1, ExprNode e2, ExprNode e3) {
+    public forStmtNode(position pos, ExprNode e1, ExprNode e2, ExprNode e3, StmtNode stmts) {
         super(pos);
-        this.ex1 = e1;
-        this.ex2 = e2;
-        this.ex3 = e3;
+        this.init = e1;
+        this.condition = e2;
+        this.incr = e3;
+        this.stmts = stmts;
     }
 
     @Override

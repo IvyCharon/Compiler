@@ -7,12 +7,14 @@ import AST.unaryExprNode.unaryOpType;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import Util.position;
+import Util.error.semanticError;
+import Util.Type.*;
 
 import java.util.ArrayList;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
+
+    Type intType, boolType, stringType;
 
 	@Override public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ArrayList<programSectionNode> tmp = new ArrayList<programSectionNode>();
@@ -35,13 +37,15 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 	
 	@Override public ASTNode visitFuncDecl(MxParser.FuncDeclContext ctx) {
-        TypeNode type = (TypeNode) visit(ctx.funcType);
+        TypeNode type = (ctx.funcType == null) ? null : (TypeNode) visit(ctx.funcType);
         String iden = ctx.funcName.toString();
-        ArrayList<paraDeclNode> paras = new ArrayList<paraDeclNode>();
+        ArrayList<singleVarDeclNode> paras = new ArrayList<singleVarDeclNode>();
         blockStmtNode suite;
 
         for(int i = 0; i < ctx.type().size(); i ++) {
-            paras.add(new paraDeclNode(new position(ctx), (TypeNode) visit(ctx.type(i)), ctx.Identifier(i).toString()));
+            singleVarDeclNode tmp = new singleVarDeclNode(new position(ctx), ctx.Identifier(i).toString(), null);
+            tmp.type =  (TypeNode) visit(ctx.type(i));
+            paras.add(tmp);
         }
         
         suite = (blockStmtNode) visit(ctx.suite());
@@ -126,7 +130,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         if(ctx.i != null) ex1 = (ExprNode) visit(ctx.i); else ex1 = null;
         if(ctx.con != null) ex2 = (ExprNode) visit(ctx.con); else ex2 = null;
         if(ctx.step != null) ex3 = (ExprNode) visit(ctx.step); else ex3 = null;
-        return new forStmtNode(new position(ctx), ex1, ex2, ex3);
+        return new forStmtNode(new position(ctx), ex1, ex2, ex3, (StmtNode)visit(ctx.statement()));
     }
 
     @Override public ASTNode visitExprStmt(MxParser.ExprStmtContext ctx) {
@@ -134,7 +138,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 	
 	@Override public ASTNode visitWhileStmt(MxParser.WhileStmtContext ctx) {
-        return new whileStmtNode(new position(ctx), (ExprNode) visit(ctx.expression()));
+        return new whileStmtNode(new position(ctx), (ExprNode) visit(ctx.expression()), (StmtNode) visit(ctx.statement()));
     }
 
     @Override public ASTNode visitIfstmt(MxParser.IfstmtContext ctx) {
@@ -192,7 +196,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     
 	@Override public ASTNode visitAtomExpr(MxParser.AtomExprContext ctx) {
         if(ctx.expression() != null) return visit(ctx.expression());
-        else if(ctx.Identifier() != null) return new identifierExprNode(new position(ctx), ctx.Identifier().toString());
+        else if(ctx.Identifier() != null) return new varNode(new position(ctx), ctx.Identifier().toString());
         else if(ctx.literal() != null) return visit(ctx.literal());
         else if(ctx.This() != null) return new thisExprNode(new position(ctx));
         else return null;
@@ -248,14 +252,24 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 	
 	@Override public ASTNode visitFunctionCall(MxParser.FunctionCallContext ctx) {
-        ExprNode funcName;
+        ExprNode tmp;
         ArrayList<ExprNode> paras = new ArrayList<ExprNode>();
 
-        funcName = (ExprNode)visit(ctx.funcName);
+        tmp = (ExprNode)visit(ctx.funcName);
+
         for(var t : ctx.expression()) {
             paras.add((ExprNode)visit(t));
         }
-        return new funcCallExprNode(new position(ctx), funcName, paras); 
+
+        if(tmp instanceof varNode) {
+            funcNode r = new funcNode(tmp.pos, ((varNode)tmp).name);
+            return new funcCallExprNode(new position(ctx), r, paras);
+        } else if(tmp instanceof memberAccessExprNode) {
+            methodNode r = new methodNode(tmp.pos, tmp, ((memberAccessExprNode)tmp).iden);
+            return new funcCallExprNode(new position(ctx), r, paras);
+        } else {
+            throw new semanticError("sth wrong with function call!", new position(ctx));
+        }
     }
     
 	@Override public ASTNode visitPostfixIncDec(MxParser.PostfixIncDecContext ctx) {

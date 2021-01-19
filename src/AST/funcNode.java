@@ -2,12 +2,12 @@ package AST;
 
 import Util.position;
 
-public class identifierExprNode extends ExprNode{
-    public String iden;
-    
-    public identifierExprNode(position pos, String s) {
+public class funcNode extends ExprNode {
+    public String funcName;
+
+    public funcNode(position pos, String name) {
         super(pos);
-        this.iden = s;
+        this.funcName = name;
     }
 
     @Override

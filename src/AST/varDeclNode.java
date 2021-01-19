@@ -12,6 +12,7 @@ public class varDeclNode extends programSectionNode {
         super(pos);
         this.type = type;
         this.varList = varl;
+        this.varList.forEach(t -> t.type = this.type);
     }
 
     @Override
