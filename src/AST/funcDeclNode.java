@@ -2,8 +2,8 @@ package AST;
 
 import java.util.ArrayList;
 
-import Util.Type.*;
 import Util.position;
+import Util.Type.*;
 
 public class funcDeclNode extends programSectionNode {
     public TypeNode type;

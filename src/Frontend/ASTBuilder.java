@@ -7,8 +7,8 @@ import AST.unaryExprNode.unaryOpType;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import Util.position;
-import Util.error.semanticError;
 import Util.Type.*;
+import Util.error.semanticError;
 
 import java.util.ArrayList;
 

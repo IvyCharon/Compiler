@@ -1,7 +1,7 @@
 package AST;
 
-import Util.Type.*;
 import Util.position;
+import Util.Type.*;
 
 abstract public class TypeNode extends ASTNode {
     public String identifier;

@@ -7,6 +7,7 @@ import AST.unaryExprNode.unaryOpType;
 import Util.error.*;
 import Util.Scope.*;
 import Util.Type.*;
+import Util.Type.Type.types;
 import Util.Entity.*;
 
 public class SemanticChecker implements ASTVisitor {
@@ -41,13 +42,13 @@ public class SemanticChecker implements ASTVisitor {
         it.suite.accept(this);
         currentScope = currentScope.parentScope();
         if(it.identifier == "main") {
-            if(! it.func.retType().isInt) 
+            if(! it.func.retType().isInt()) 
                 throw new semanticError("main function should return int!", it.pos);
             if(! it.paras.isEmpty())
                 throw new semanticError("main function should not have parameters!", it.pos);
         }
         //check return
-        if(retType != it.func.retType())
+        if(retType.getType() != it.func.retType().getType())
             throw new semanticError("wrong return! ", it.pos);
         retType = null;
     }
@@ -64,7 +65,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(singleVarDeclNode it){
         varEntity var = new varEntity(it.identifier, gScope.generateType(it.type));
-        if(it.var.type().isVoid) throw new semanticError("variable type is void!", it.pos);
+        if(it.var.type().isVoid()) throw new semanticError("variable type is void!", it.pos);
         if(it.expr != null) {
             it.expr.accept(this);
             if(it.expr.type != var.type()) 
@@ -102,7 +103,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(forStmtNode it){
         if(it.condition != null) {
             it.condition.accept(this);
-            if(! it.condition.type.isBool) 
+            if(! it.condition.type.isBool()) 
                 throw new semanticError("Semantic Error: type not match. It should be bool",
                 it.condition.pos);
         }
@@ -117,7 +118,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(ifStmtNode it){
         it.condition.accept(this);
-        if (!it.condition.type.isBool)
+        if (!it.condition.type.isBool())
             throw new semanticError("Semantic Error: type not match. It should be bool",
                     it.condition.pos);
         currentScope = new Scope(currentScope);
@@ -133,12 +134,13 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(returnStmtNode it){
         if (it.val != null) {
             it.val.accept(this);
+            retType = it.val.type;
         }
     }
     @Override
     public void visit(whileStmtNode it){
         it.con.accept(this);
-        if(!it.con.type.isBool)
+        if(!it.con.type.isBool())
             throw new semanticError("Semantic Error: type not match. It should be bool",
                     it.con.pos);
         loop.push(it);
@@ -157,8 +159,8 @@ public class SemanticChecker implements ASTVisitor {
         switch (it.op) {
             case smaller, bigger, smaller_equal, bigger_equal, add, sub, mul, 
                  div, mod, smallersmaller, biggerbigger, and, xor, or:
-                if (it.left.type.isBool 
-                    || it.right.type.isBool 
+                if (it.left.type.isBool() 
+                    || it.right.type.isBool() 
                     || it.left.type != it.right.type) 
                     throw new semanticError("Semantic Error: type not match. " + 
                                             "It should not be Bool and the left should be the same as the right. ",
@@ -179,16 +181,16 @@ public class SemanticChecker implements ASTVisitor {
         it.node.accept(this);
         switch (it.op) {
             case plusplus, subsub, posi, neg, bit_opposite :
-                if(! it.node.type.isInt)
+                if(! it.node.type.isInt())
                     throw new semanticError("wrong type!", it.pos);
                 if((it.op == unaryOpType.plusplus || it.op == unaryOpType.subsub) && (!it.node.isAssignable()))
                     throw new semanticError("not assignable!", it.pos);
-                it.type = new Type(); it.type.isInt = true;
+                it.type = new Type(); it.type.setType(Type.types.Int);
                 break;
             case not :
-                if(! it.node.type.isBool)
+                if(! it.node.type.isBool())
                     throw new semanticError("wrong type for not!", it.pos);
-                it.type = new Type(); it.type.isBool = true;
+                it.type = new Type(); it.type.setType(Type.types.Bool);
             default:
                 break;
         }
@@ -197,7 +199,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(newArrayExprNode it){
         it.expr.forEach(t -> {
             t.accept(this);
-            if(!t.type.isInt)
+            if(!t.type.isInt())
                 throw new semanticError("wrong new for array!", it.pos);
         });
         it.type = gScope.generateType(it.typeNode);
@@ -214,22 +216,22 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(postfixExprNode it){
         it.node.accept(this);
-        if(!it.node.type.isInt)
+        if(!it.node.type.isInt())
             throw new semanticError("wrong type for postfix operation!", it.pos);
         if(!it.node.isAssignable())
             throw new semanticError("not assignable!", it.pos);
-        it.type = new Type(); it.type.isInt = true;
+        it.type = new Type(); it.type.setType(Type.types.Int);
     }
     @Override
     public void visit(funcCallExprNode it){
         it.funcName.accept(this);
         if(it.funcName instanceof methodNode) {
-            if(it.funcName.type.isArray) {
+            if(it.funcName.type.isArray()) {
                 if(((methodNode)it.funcName).name != "size")
                     throw new semanticError("wrong use of method!", it.pos);
-                it.type = new Type(); it.type.isInt = true;
+                it.type = new Type(); it.type.setType(Type.types.Int);
             } else {
-                if(!it.funcName.type.isClass)
+                if(!it.funcName.type.isClass())
                     throw new semanticError("it is not a class!", it.pos);
                 classType tmp = (classType) it.funcName.type;
                 if(!tmp.getScope().containsFunction(((methodNode)it.funcName).name, false))
@@ -268,7 +270,7 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(memberAccessExprNode it){
         it.bo.accept(this);
-        if(!it.type.isClass)
+        if(!it.type.isClass())
             throw new semanticError("member access fail!", it.pos);
         classType tmp = (classType) it.type;
         if(!tmp.getScope().containsVariable(it.iden, false))
@@ -282,7 +284,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(subscriptExprNode it){
         it.array.accept(this);
         it.index.accept(this);
-        if(!it.index.type.isInt)
+        if(!it.index.type.isInt())
             throw new semanticError("index is not int!", it.pos);
         if(it.array.type.dim() > 1) {
             it.type = new arrayType(it.array.type, it.array.type.dim() - 1);
@@ -301,24 +303,24 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(intConstNode it){
-        it.type = new Type(); it.type.isInt = true;
+        it.type = new Type(); it.type.setType(Type.types.Int);
     }
     @Override
     public void visit(boolConstNode it){
-        it.type = new Type(); it.type.isBool = true;
+        it.type = new Type(); it.type.setType(Type.types.Bool);
     }
     @Override
     public void visit(nullConstNode it){
-        it.type = new Type(); it.type.isNull = true;
+        it.type = new Type(); it.type.setType(Type.types.Null);
     }
     @Override
     public void visit(stringConstNode it){
-        it.type = new Type(); it.type.isString = true;
+        it.type = new Type(); it.type.setType(Type.types.String);
     }
 
     @Override
     public void visit(arrayTypeNode it){
-        it.type = new Type(); it.type.isArray = true;
+        it.type = new Type(); it.type.setType(Type.types.Array);
     }
     @Override
     public void visit(simpleTypeNode it) {}
