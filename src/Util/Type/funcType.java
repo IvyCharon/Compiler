@@ -1,5 +1,8 @@
 package Util.Type;
 
+import java.util.ArrayList;
+
+import Util.Entity.varEntity;
 import Util.Scope.*;
 
 public class funcType extends Type {
@@ -19,7 +22,19 @@ public class funcType extends Type {
         return scope;
     }
 
+    public void setScope(funcScope t) {
+        this.scope = t;
+    }
+
     public Type retType() {
         return retType;
+    }
+
+    public void setRetType(Type t) {
+        this.retType = t;
+    }
+
+    public void addPara(varEntity t) {
+        scope.addPara(t);
     }
 }

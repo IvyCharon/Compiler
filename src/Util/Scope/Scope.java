@@ -5,12 +5,11 @@ import Util.Entity.*;
 import Util.Type.*;
 import Util.position;
 import java.util.HashMap;
-import AST.funcDeclNode;
 
 public class Scope {
 
     private HashMap<String, varEntity> vars = new HashMap<>();
-    private HashMap<String, funcDeclNode> funcs = new HashMap<>();
+    private HashMap<String, funcType> funcs = new HashMap<>();
     private Scope parentScope;
 
 
@@ -42,7 +41,7 @@ public class Scope {
         return null;
     }
 
-    public void defineFunction(String name, funcDeclNode f, position pos) {
+    public void defineFunction(String name, funcType f, position pos) {
         if(funcs.containsKey(name))
             throw new semanticError("multiple definition of " + name, pos);
         funcs.put(name, f);
@@ -55,7 +54,7 @@ public class Scope {
         else return false;
     }
 
-    public funcDeclNode getFunction(String name, boolean lookUpon) {
+    public funcType getFunction(String name, boolean lookUpon) {
         if (funcs.containsKey(name)) return funcs.get(name);
         else if (parentScope != null && lookUpon)
             return parentScope.getFunction(name, true);

@@ -13,4 +13,8 @@ public class funcScope extends Scope {
     public ArrayList<varEntity> getParas() {
         return paras;
     }
+
+    public void addPara(varEntity m) {
+        paras.add(m);
+    }
 }
