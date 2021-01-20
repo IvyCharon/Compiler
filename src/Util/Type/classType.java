@@ -26,4 +26,9 @@ public class classType extends Type {
     public void defineFunction(String name, funcType f, position pos) {
         scope.defineFunction(name, f, pos);
     }
+
+    @Override
+    public int dim() {
+        return 0;
+    }
 }

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import Util.position;
 
 public class newArrayExprNode extends ExprNode {
-    public simpleTypeNode typeNode;
+    public TypeNode typeNode;
     public ArrayList<ExprNode> expr;
 
-    public newArrayExprNode(position pos, simpleTypeNode type, ArrayList<ExprNode> expr) {
+    public newArrayExprNode(position pos, TypeNode type, ArrayList<ExprNode> expr) {
         super(pos, true);
         this.typeNode = type;
         this.expr = expr;

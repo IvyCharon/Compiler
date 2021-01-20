@@ -4,7 +4,7 @@ import Util.position;
 
 public class simpleTypeNode extends TypeNode {
     public simpleTypeNode(position pos, String iden) {
-        super(pos, iden);
+        super(pos, iden, 0);
     }
 
     @Override

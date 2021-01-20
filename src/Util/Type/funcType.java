@@ -1,5 +1,6 @@
 package Util.Type;
 
+import Util.position;
 import Util.Entity.varEntity;
 import Util.Scope.*;
 
@@ -32,7 +33,12 @@ public class funcType extends Type {
         this.retType = t;
     }
 
-    public void addPara(varEntity t) {
-        scope.addPara(t);
+    public void addPara(varEntity t, position pos){
+        scope.addPara(t, pos);
+    }
+
+    @Override
+    public int dim() {
+        return 0;
     }
 }

@@ -1,9 +1,11 @@
 package Util.Type;
 
-public class Type {
+abstract public class Type {
     public enum types {Int, Bool, String, Void, Class, Null, Array, Func}
 
     private types type;
+
+    public abstract int dim();
 
     public Type() {
         type = null;
@@ -11,10 +13,6 @@ public class Type {
 
     public void setType(Type.types mytype) {
         type = mytype;
-    }
-
-    public int dim() {
-        return 0;
     }
 
     public boolean isInt() {

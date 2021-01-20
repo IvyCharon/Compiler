@@ -38,25 +38,25 @@ public class globalScope extends Scope {
 
         Functmp = new funcType("print");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("str", stringType));
+        Functmp.addPara(new varEntity("str", stringType), new position(0,0));
         Functmp.setRetType(voidType);
         defineFunction("print", Functmp, new position(0,0));
 
         Functmp = new funcType("println");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("str", stringType));
+        Functmp.addPara(new varEntity("str", stringType), new position(0,0));
         Functmp.setRetType(voidType);
         defineFunction("println", Functmp, new position(0,0));
 
         Functmp = new funcType("printInt");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("n", intType));
+        Functmp.addPara(new varEntity("n", intType), new position(0,0));
         Functmp.setRetType(voidType);
         defineFunction("printInt", Functmp, new position(0,0));
 
         Functmp = new funcType("printlnInt");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("n", intType));
+        Functmp.addPara(new varEntity("n", intType), new position(0,0));
         Functmp.setRetType(voidType);
         defineFunction("printlnInt", Functmp, new position(0,0));
 
@@ -72,7 +72,7 @@ public class globalScope extends Scope {
 
         Functmp = new funcType("toString");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("i", intType));
+        Functmp.addPara(new varEntity("i", intType), new position(0,0));
         Functmp.setRetType(stringType);
         defineFunction("toString", Functmp, new position(0,0));
 
@@ -88,8 +88,8 @@ public class globalScope extends Scope {
 
         Functmp = new funcType("substring");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("left", intType));
-        Functmp.addPara(new varEntity("right", intType));
+        Functmp.addPara(new varEntity("left", intType), new position(0,0));
+        Functmp.addPara(new varEntity("right", intType), new position(0,0));
         Functmp.setRetType(stringType);
         stringType.defineFunction("substring", Functmp, new position(0,0));
 
@@ -100,7 +100,7 @@ public class globalScope extends Scope {
 
         Functmp = new funcType("ord");
         Functmp.setScope(new funcScope(this));
-        Functmp.addPara(new varEntity("pos", intType));
+        Functmp.addPara(new varEntity("pos", intType), new position(0,0));
         Functmp.setRetType(intType);
         stringType.defineFunction("ord", Functmp, new position(0,0));
 
@@ -122,7 +122,8 @@ public class globalScope extends Scope {
     }
 
     public Type generateType(TypeNode t) {
-        //array
+        if(t.dim != 0)
+            return new arrayType(getType(t.identifier, t.pos), t.dim);
         return getType(t.identifier, t.pos);
     }
 

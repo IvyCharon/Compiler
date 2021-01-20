@@ -1,6 +1,8 @@
 package Util.Scope;
 
 import java.util.ArrayList;
+
+import Util.position;
 import Util.Entity.*;
 
 public class funcScope extends Scope {
@@ -14,7 +16,8 @@ public class funcScope extends Scope {
         return paras;
     }
 
-    public void addPara(varEntity m) {
+    public void addPara(varEntity m, position pos) {
         paras.add(m);
+        defineVariable(m.name(), m, pos);
     }
 }

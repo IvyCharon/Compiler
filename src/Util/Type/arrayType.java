@@ -9,11 +9,12 @@ public class arrayType extends Type {
         this.dim = dim;
     }
 
-    public int dim() {
-        return dim;
-    }
-
     public Type type() {
         return type;
+    }
+
+    @Override
+    public int dim() {
+        return dim;
     }
 }

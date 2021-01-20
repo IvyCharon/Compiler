@@ -38,12 +38,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 	
 	@Override public ASTNode visitFuncDecl(MxParser.FuncDeclContext ctx) {
         TypeNode type = (ctx.funcType == null) ? null : (TypeNode) visit(ctx.funcType);
-        String iden = ctx.funcName.toString();
+        String iden = ctx.funcName.getText();
         ArrayList<singleVarDeclNode> paras = new ArrayList<singleVarDeclNode>();
         blockStmtNode suite;
 
-        for(int i = 0; i < ctx.type().size(); i ++) {
-            singleVarDeclNode tmp = new singleVarDeclNode(new position(ctx), ctx.Identifier(i).toString(), null);
+        for(int i = 1; i < ctx.type().size(); i ++) {
+            singleVarDeclNode tmp = new singleVarDeclNode(new position(ctx), ctx.Identifier(i).getText(), null);
             tmp.type =  (TypeNode) visit(ctx.type(i));
             paras.add(tmp);
         }
@@ -58,7 +58,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<funcDeclNode> funcs = new ArrayList<funcDeclNode>();
         ArrayList<varDeclNode> vars = new ArrayList<varDeclNode>();
 
-        identifier = ctx.Identifier().toString();
+        identifier = ctx.Identifier().getText();
         for(var t : ctx.funcDecl()) {
             funcs.add((funcDeclNode) visit(t));
         }
@@ -75,7 +75,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         
         type = (TypeNode) visit(ctx.type());
         for(var t : ctx.singleVarDecl()) {
-            varList.add((singleVarDeclNode) visit(t));
+            singleVarDeclNode tmp = (singleVarDeclNode) visit(t);
+            tmp.type = type;
+            varList.add(tmp);
         }
         return new varDeclNode(new position(ctx), type, varList);
     }
@@ -88,27 +90,25 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         } else if(ctx.String() != null) {
             return new simpleTypeNode(new position(ctx), "string");
         } else if(ctx.Identifier() != null) {
-            return new simpleTypeNode(new position(ctx), ctx.Identifier().toString());
+            return new simpleTypeNode(new position(ctx), ctx.Identifier().getText());
         } else {
             return null;
         }
     }
 	
 	@Override public ASTNode visitType(MxParser.TypeContext ctx) {
-        if(ctx.simpleType() != null) {
-            return visit(ctx.simpleType());
-        } else if(ctx.type() != null) {
-            return new arrayTypeNode(new position(ctx), (TypeNode)visit(ctx.type()));
-        } else {
-            return null;
-        }
+        int dim;
+        if(ctx.LeftBracket() != null) dim = ctx.LeftBracket().size();
+        else dim = 0;
+        String typeName = ((simpleTypeNode)visit(ctx.simpleType())).identifier;
+        return new TypeNode(new position(ctx), typeName, dim);
     }
 	
 	@Override public ASTNode visitSingleVarDecl(MxParser.SingleVarDeclContext ctx) {
         String identifier;
         ExprNode expr;
 
-        identifier = ctx.Identifier().toString();
+        identifier = ctx.Identifier().getText();
         if(ctx.expression() != null)
             expr = (ExprNode) visit(ctx.expression());
         else expr = null;
@@ -144,7 +144,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitIfstmt(MxParser.IfstmtContext ctx) {
-        return new ifStmtNode(new position(ctx), (ExprNode) visit(ctx.expression()), (StmtNode) visit(ctx.trueStmt), (StmtNode) visit(ctx.falseStmt)); 
+        ExprNode con = (ExprNode) visit(ctx.expression());
+        StmtNode tr = (StmtNode) visit(ctx.trueStmt);
+        StmtNode fa = (ctx.falseStmt == null) ? null : (StmtNode) visit(ctx.falseStmt);
+        return new ifStmtNode(new position(ctx), con, tr, fa); 
     }
 
 	@Override public ASTNode visitBreakStmt(MxParser.BreakStmtContext ctx) {
@@ -173,11 +176,14 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     
 	@Override public ASTNode visitNewArray(MxParser.NewArrayContext ctx) {
         ArrayList<ExprNode> expr = new ArrayList<ExprNode>();
+        String arrName = ((simpleTypeNode)visit(ctx.simpleType())).identifier;
 
         for (var t : ctx.expression()) {
             expr.add((ExprNode)visit(t));
         }
-        return new newArrayExprNode(new position(ctx), (simpleTypeNode) visit(ctx.simpleType()), expr);
+
+        TypeNode tmp = new TypeNode(new position(ctx), arrName, expr.size());
+        return new newArrayExprNode(new position(ctx), tmp, expr);
     }
 
     @Override public ASTNode visitNewInitObject(MxParser.NewInitObjectContext ctx) {
@@ -193,12 +199,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 	
 	@Override public ASTNode visitMemberAccess(MxParser.MemberAccessContext ctx) {
-        return new memberAccessExprNode(new position(ctx), (ExprNode) visit(ctx.expression()), ctx.Identifier().toString());
+        return new memberAccessExprNode(new position(ctx), (ExprNode) visit(ctx.expression()), ctx.Identifier().getText());
     }
     
 	@Override public ASTNode visitAtomExpr(MxParser.AtomExprContext ctx) {
         if(ctx.expression() != null) return visit(ctx.expression());
-        else if(ctx.Identifier() != null) return new varNode(new position(ctx), ctx.Identifier().toString());
+        else if(ctx.Identifier() != null) return new varNode(new position(ctx), ctx.Identifier().getText());
         else if(ctx.literal() != null) return visit(ctx.literal());
         else if(ctx.This() != null) return new thisExprNode(new position(ctx));
         else return null;
@@ -304,13 +310,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 	@Override public ASTNode visitLiteral(MxParser.LiteralContext ctx) {
         if(ctx.IntegerConstant() != null) {
             return new intConstNode(new position(ctx), Integer.parseInt(ctx.IntegerConstant().getText()));
-        } else if(ctx.BoolConstant() != null) {
-            if(ctx.BoolConstant().getText() == "true")
-                return new boolConstNode(new position(ctx), true);
-            else if(ctx.BoolConstant().getText() == "false")
-                return new boolConstNode(new position(ctx), false);
-            else return null;
-        } else if(ctx.NullConstant() != null) {
+        } else if(ctx.True() != null) {
+            return new boolConstNode(new position(ctx), true);
+        }else if(ctx.False() != null) {
+            return new boolConstNode(new position(ctx), false);
+        }else if(ctx.NullConstant() != null) {
             return new nullConstNode(new position(ctx));
         } else if(ctx.StringConstant() != null) {
             return new stringConstNode(new position(ctx), ctx.StringConstant().getText());

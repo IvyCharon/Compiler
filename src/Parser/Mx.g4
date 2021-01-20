@@ -31,7 +31,7 @@ simpleType
 
 type
     : simpleType
-    | type '[' ']'
+    | simpleType ('[' ']')*
     ;
 
 singleVarDecl
@@ -90,7 +90,8 @@ expression
 
 literal
     : IntegerConstant
-    | BoolConstant
+    | True
+    | False
     | NullConstant
     | StringConstant
     ;
@@ -117,12 +118,6 @@ This : 'this';
 ////
 Identifier
     : [a-zA-Z] [a-zA-Z_0-9]*
-    ;
-
-// Constant
-BoolConstant
-    : True
-    | False
     ;
 
 IntegerConstant
@@ -184,3 +179,10 @@ Plusplus : '++' ;
 Subsub : '--' ;
 Not : '!' ;
 Bit_opposite : '~' ;
+
+LeftParen : '(';
+RightParen : ')';
+LeftBracket : '[';
+RightBracket : ']';
+LeftBrace : '{';
+RightBrace : '}';

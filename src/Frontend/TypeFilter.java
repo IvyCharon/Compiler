@@ -49,7 +49,7 @@ public class TypeFilter implements ASTVisitor {
         if(tmp.type().isVoid()) throw new semanticError("parameter type is void!", it.pos);
         if(currentScope instanceof funcScope) {
             it.var = tmp;
-            ((funcScope)currentScope).addPara(tmp);
+            ((funcScope)currentScope).addPara(tmp, it.pos);
         } else throw new semanticError("sth wrong with para visit", it.pos);
     }
     @Override
@@ -107,7 +107,7 @@ public class TypeFilter implements ASTVisitor {
     public void visit(stringConstNode it) {}
 
     @Override
-    public void visit(arrayTypeNode it) {}
+    public void visit(TypeNode it) {}
     @Override
     public void visit(simpleTypeNode it) {}
 
