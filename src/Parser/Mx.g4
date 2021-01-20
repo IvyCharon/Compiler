@@ -69,7 +69,8 @@ expression
     | Identifier                                                             #atomExpr
     | literal                                                                #atomExpr
     | This                                                                   #atomExpr
-    | New simpleType ('[' expression ']')+ ('[' ']')*                        #NewArray
+    | New simpleType ('[' expression ']')+ ('[' ']')+ ('[' expression ']')+  #errorNewArray
+    | New simpleType ('[' expression ']')+ ('[' ']')*                        #NewArray    
     | New simpleType '(' (expression (',' expression)*)? ')'                 #NewInitObject
     | New simpleType                                                         #NewObject
     | expression '.' Identifier                                              #MemberAccess

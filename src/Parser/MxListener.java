@@ -229,6 +229,18 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitEmptyStmt(MxParser.EmptyStmtContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code errorNewArray}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorNewArray(MxParser.ErrorNewArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code errorNewArray}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorNewArray(MxParser.ErrorNewArrayContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code NewInitObject}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree

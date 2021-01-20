@@ -192,6 +192,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         return new newArrayExprNode(new position(ctx), tmp, expr);
     }
 
+    @Override public ASTNode visitErrorNewArray(MxParser.ErrorNewArrayContext ctx) {
+        throw new semanticError("error new array", new position(ctx));
+    }
+
     @Override public ASTNode visitNewInitObject(MxParser.NewInitObjectContext ctx) {
         ArrayList<ExprNode> expr = new ArrayList<ExprNode>();
         for (var t : ctx.expression()) {

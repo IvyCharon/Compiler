@@ -142,6 +142,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEmptyStmt(MxParser.EmptyStmtContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code errorNewArray}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitErrorNewArray(MxParser.ErrorNewArrayContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code NewInitObject}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree

@@ -57,7 +57,7 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("main function should not have parameters!", it.pos);
         }
         //check return
-        if((haveRet && retType == null) || (!haveRet && ( retType != null && !retType.isVoid())))
+        if(it.type != null && ((haveRet && retType == null) || (!haveRet && ( retType != null && !retType.isVoid()))))
             throw new semanticError("no return!", it.pos);
         haveRet = false;
     }
@@ -294,6 +294,8 @@ public class SemanticChecker implements ASTVisitor {
                                     it.pos);
         if (!it.left.isAssignable())
             throw new semanticError("Semantic Error: not assignable. ", it.left.pos);
+        if(it.right.type.isNull() && (it.left.type.isInt() || it.left.type.isBool()))
+            throw new semanticError("null cannot be assigned to int/bool", it.pos);
         it.type = it.right.type;
     }
     @Override
