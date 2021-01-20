@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import Util.position;
 
-public class classDeclNode extends programSectionNode {
+public class classDeclNode extends ASTNode {
     public String identifier;
     public ArrayList<funcDeclNode> funcs;
     public ArrayList<varDeclNode> vars;

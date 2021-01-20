@@ -65,10 +65,11 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(singleVarDeclNode it){
         varEntity var = new varEntity(it.identifier, gScope.generateType(it.type));
+        it.var = var;
         if(it.var.type().isVoid()) throw new semanticError("variable type is void!", it.pos);
         if(it.expr != null) {
             it.expr.accept(this);
-            if(it.expr.type != var.type()) 
+            if(it.expr.type.getType() != var.type().getType()) 
                 throw new semanticError("variable wrong init!", it.pos);
         }
         currentScope.defineVariable(it.identifier, var, it.pos);
@@ -240,7 +241,8 @@ public class SemanticChecker implements ASTVisitor {
                 it.type = t;
             }
         } else if(it.funcName instanceof funcNode) {
-            it.paras.forEach(t -> t.accept(this));
+            if(!it.paras.isEmpty())
+                it.paras.forEach(t -> t.accept(this));
             funcType func = (funcType)it.funcName.type;
             if(!currentScope.containsFunction(((funcNode)it.funcName).funcName, true))
                 throw new semanticError("no such function!", it.pos);
@@ -331,7 +333,9 @@ public class SemanticChecker implements ASTVisitor {
         it.var = currentScope.getMember(it.name, it.pos, true);
     }
     @Override
-    public void visit(funcNode it) {}
+    public void visit(funcNode it) {
+        it.type = (funcType)currentScope.getFunction(it.funcName, true);
+    }
     @Override 
     public void visit(methodNode it) {}
 

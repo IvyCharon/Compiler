@@ -6,7 +6,7 @@ public class newObjectExprNode extends ExprNode {
     public simpleTypeNode typeNode;
 
     public newObjectExprNode(position pos, simpleTypeNode type) {
-        super(pos);
+        super(pos, true);
         this.typeNode = type;
     }
 

@@ -8,7 +8,7 @@ public class varNode extends ExprNode {
     public varEntity var;
 
     public varNode(position pos, String name) {
-        super(pos);
+        super(pos, true);
         this.name = name;
     }
 

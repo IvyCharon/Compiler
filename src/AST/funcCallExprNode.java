@@ -8,7 +8,7 @@ public class funcCallExprNode extends ExprNode{
     public ArrayList<ExprNode> paras;
 
     public funcCallExprNode(position pos, ExprNode funcN, ArrayList<ExprNode> paras) {
-        super(pos);
+        super(pos, false);
         this.funcName = funcN;
         this.paras = paras;
     }

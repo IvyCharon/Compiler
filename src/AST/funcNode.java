@@ -6,7 +6,7 @@ public class funcNode extends ExprNode {
     public String funcName;
 
     public funcNode(position pos, String name) {
-        super(pos);
+        super(pos, false);
         this.funcName = name;
     }
 

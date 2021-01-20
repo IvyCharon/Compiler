@@ -6,7 +6,7 @@ public class subscriptExprNode extends ExprNode {
     public ExprNode array, index;
 
     public subscriptExprNode(position pos, ExprNode arr, ExprNode ind) {
-        super(pos);
+        super(pos, arr.isAssignable());
         this.array = arr;
         this.index = ind;
     }

@@ -7,7 +7,7 @@ public class methodNode  extends ExprNode {
     public String name;
 
     public methodNode(position pos, ExprNode e, String n) {
-        super(pos);
+        super(pos, false);
         bo = e;
         name = n;
     }

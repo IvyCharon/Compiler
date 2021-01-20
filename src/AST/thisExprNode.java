@@ -7,7 +7,7 @@ public class thisExprNode extends ExprNode {
     public classType type;
     
     public thisExprNode(position pos) {
-        super(pos);
+        super(pos, false);
     }    
 
     @Override

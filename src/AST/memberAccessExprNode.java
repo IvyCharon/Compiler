@@ -9,7 +9,7 @@ public class memberAccessExprNode extends ExprNode {
     public varEntity var;
 
     public memberAccessExprNode(position pos, ExprNode bo, String iden) {
-        super(pos);
+        super(pos, true);
         this.bo = bo;
         this.iden = iden;
     }

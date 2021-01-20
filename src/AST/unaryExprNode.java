@@ -13,7 +13,7 @@ public class unaryExprNode extends ExprNode {
     public unaryOpType op;
 
     public unaryExprNode(position pos, ExprNode node, unaryOpType op) {
-        super(pos);
+        super(pos, (op == unaryOpType.plusplus || op == unaryOpType.subsub));
         this.node = node;
         this.op = op;
     }

@@ -24,17 +24,17 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgramSection(MxParser.ProgramSectionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#funcDecl}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFuncDecl(MxParser.FuncDeclContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MxParser#classDecl}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitClassDecl(MxParser.ClassDeclContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#funcDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFuncDecl(MxParser.FuncDeclContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#varDecl}.
 	 * @param ctx the parse tree
@@ -101,13 +101,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhileStmt(MxParser.WhileStmtContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code returnStmt}
-	 * labeled alternative in {@link MxParser#statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnStmt(MxParser.ReturnStmtContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code breakStmt}
 	 * labeled alternative in {@link MxParser#statement}.
 	 * @param ctx the parse tree
@@ -121,6 +114,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitContinueStmt(MxParser.ContinueStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code returnStmt}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStmt(MxParser.ReturnStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code exprStmt}
 	 * labeled alternative in {@link MxParser#statement}.

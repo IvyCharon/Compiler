@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import Util.position;
 
-public class varDeclNode extends programSectionNode {
+public class varDeclNode extends StmtNode {
     public TypeNode type;
     public ArrayList<singleVarDeclNode> varList;
 

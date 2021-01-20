@@ -64,13 +64,13 @@ public class Scope {
     public Type getMemberType(String name, position pos, boolean lookUpon) {
         if(vars.containsKey(name)) return vars.get(name).type();
         else if(lookUpon && parentScope != null) return parentScope.getMemberType(name, pos, lookUpon);
-        else throw new semanticError("no such variable!", pos);
+        else throw new semanticError("no such member type: " + name, pos);
     }
 
     public varEntity getMember(String name, position pos, boolean lookUpon) {
         if(vars.containsKey(name)) return vars.get(name);
         else if(lookUpon && parentScope != null) return parentScope.getMember(name, pos, lookUpon);
-        else throw new semanticError("no such variable!", pos);
+        else throw new semanticError("no such member: " + name, pos);
     }
     
 }

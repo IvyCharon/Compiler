@@ -9,7 +9,7 @@ public class newInitObjectExprNode extends ExprNode {
     public ArrayList<ExprNode> expr;
 
     public newInitObjectExprNode(position pos, simpleTypeNode type, ArrayList<ExprNode> expr) {
-        super(pos);
+        super(pos, true);
         this.typeNode = type;
         this.expr = expr;
     }

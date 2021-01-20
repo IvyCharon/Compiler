@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import Util.position;
 import Util.Type.*;
 
-public class funcDeclNode extends programSectionNode {
+public class funcDeclNode extends ASTNode {
     public TypeNode type;
     public String identifier;
     public ArrayList<singleVarDeclNode> paras;

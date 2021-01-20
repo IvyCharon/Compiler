@@ -5,12 +5,14 @@ import Util.Type.*;
 
 public abstract class ExprNode extends ASTNode {
     public Type type;
+    public boolean isAssignable = false;
 
-    public ExprNode(position pos) {
+    public ExprNode(position pos, boolean isA) {
         super(pos);
+        this.isAssignable = isA;
     }
 
     public boolean isAssignable() {
-        return false;
+        return isAssignable;
     }
 }

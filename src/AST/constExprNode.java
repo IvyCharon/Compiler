@@ -4,6 +4,6 @@ import Util.position;
 
 abstract public class constExprNode extends ExprNode{
     public constExprNode(position pos) {
-        super(pos);
+        super(pos, false);
     }
 }

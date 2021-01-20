@@ -5,8 +5,8 @@ import Util.position;
 public class assignExprNode extends ExprNode{
     public ExprNode left, right;
     
-    public assignExprNode(position pos, ExprNode left, ExprNode right) {
-        super(pos);
+    public assignExprNode(position pos, Boolean assig, ExprNode left, ExprNode right) {
+        super(pos, assig);
         this.left = left;
         this.right = right;
     }

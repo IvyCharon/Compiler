@@ -17,9 +17,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     Type intType, boolType, stringType;
 
 	@Override public ASTNode visitProgram(MxParser.ProgramContext ctx) {
-        ArrayList<programSectionNode> tmp = new ArrayList<programSectionNode>();
+        ArrayList<ASTNode> tmp = new ArrayList<ASTNode>();
         for (var t : ctx.programSection()) {
-            tmp.add((programSectionNode)visit(t));
+            tmp.add((ASTNode)visit(t));
         }
         return new programNode(new position(ctx), tmp);
     }
@@ -109,7 +109,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ExprNode expr;
 
         identifier = ctx.Identifier().toString();
-        expr = (ExprNode) visit(ctx.expression());
+        if(ctx.expression() != null)
+            expr = (ExprNode) visit(ctx.expression());
+        else expr = null;
         return new singleVarDeclNode(new position(ctx), identifier, expr);
     }
 	
@@ -205,46 +207,43 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 	@Override public ASTNode visitBinaryExpr(MxParser.BinaryExprContext ctx) {
         ExprNode ex1 = (ExprNode) visit(ctx.expression(0));
         ExprNode ex2 = (ExprNode) visit(ctx.expression(1));
-        switch(ctx.op.toString()) {
-            case "+" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.add, ex1, ex2);
-            case "-" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.sub, ex1, ex2);
-            case "==" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.equal, ex1, ex2);
-            case "!=" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.not_equal, ex1, ex2);
-            case "*" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.mul, ex1, ex2);
-            case "/" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.div, ex1, ex2);
-            case "%" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.mod, ex1, ex2);            
-            case "<<" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.smallersmaller, ex1, ex2);
-            case ">>" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.biggerbigger, ex1, ex2);
-            case "<" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.smaller, ex1, ex2);
-            case ">" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.bigger, ex1, ex2);
-            case "<=" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.smaller_equal, ex1, ex2);
-            case ">=" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.bigger_equal, ex1, ex2);
-            case "&" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.and, ex1, ex2);
-            case "^" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.xor, ex1, ex2);
-            case "|" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.or, ex1, ex2);
-            case "&&" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.andand, ex1, ex2);
-            case "||" : 
-                return new binaryExprNode(new position(ctx), binaryOpType.oror, ex1, ex2);
-            default : 
-                return null;
-        }
+        if(ctx.Mul() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.mul, ex1, ex2);
+        else if(ctx.Div() != null) 
+            return new binaryExprNode(new position(ctx), binaryOpType.div, ex1, ex2);
+        else if(ctx.Mod() != null) 
+            return new binaryExprNode(new position(ctx), binaryOpType.mod, ex1, ex2);
+        else if(ctx.Add() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.add, ex1, ex2);
+        else if(ctx.Sub() != null) 
+            return new binaryExprNode(new position(ctx), binaryOpType.sub, ex1, ex2);
+        else if(ctx.Smallersmaller() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.smallersmaller, ex1, ex2);
+        else if(ctx.Biggerbigger() != null) 
+            return new binaryExprNode(new position(ctx), binaryOpType.biggerbigger, ex1, ex2);
+        else if(ctx.Smaller() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.smaller, ex1, ex2);
+        else if(ctx.Bigger() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.bigger, ex1, ex2);
+        else if(ctx.Smaller_equal() != null) 
+            return new binaryExprNode(new position(ctx), binaryOpType.smaller_equal, ex1, ex2);
+        else if(ctx.Bigger_equal() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.bigger_equal, ex1, ex2);
+        else if(ctx.Equal() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.equal, ex1, ex2);
+        else if(ctx.Not_equal() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.not_equal, ex1, ex2);
+        else if(ctx.And() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.and, ex1, ex2);
+        else if(ctx.Xor() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.xor, ex1, ex2);
+        else if(ctx.Or() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.or, ex1, ex2);
+        else if(ctx.Andand() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.andand, ex1, ex2);
+        else if(ctx.Oror() != null)
+            return new binaryExprNode(new position(ctx), binaryOpType.oror, ex1, ex2);
+        else return null;
     }
 	
 	@Override public ASTNode visitSubscript(MxParser.SubscriptContext ctx) {
@@ -257,8 +256,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
         tmp = (ExprNode)visit(ctx.funcName);
 
-        for(var t : ctx.expression()) {
-            paras.add((ExprNode)visit(t));
+        for(int i = 1;i < ctx.expression().size();++ i){
+            paras.add((ExprNode)visit(ctx.expression(i)));
         }
 
         if(tmp instanceof varNode) {
@@ -273,52 +272,48 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
     
 	@Override public ASTNode visitPostfixIncDec(MxParser.PostfixIncDecContext ctx) {
-        switch (ctx.op.toString()) {
-            case "++" :
-                return new postfixExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), postfixOpType.plusplus);
-            case "--" :
-                return new postfixExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), postfixOpType.subsub);
-            default:
-                return null;
-        }
+        if(ctx.Plusplus() != null)
+            return new postfixExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), postfixOpType.plusplus);
+        else if(ctx.Subsub() != null)
+            return new postfixExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), postfixOpType.subsub);
+        else return null;
     }
     
 	@Override public ASTNode visitUnaryExpr(MxParser.UnaryExprContext ctx) {
-        switch (ctx.op.toString()) {
-            case "++" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.plusplus);
-            case "--" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.subsub);
-            case "+" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.posi);
-            case "-" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.neg);
-            case "!" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.not);
-            case "~" :
-                return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.bit_opposite);
-            default:
-                return null;
-        } 
+        if(ctx.Plusplus() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.plusplus);
+        else if(ctx.Subsub() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.subsub);
+        else if(ctx.Add() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.posi);
+        else if(ctx.Sub() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.neg);
+        else if(ctx.Not() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.not);
+        else if(ctx.Bit_opposite() != null)
+            return new unaryExprNode(new position(ctx), (ExprNode)visit(ctx.expression()), unaryOpType.bit_opposite);
+        else return null; 
     }
     
 	@Override public ASTNode visitAssignExpr(MxParser.AssignExprContext ctx) {
-        return new assignExprNode(new position(ctx), (ExprNode)visit(ctx.expression(0)), (ExprNode)visit(ctx.expression(1)));
+        ExprNode tmp = (ExprNode)visit(ctx.expression(0));
+        ExprNode t = (ExprNode)visit(ctx.expression(1));
+        return new assignExprNode(new position(ctx), t.isAssignable(), tmp, t);
     }
     
 	@Override public ASTNode visitLiteral(MxParser.LiteralContext ctx) {
         if(ctx.IntegerConstant() != null) {
-            return new intConstNode(new position(ctx), Integer.parseInt(ctx.IntegerConstant().toString()));
+            return new intConstNode(new position(ctx), Integer.parseInt(ctx.IntegerConstant().getText()));
         } else if(ctx.BoolConstant() != null) {
-            if(ctx.BoolConstant().toString() == "true")
+            if(ctx.BoolConstant().getText() == "true")
                 return new boolConstNode(new position(ctx), true);
-            else if(ctx.BoolConstant().toString() == "false")
+            else if(ctx.BoolConstant().getText() == "false")
                 return new boolConstNode(new position(ctx), false);
             else return null;
         } else if(ctx.NullConstant() != null) {
             return new nullConstNode(new position(ctx));
         } else if(ctx.StringConstant() != null) {
-            return new stringConstNode(new position(ctx), ctx.StringConstant().toString());
+            return new stringConstNode(new position(ctx), ctx.StringConstant().getText());
         } else {
             return null;
         }

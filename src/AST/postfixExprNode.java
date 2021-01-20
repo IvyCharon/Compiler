@@ -11,7 +11,7 @@ public class postfixExprNode extends ExprNode {
     public postfixOpType op;
 
     public postfixExprNode(position pos, ExprNode node, postfixOpType op) {
-        super(pos);
+        super(pos, false);
         this.node = node;
         this.op = op;
     }

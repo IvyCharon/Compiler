@@ -5,23 +5,22 @@ program
     ;
 
 programSection
-    :   funcDecl
-    |   classDecl
+    :   classDecl
     |   varDecl
-    ;
-
-funcDecl
-    : funcType = type? funcName = Identifier '(' (type Identifier (',' type Identifier)*)? ')' suite
+    |   funcDecl
     ;
 
 classDecl
     : Class Identifier '{' (funcDecl | varDecl)* '}'
     ;
 
+funcDecl
+    : funcType = type? funcName = Identifier '(' (type Identifier (',' type Identifier)*)? ')' suite
+    ;
+
 varDecl
     : type singleVarDecl (',' singleVarDecl)* ';'
     ;
-
 
 simpleType
     : Int
@@ -53,9 +52,9 @@ statement
               step = expression? ')'  
               statement                                       #forStmt
     | While '(' expression ')' statement                      #whileStmt
-    | Return expression? ';'                                  #returnStmt
     | Break ';'                                               #breakStmt
     | Continue ';'                                            #continueStmt
+    | Return expression? ';'                                  #returnStmt
     | expression ';'                                          #exprStmt
     | ';'                                                     #emptyStmt
     ;
@@ -65,28 +64,28 @@ expression
     | Identifier                                                     #atomExpr
     | literal                                                        #atomExpr
     | This                                                           #atomExpr
-    | expression op=('+' | '-') expression                           #binaryExpr
-    | expression op=('==' | '!=' ) expression                        #binaryExpr
+    | New simpleType ('[' expression ']')+                           #NewArray
+    | New simpleType '(' (expression (',' expression)*)? ')'         #NewInitObject
+    | New simpleType                                                 #NewObject
+    | expression '.' Identifier                                      #MemberAccess
+    | array = expression '[' index = expression ']'                  #Subscript
+    | funcName = expression '(' (expression (',' expression)*)? ')'  #FunctionCall
+    | expression op=('++' | '--')                                    #PostfixIncDec
+    | <assoc=right> op=('++' | '--') expression                      #UnaryExpr
+    | <assoc=right> op=('+' | '-')  expression                       #UnaryExpr
+    | <assoc=right> op=('!' | '~')  expression                       #UnaryExpr
     | expression op=('*' | '/' | '%' ) expression                    #binaryExpr
+    | expression op=('+' | '-') expression                           #binaryExpr
     | expression op=('<<' | '>>' ) expression                        #binaryExpr
     | expression op=('<' | '>' ) expression                          #binaryExpr
     | expression op=('<=' | '>=' ) expression                        #binaryExpr
+    | expression op=('==' | '!=' ) expression                        #binaryExpr
     | expression op='&'  expression                                  #binaryExpr
     | expression op='^'  expression                                  #binaryExpr
     | expression op='|'  expression                                  #binaryExpr
     | expression op='&&' expression                                  #binaryExpr
     | expression op='||' expression                                  #binaryExpr
     | <assoc=right> expression '=' expression                        #assignExpr
-    | expression '.' Identifier                                      #MemberAccess
-    | New simpleType ('[' expression ']')+                           #NewArray
-    | New simpleType '(' (expression (',' expression)*)? ')'         #NewInitObject
-    | New simpleType                                                 #NewObject
-    | expression op=('++' | '--')                                    #PostfixIncDec
-    | <assoc=right> op=('++' | '--') expression                      #UnaryExpr
-    | <assoc=right> op=('+' | '-')  expression                       #UnaryExpr
-    | <assoc=right> op=('!' | '~')  expression                       #UnaryExpr
-    | funcName = expression '(' (expression (',' expression)*)? ')'  #FunctionCall
-    | array = expression '[' index = expression ']'                  #Subscript
     ;
 
 literal
@@ -161,3 +160,27 @@ LineComment
     :   '//' ~[\r\n]*
         -> skip
     ;
+
+Add : '+' ;
+Sub : '-' ;
+Mul : '*' ;
+Div : '/' ;
+Mod : '%' ;
+Smallersmaller : '<<' ;
+Biggerbigger : '>>' ;
+Smaller : '<' ;
+Bigger : '>' ;
+Smaller_equal : '<=' ;
+Bigger_equal : '>=' ;
+Equal : '==' ;
+Not_equal : '!=' ;
+And : '&' ;
+Xor : '^' ;
+Or : '|' ;
+Andand : '&&' ;
+Oror : '||' ;
+
+Plusplus : '++' ;
+Subsub : '--' ;
+Not : '!' ;
+Bit_opposite : '~' ;
