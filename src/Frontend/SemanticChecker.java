@@ -32,7 +32,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(funcDeclNode it){
         if(it.type == null) {
             //it is a constructor
-            if(it.identifier != currentClass.name()) {
+            if(!it.identifier.equals(currentClass.name())) {
                 throw new semanticError("the name of constructor is wrong!", it.pos);
             }
         }
@@ -47,7 +47,10 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("main function should not have parameters!", it.pos);
         }
         //check return
-        if((retType == null && it.func.retType() == null) || (retType != null && it.func.retType() != null && retType.getType() != it.func.retType().getType()))
+        if(it.type != null && 
+           ((retType == null && it.func.retType() == null) 
+           || (retType != null && it.func.retType() != null 
+           && retType.getType() != it.func.retType().getType())))
             throw new semanticError("wrong return! ", it.pos);
         retType = null;
     }
@@ -253,7 +256,7 @@ public class SemanticChecker implements ASTVisitor {
         if(func.getScope().getParas().size() != it.paras.size())
             throw new semanticError("parameters not match!", it.pos);
         for(int i = 0;i < it.paras.size();++ i) {
-            if(it.paras.get(i).type != func.getScope().getParas().get(i).type())
+            if(it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType())
                 throw new semanticError("parameter type not match!", it.pos);
         }
         it.type = func.retType();    

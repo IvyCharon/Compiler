@@ -59,6 +59,16 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitVarDecl(MxParser.VarDeclContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MxParser#retType}.
+	 * @param ctx the parse tree
+	 */
+	void enterRetType(MxParser.RetTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#retType}.
+	 * @param ctx the parse tree
+	 */
+	void exitRetType(MxParser.RetTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MxParser#simpleType}.
 	 * @param ctx the parse tree
 	 */

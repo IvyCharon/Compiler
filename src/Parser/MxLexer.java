@@ -52,7 +52,7 @@ public class MxLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "','", "';'", "'='", "'.'", "'int'", "'bool'", "'string'", "'null'", 
+			null, "';'", "','", "'='", "'.'", "'int'", "'bool'", "'string'", "'null'", 
 			"'void'", "'true'", "'false'", "'if'", "'else'", "'for'", "'while'", 
 			"'break'", "'continue'", "'return'", "'new'", "'class'", "'this'", null, 
 			null, null, null, null, null, null, "'+'", "'-'", "'*'", "'/'", "'%'", 
@@ -184,7 +184,7 @@ public class MxLexer extends Lexer {
 		"\u013d\3\2\2\2U\u0140\3\2\2\2W\u0142\3\2\2\2Y\u0144\3\2\2\2[\u0146\3\2"+
 		"\2\2]\u0149\3\2\2\2_\u014c\3\2\2\2a\u014f\3\2\2\2c\u0152\3\2\2\2e\u0154"+
 		"\3\2\2\2g\u0156\3\2\2\2i\u0158\3\2\2\2k\u015a\3\2\2\2m\u015c\3\2\2\2o"+
-		"\u015e\3\2\2\2q\u0160\3\2\2\2st\7.\2\2t\4\3\2\2\2uv\7=\2\2v\6\3\2\2\2"+
+		"\u015e\3\2\2\2q\u0160\3\2\2\2st\7=\2\2t\4\3\2\2\2uv\7.\2\2v\6\3\2\2\2"+
 		"wx\7?\2\2x\b\3\2\2\2yz\7\60\2\2z\n\3\2\2\2{|\7k\2\2|}\7p\2\2}~\7v\2\2"+
 		"~\f\3\2\2\2\177\u0080\7d\2\2\u0080\u0081\7q\2\2\u0081\u0082\7q\2\2\u0082"+
 		"\u0083\7n\2\2\u0083\16\3\2\2\2\u0084\u0085\7u\2\2\u0085\u0086\7v\2\2\u0086"+

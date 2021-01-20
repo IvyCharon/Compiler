@@ -42,8 +42,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<singleVarDeclNode> paras = new ArrayList<singleVarDeclNode>();
         blockStmtNode suite;
 
-        for(int i = 1; i < ctx.type().size(); i ++) {
-            singleVarDeclNode tmp = new singleVarDeclNode(new position(ctx), ctx.Identifier(i).getText(), null);
+        for(int i = 0; i < ctx.type().size(); i ++) {
+            singleVarDeclNode tmp = new singleVarDeclNode(new position(ctx), ctx.Identifier(i + 1).getText(), null);
             tmp.type =  (TypeNode) visit(ctx.type(i));
             paras.add(tmp);
         }
@@ -80,6 +80,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             varList.add(tmp);
         }
         return new varDeclNode(new position(ctx), type, varList);
+    }
+
+    @Override public ASTNode visitRetType(MxParser.RetTypeContext ctx) {
+        if(ctx.Void() != null) 
+            return new simpleTypeNode(new position(ctx), "null");
+        else return visit(ctx.type());
     }
 
 	@Override public ASTNode visitSimpleType(MxParser.SimpleTypeContext ctx) {

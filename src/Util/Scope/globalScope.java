@@ -110,6 +110,7 @@ public class globalScope extends Scope {
         if(classes.containsKey(name)) 
             throw new semanticError("re-definition of class " + name, pos);
         classes.put(name, t);
+        type.put(name, t);
     }
 
     public globalScope(Scope parentScope) {

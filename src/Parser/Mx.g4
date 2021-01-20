@@ -11,15 +11,20 @@ programSection
     ;
 
 classDecl
-    : Class Identifier '{' (funcDecl | varDecl)* '}'
+    : Class Identifier '{' (funcDecl | varDecl)* '}' ';'
     ;
 
 funcDecl
-    : funcType = type? funcName = Identifier '(' (type Identifier (',' type Identifier)*)? ')' suite
+    : funcType = retType? funcName = Identifier '(' (type Identifier (',' type Identifier)*)? ')' suite
     ;
 
 varDecl
     : type singleVarDecl (',' singleVarDecl)* ';'
+    ;
+
+retType
+    : type
+    | Void
     ;
 
 simpleType

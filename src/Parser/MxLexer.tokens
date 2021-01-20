@@ -54,8 +54,8 @@ LeftBracket=53
 RightBracket=54
 LeftBrace=55
 RightBrace=56
-','=1
-';'=2
+';'=1
+','=2
 '='=3
 '.'=4
 'int'=5
