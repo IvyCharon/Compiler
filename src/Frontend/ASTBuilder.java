@@ -84,7 +84,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitRetType(MxParser.RetTypeContext ctx) {
         if(ctx.Void() != null) 
-            return new simpleTypeNode(new position(ctx), "null");
+            return new simpleTypeNode(new position(ctx), "void");
         else return visit(ctx.type());
     }
 

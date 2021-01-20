@@ -57,7 +57,7 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("main function should not have parameters!", it.pos);
         }
         //check return
-        if(!haveRet && !retType.isVoid())
+        if((haveRet && retType == null) || (!haveRet && ( retType != null && !retType.isVoid())))
             throw new semanticError("no return!", it.pos);
         haveRet = false;
     }
@@ -147,7 +147,7 @@ public class SemanticChecker implements ASTVisitor {
         haveRet = true;
         if (it.val != null) {
             it.val.accept(this);
-            if(it.val.type.getType() != retType.getType())
+            if(it.val.type.getType() != retType.getType() && !it.val.type.isNull())
                 throw new semanticError("wrong return! ", it.pos);
             if(retType.dim() != it.val.type.dim())
                 throw new semanticError("wrong return dim! ", it.pos);
@@ -275,7 +275,7 @@ public class SemanticChecker implements ASTVisitor {
         if(func.getScope().getParas().size() != it.paras.size())
             throw new semanticError("parameters not match!", it.pos);
         for(int i = 0;i < it.paras.size();++ i) {
-            if(it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType() || it.paras.get(i).type.dim() != func.getScope().getParas().get(i).type().dim())
+            if((it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType() || it.paras.get(i).type.dim() != func.getScope().getParas().get(i).type().dim()) && !it.paras.get(i).type.isNull())
                 throw new semanticError("parameter type not match!", it.pos);
         }
         it.type = func.retType();    
