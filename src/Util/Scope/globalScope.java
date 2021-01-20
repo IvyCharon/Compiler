@@ -30,7 +30,7 @@ public class globalScope extends Scope {
         type.put("void", voidType);
         type.put("null", nullType);
         
-        classType stringType=new classType("string");
+        classType stringType=new classType("string", Type.types.String);
         stringType.setScope(new Scope(this));
         type.put("string",stringType);
 

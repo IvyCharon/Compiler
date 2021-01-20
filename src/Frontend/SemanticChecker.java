@@ -157,16 +157,25 @@ public class SemanticChecker implements ASTVisitor {
         it.left.accept(this);
         it.right.accept(this);
         switch (it.op) {
-            case  add, sub, mul, div, mod, 
-                  smallersmaller, biggerbigger, and, xor, or :
+            case sub, mul, div, mod, 
+                 smallersmaller, biggerbigger, and, xor, or :
                 if ((!it.left.type.isInt()) 
                   || (!it.right.type.isInt()) 
                   || it.left.type.getType()!= it.right.type.getType()) 
-                throw new semanticError("Semantic Error: type not match. " + 
+                    throw new semanticError("Semantic Error: type not match. " + 
                                           "It should not be Int and the left should be the same as the right.[1] ",
                                           it.pos);
                 it.type = it.left.type;
-              break;
+                break;
+            case add : 
+                if((!it.left.type.isInt() && !it.left.type.isString())
+                 ||(!it.right.type.isInt() && !it.right.type.isString())
+                 || it.left.type.getType()!= it.right.type.getType())
+                    throw new semanticError("Semantic Error: type not match. " + 
+                                            "It should not be Int and the left should be the same as the right.[1] ",
+                                            it.pos);
+                it.type = it.left.type;
+                break;
             case smaller, bigger, smaller_equal, bigger_equal:
                 if ((!it.left.type.isInt()) 
                     || (!it.right.type.isInt()) 
@@ -236,36 +245,18 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(funcCallExprNode it){
         it.funcName.accept(this);
-        if(it.funcName instanceof methodNode) {
-            if(it.funcName.type.isArray()) {
-                if(((methodNode)it.funcName).name != "size")
-                    throw new semanticError("wrong use of method!", it.pos);
-                it.type = gScope.intType;
-            } else {
-                if(!it.funcName.type.isClass())
-                    throw new semanticError("it is not a class!", it.pos);
-                classType tmp = (classType) it.funcName.type;
-                if(!tmp.getScope().containsFunction(((methodNode)it.funcName).name, false))
-                    throw new semanticError("no such method!", it.pos);
-                funcType t = tmp.getScope().getFunction(((methodNode)it.funcName).name, false);
-                it.type = t;
-            }
-        } else if(it.funcName instanceof funcNode) {
-            if(!it.paras.isEmpty())
-                it.paras.forEach(t -> t.accept(this));
-            funcType func = (funcType)it.funcName.type;
-            if(!currentScope.containsFunction(((funcNode)it.funcName).funcName, true))
-                throw new semanticError("no such function!", it.pos);
-            if(func.getScope().getParas().size() != it.paras.size())
-                throw new semanticError("parameters not match!", it.pos);
-            for(int i = 0;i < it.paras.size();++ i) {
-                if(it.paras.get(i).type != func.getScope().getParas().get(i).type())
-                    throw new semanticError("parameter type not match!", it.pos);
-            }
-            it.type = func.retType();
-        } else {
-            throw new semanticError("function call wrong!", it.pos);
+        if(!(it.funcName.type instanceof funcType)) 
+            throw new semanticError("it is not a function!", it.pos);
+        if(!it.paras.isEmpty())
+            it.paras.forEach(t -> t.accept(this));
+        funcType func = (funcType)it.funcName.type;
+        if(func.getScope().getParas().size() != it.paras.size())
+            throw new semanticError("parameters not match!", it.pos);
+        for(int i = 0;i < it.paras.size();++ i) {
+            if(it.paras.get(i).type != func.getScope().getParas().get(i).type())
+                throw new semanticError("parameter type not match!", it.pos);
         }
+        it.type = func.retType();    
     }
     @Override
     public void visit(assignExprNode it){
@@ -275,6 +266,10 @@ public class SemanticChecker implements ASTVisitor {
             throw new semanticError("Semantic Error: type not match. " + 
                                     "The left should be the same as the right. ",
                                     it.pos);
+        if(it.left.type.dim() != it.right.type.dim())
+            throw new semanticError("Semantic Error: type not match. " + 
+                                    "dimensions of array are different!",
+                                    it.pos);
         if (!it.left.isAssignable())
             throw new semanticError("Semantic Error: not assignable. ", it.left.pos);
         it.type = it.right.type;
@@ -282,9 +277,9 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(memberAccessExprNode it){
         it.bo.accept(this);
-        if(!it.type.isClass())
+        if(!it.bo.type.isClass())
             throw new semanticError("member access fail!", it.pos);
-        classType tmp = (classType) it.type;
+        classType tmp = (classType) it.bo.type;
         if(!tmp.getScope().containsVariable(it.iden, false))
             throw new semanticError("no such member!", it.pos);
         else {
@@ -345,6 +340,21 @@ public class SemanticChecker implements ASTVisitor {
         it.type = (funcType)currentScope.getFunction(it.funcName, true);
     }
     @Override 
-    public void visit(methodNode it) {}
+    public void visit(methodNode it) {
+        it.bo.accept(this);
+        if(it.bo.type.isArray()) {
+            if(it.name != "size")
+                throw new semanticError("wrong use of method!", it.pos);
+            it.type = gScope.intType;
+        } else {
+            if(!it.bo.type.isClass() && !it.bo.type.isString())
+                throw new semanticError("it is not a class!", it.pos);
+            classType tmp = (classType) it.bo.type;
+            if(!tmp.getScope().containsFunction(it.name, false))
+                throw new semanticError("no such method!", it.pos);
+            funcType t = tmp.getScope().getFunction(it.name, false);
+            it.type = t;
+        }
+    }
 
 }

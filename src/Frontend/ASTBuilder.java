@@ -270,7 +270,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             funcNode r = new funcNode(tmp.pos, ((varNode)tmp).name);
             return new funcCallExprNode(new position(ctx), r, paras);
         } else if(tmp instanceof memberAccessExprNode) {
-            methodNode r = new methodNode(tmp.pos, tmp, ((memberAccessExprNode)tmp).iden);
+            methodNode r = new methodNode(tmp.pos, ((memberAccessExprNode)tmp).bo, ((memberAccessExprNode)tmp).iden);
             return new funcCallExprNode(new position(ctx), r, paras);
         } else {
             throw new semanticError("sth wrong with function call!", new position(ctx));

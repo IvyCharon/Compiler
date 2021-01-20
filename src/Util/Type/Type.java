@@ -11,6 +11,10 @@ abstract public class Type {
         type = null;
     }
 
+    public Type(Type.types t) {
+        type = t;
+    }
+
     public void setType(Type.types mytype) {
         type = mytype;
     }

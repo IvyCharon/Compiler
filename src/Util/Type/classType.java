@@ -8,6 +8,12 @@ public class classType extends Type {
     private String name;
 
     public classType(String name) {
+        super(Type.types.Class);
+        this.name = name;
+    }
+
+    public classType(String name, Type.types t) {
+        super(t);
         this.name = name;
     }
 
