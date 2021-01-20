@@ -314,7 +314,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             return new boolConstNode(new position(ctx), true);
         }else if(ctx.False() != null) {
             return new boolConstNode(new position(ctx), false);
-        }else if(ctx.NullConstant() != null) {
+        }else if(ctx.Null() != null) {
             return new nullConstNode(new position(ctx));
         } else if(ctx.StringConstant() != null) {
             return new stringConstNode(new position(ctx), ctx.StringConstant().getText());

@@ -68,7 +68,7 @@ public class SemanticChecker implements ASTVisitor {
         if(it.var.type().isVoid()) throw new semanticError("variable type is void!", it.pos);
         if(it.expr != null) {
             it.expr.accept(this);
-            if(it.expr.type.getType() != var.type().getType()) 
+            if(it.expr.type.getType() != var.type().getType() && !it.expr.type.isNull()) 
                 throw new semanticError("variable wrong init!", it.pos);
         }
         currentScope.defineVariable(it.identifier, var, it.pos);
