@@ -16,6 +16,7 @@ public class SemanticChecker implements ASTVisitor {
     private Type retType = null;
     private Stack<ASTNode> loop = new Stack<ASTNode>();
     private boolean checkClass = false;
+    private boolean haveRet = false;
 
     public SemanticChecker(globalScope gScope) {
         currentScope = this.gScope = gScope;
@@ -41,28 +42,24 @@ public class SemanticChecker implements ASTVisitor {
             if(!it.identifier.equals(currentClass.name())) {
                 throw new semanticError("the name of constructor is wrong!", it.pos);
             }
+            retType = null;
         }
-        retType = null;
+        else retType = it.func.retType();
+        haveRet = false;
         currentScope = it.func.getScope();
         it.suite.accept(this);
         currentScope = currentScope.parentScope();
-        if(it.identifier == "main") {
+        if(it.identifier.equals("main")) {
+            haveRet = true;
             if(! it.func.retType().isInt()) 
                 throw new semanticError("main function should return int!", it.pos);
             if(! it.paras.isEmpty())
                 throw new semanticError("main function should not have parameters!", it.pos);
         }
         //check return
-        if(it.type != null && 
-           ((retType == null && it.func.retType() == null) 
-           || (retType != null && it.func.retType() != null 
-           && retType.getType() != it.func.retType().getType())))
-            throw new semanticError("wrong return! ", it.pos);
-        if(it.type != null && retType == null && it.func.retType() == null && it.func.retType().dim() != retType.dim())
-            throw new semanticError("wrong return dim! ", it.pos);
-        if(it.type == null && retType != null)
-            throw new semanticError("constructor should not have a return!", it.pos);
-        retType = null;
+        if(!haveRet && !retType.isVoid())
+            throw new semanticError("no return!", it.pos);
+        haveRet = false;
     }
     @Override
     public void visit(classDeclNode it){
@@ -147,10 +144,14 @@ public class SemanticChecker implements ASTVisitor {
     }
     @Override
     public void visit(returnStmtNode it){
+        haveRet = true;
         if (it.val != null) {
             it.val.accept(this);
-            retType = it.val.type;
-        }
+            if(it.val.type.getType() != retType.getType())
+                throw new semanticError("wrong return! ", it.pos);
+            if(retType.dim() != it.val.type.dim())
+                throw new semanticError("wrong return dim! ", it.pos);
+        }         
     }
     @Override
     public void visit(whileStmtNode it){
@@ -201,7 +202,7 @@ public class SemanticChecker implements ASTVisitor {
                 it.type = gScope.boolType;
                 break;
             case equal, not_equal:
-                if (it.right.type.getType() != it.left.type.getType() || (!it.right.type.isInt() && !it.right.type.isBool() && !it.right.type.isString()))
+                if ((it.right.type.getType() != it.left.type.getType() || (!it.right.type.isInt() && !it.right.type.isBool() && !it.right.type.isString())) && !it.right.type.isNull() && !it.left.type.isNull())
                     throw new semanticError("Semantic Error: type not match. " + 
                                             "The left should be the same as the right.[ene] ",
                                             it.pos);
@@ -212,6 +213,7 @@ public class SemanticChecker implements ASTVisitor {
                     throw new semanticError("Semantic Error: type not match. " + 
                                             "The left should be the same as the right.[&&/||] ",
                                             it.pos);
+                it.type = gScope.boolType;
             default:
                 break;
         }
