@@ -169,7 +169,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
 	@Override public ASTNode visitReturnStmt(MxParser.ReturnStmtContext ctx) {
-        return new returnStmtNode(new position(ctx), (ExprNode) visit(ctx.expression())); 
+        return new returnStmtNode(new position(ctx),(ctx.expression() == null) ? null : (ExprNode) visit(ctx.expression())); 
     }
 	
 	@Override public ASTNode visitContinueStmt(MxParser.ContinueStmtContext ctx) {
@@ -188,7 +188,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             expr.add((ExprNode)visit(t));
         }
 
-        TypeNode tmp = new TypeNode(new position(ctx), arrName, expr.size());
+        TypeNode tmp = new TypeNode(new position(ctx), arrName, ctx.LeftBracket().size());
         return new newArrayExprNode(new position(ctx), tmp, expr);
     }
 

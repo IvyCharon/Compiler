@@ -15,6 +15,7 @@ public class SemanticChecker implements ASTVisitor {
     private classType currentClass = null;
     private Type retType = null;
     private Stack<ASTNode> loop = new Stack<ASTNode>();
+    private boolean checkClass = false;
 
     public SemanticChecker(globalScope gScope) {
         currentScope = this.gScope = gScope;
@@ -23,6 +24,11 @@ public class SemanticChecker implements ASTVisitor {
     @Override
     public void visit(programNode it){
         currentScope = gScope;
+        checkClass = true;
+        it.decls.forEach(t -> {
+            if(t instanceof classDeclNode) t.accept(this);
+        });
+        checkClass = false;
         it.decls.forEach(t -> t.accept(this));
         if(!gScope.containsFunction("main", false))
             throw new semanticError("there is no main function!", it.pos);
@@ -52,6 +58,10 @@ public class SemanticChecker implements ASTVisitor {
            || (retType != null && it.func.retType() != null 
            && retType.getType() != it.func.retType().getType())))
             throw new semanticError("wrong return! ", it.pos);
+        if(it.type != null && retType == null && it.func.retType() == null && it.func.retType().dim() != retType.dim())
+            throw new semanticError("wrong return dim! ", it.pos);
+        if(it.type == null && retType != null)
+            throw new semanticError("constructor should not have a return!", it.pos);
         retType = null;
     }
     @Override
@@ -59,8 +69,10 @@ public class SemanticChecker implements ASTVisitor {
         classType tmp = (classType)gScope.getType(it.identifier, it.pos);
         currentClass = tmp;
         currentScope = tmp.getScope();
-        it.vars.forEach(t -> t.accept(this));
-        it.funcs.forEach(t -> t.accept(this));
+        if(checkClass)
+            it.vars.forEach(t -> t.accept(this));
+        if(!checkClass)
+            it.funcs.forEach(t -> t.accept(this));
         currentClass = null;
         currentScope = currentScope.parentScope();
     }
@@ -175,26 +187,31 @@ public class SemanticChecker implements ASTVisitor {
                  ||(!it.right.type.isInt() && !it.right.type.isString())
                  || it.left.type.getType()!= it.right.type.getType())
                     throw new semanticError("Semantic Error: type not match. " + 
-                                            "It should not be Int and the left should be the same as the right.[1] ",
+                                            "It should not be Int and the left should be the same as the right.[2] ",
                                             it.pos);
                 it.type = it.left.type;
                 break;
             case smaller, bigger, smaller_equal, bigger_equal:
-                if ((!it.left.type.isInt()) 
-                    || (!it.right.type.isInt()) 
+                if ((!it.left.type.isInt() && !it.right.type.isString()) 
+                    || (!it.right.type.isInt() && !it.left.type.isString()) 
                     || it.left.type.getType() != it.right.type.getType()) 
                     throw new semanticError("Semantic Error: type not match. " + 
-                                            "It should not be Int and the left should be the same as the right.[2] ",
+                                            "It should not be Int and the left should be the same as the right.[3] ",
                                             it.pos);
                 it.type = gScope.boolType;
                 break;
-            case equal, not_equal, andand, oror:
+            case equal, not_equal:
+                if (it.right.type.getType() != it.left.type.getType() || (!it.right.type.isInt() && !it.right.type.isBool() && !it.right.type.isString()))
+                    throw new semanticError("Semantic Error: type not match. " + 
+                                            "The left should be the same as the right.[ene] ",
+                                            it.pos);
+                it.type = gScope.boolType;
+                break;
+            case andand, oror :
                 if (it.right.type.getType() != it.left.type.getType() || (!it.right.type.isInt() && !it.right.type.isBool()))
                     throw new semanticError("Semantic Error: type not match. " + 
-                                            "The left should be the same as the right. ",
+                                            "The left should be the same as the right.[&&/||] ",
                                             it.pos);
-                it.type = gScope.boolType;
-                break;
             default:
                 break;
         }
@@ -256,7 +273,7 @@ public class SemanticChecker implements ASTVisitor {
         if(func.getScope().getParas().size() != it.paras.size())
             throw new semanticError("parameters not match!", it.pos);
         for(int i = 0;i < it.paras.size();++ i) {
-            if(it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType())
+            if(it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType() || it.paras.get(i).type.dim() != func.getScope().getParas().get(i).type().dim())
                 throw new semanticError("parameter type not match!", it.pos);
         }
         it.type = func.retType();    
@@ -265,11 +282,11 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(assignExprNode it){
         it.right.accept(this);
         it.left.accept(this);
-        if (it.right.type.getType() != it.left.type.getType())
+        if (it.right.type.getType() != it.left.type.getType() && !it.right.type.isNull())
             throw new semanticError("Semantic Error: type not match. " + 
-                                    "The left should be the same as the right. ",
+                                    "The left should be the same as the right.[assign] ",
                                     it.pos);
-        if(it.left.type.dim() != it.right.type.dim())
+        if(it.left.type.dim() != it.right.type.dim() && !it.right.type.isNull())
             throw new semanticError("Semantic Error: type not match. " + 
                                     "dimensions of array are different!",
                                     it.pos);
@@ -346,9 +363,9 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(methodNode it) {
         it.bo.accept(this);
         if(it.bo.type.isArray()) {
-            if(it.name != "size")
+            if(!it.name.equals("size"))
                 throw new semanticError("wrong use of method!", it.pos);
-            it.type = gScope.intType;
+            it.type = gScope.getFunction("size", false);
         } else {
             if(!it.bo.type.isClass() && !it.bo.type.isString())
                 throw new semanticError("it is not a class!", it.pos);
