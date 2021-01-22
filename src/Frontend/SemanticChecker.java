@@ -270,6 +270,7 @@ public class SemanticChecker implements ASTVisitor {
                                             "the type left should be the same as the right.[5] ",
                                             it.pos);
                 it.type = gScope.boolType;
+                break;
             default:
                 break;
         }
@@ -293,12 +294,15 @@ public class SemanticChecker implements ASTVisitor {
                                         it.pos);
                 if(! it.node.isAssignable())
                     throw new semanticError("[SemanticChecker][unary expression] not assignable", it.pos);
+                it.type = gScope.intType;
+                break;
             case not :
                 if(! it.node.type.isBool())
                     throw new semanticError("[SemanticChecker][unary expression] " + 
                                             "type should be Bool for not",
                                             it.pos);
                 it.type = gScope.boolType;
+                break;
             default:
                 break;
         }
