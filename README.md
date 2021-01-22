@@ -43,5 +43,6 @@ ExprNode
     assignExprNode
 
 TypeNode
+simpleTypeNode
 ```
 

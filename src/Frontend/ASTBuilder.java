@@ -18,7 +18,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
 	@Override public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ArrayList<ASTNode> tmp = new ArrayList<ASTNode>();
-        ctx.programSection().forEach(t -> tmp.add(visit(t)));
+        for (var t : ctx.programSection()) {
+            tmp.add((ASTNode)visit(t));
+        }
         return new programNode(new position(ctx), tmp);
     }
 	
@@ -72,39 +74,45 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             tmp.type = type;
             varList.add(tmp);
         }
-        
         return new varDeclNode(new position(ctx), type, varList);
     }
 
     @Override public ASTNode visitRetType(MxParser.RetTypeContext ctx) {
         if(ctx.Void() != null) 
-            return new TypeNode(new position(ctx), "void", 0);
+            return new simpleTypeNode(new position(ctx), "void");
         else return visit(ctx.type());
     }
 
 	@Override public ASTNode visitSimpleType(MxParser.SimpleTypeContext ctx) {
         if(ctx.Int() != null) {
-            return new TypeNode(new position(ctx), "int", 0);
+            return new simpleTypeNode(new position(ctx), "int");
         } else if(ctx.Bool() != null) {
-            return new TypeNode(new position(ctx), "bool", 0);
+            return new simpleTypeNode(new position(ctx), "bool");
         } else if(ctx.String() != null) {
-            return new TypeNode(new position(ctx), "string", 0);
+            return new simpleTypeNode(new position(ctx), "string");
         } else if(ctx.Identifier() != null) {
-            return new TypeNode(new position(ctx), ctx.Identifier().getText(), 0);
+            return new simpleTypeNode(new position(ctx), ctx.Identifier().getText());
         } else {
             return null;
         }
     }
 	
 	@Override public ASTNode visitType(MxParser.TypeContext ctx) {
-        int dim = (ctx.LeftBracket() != null) ? ctx.LeftBracket().size() : 0;
-        String typeName = ((TypeNode)visit(ctx.simpleType())).identifier;
+        int dim;
+        if(ctx.LeftBracket() != null) dim = ctx.LeftBracket().size();
+        else dim = 0;
+        String typeName = ((simpleTypeNode)visit(ctx.simpleType())).identifier;
         return new TypeNode(new position(ctx), typeName, dim);
     }
 	
 	@Override public ASTNode visitSingleVarDecl(MxParser.SingleVarDeclContext ctx) {
-        String identifier = ctx.Identifier().getText();
-        ExprNode expr = (ctx.expression() != null) ? (ExprNode) visit(ctx.expression()) : null;
+        String identifier;
+        ExprNode expr;
+
+        identifier = ctx.Identifier().getText();
+        if(ctx.expression() != null)
+            expr = (ExprNode) visit(ctx.expression());
+        else expr = null;
         return new singleVarDeclNode(new position(ctx), identifier, expr);
     }
 	
@@ -178,11 +186,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override public ASTNode visitNewInitObject(MxParser.NewInitObjectContext ctx) {
         ArrayList<ExprNode> expr = new ArrayList<ExprNode>();
         ctx.expression().forEach(t -> expr.add((ExprNode)visit(t)));
-        return new newInitObjectExprNode(new position(ctx), (TypeNode) visit(ctx.simpleType()), expr);
+        return new newInitObjectExprNode(new position(ctx), (simpleTypeNode) visit(ctx.simpleType()), expr);
     }
 	
 	@Override public ASTNode visitNewObject(MxParser.NewObjectContext ctx) {
-        return new newObjectExprNode(new position(ctx), (TypeNode) visit(ctx.simpleType()));
+        return new newObjectExprNode(new position(ctx), (simpleTypeNode) visit(ctx.simpleType()));
     }
 	
 	@Override public ASTNode visitMemberAccess(MxParser.MemberAccessContext ctx) {
@@ -248,7 +256,10 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<ExprNode> paras = new ArrayList<ExprNode>();
 
         tmp = (ExprNode)visit(ctx.funcName);
-        ctx.expression().forEach(t -> paras.add((ExprNode)visit(t)));
+
+        for(int i = 1;i < ctx.expression().size();++ i){
+            paras.add((ExprNode)visit(ctx.expression(i)));
+        }
 
         if(tmp instanceof varNode) {
             funcNode r = new funcNode(tmp.pos, ((varNode)tmp).name);

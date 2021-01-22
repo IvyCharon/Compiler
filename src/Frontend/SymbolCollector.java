@@ -107,6 +107,8 @@ public class SymbolCollector implements ASTVisitor {
 
     @Override
     public void visit(TypeNode it) {}
+    @Override
+    public void visit(simpleTypeNode it) {}
 
     @Override
     public void visit(varNode it) {}

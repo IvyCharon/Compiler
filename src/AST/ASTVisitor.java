@@ -35,6 +35,7 @@ public interface ASTVisitor {
     void visit(nullConstNode it);
     void visit(stringConstNode it);
 
+    void visit(simpleTypeNode it);
     void visit(TypeNode it);
 
     void visit(varNode it);

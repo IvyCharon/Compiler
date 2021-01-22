@@ -381,8 +381,8 @@ public class SemanticChecker implements ASTVisitor {
         if(!tmp.getScope().containsVariable(it.iden, false))
             throw new semanticError("[SemanticChecker][member access expression] no such member", it.pos);
         else {
-            it.type = tmp.getScope().getVariableType(it.iden, it.pos, false);
-            it.var = tmp.getScope().getVariable(it.iden, it.pos, false);
+            it.type = tmp.getScope().getMemberType(it.iden, it.pos, false);
+            it.var = tmp.getScope().getMember(it.iden, it.pos, false);
         }
     }
     @Override
@@ -425,15 +425,17 @@ public class SemanticChecker implements ASTVisitor {
 
     @Override
     public void visit(TypeNode it) {}
+    @Override
+    public void visit(simpleTypeNode it) {}
 
     @Override
     public void visit(varNode it) {
-        it.type = currentScope.getVariableType(it.name, it.pos, true);
-        it.var = currentScope.getVariable(it.name, it.pos, true);
+        it.type = currentScope.getMemberType(it.name, it.pos, true);
+        it.var = currentScope.getMember(it.name, it.pos, true);
     }
     @Override
     public void visit(funcNode it) {
-        it.type = (funcType)currentScope.getFunction(it.funcName, it.pos, true);
+        it.type = (funcType)currentScope.getFunction(it.funcName, true);
     }
     @Override 
     public void visit(methodNode it) {
@@ -443,14 +445,14 @@ public class SemanticChecker implements ASTVisitor {
                 throw new semanticError("[SemanticChecker][method] " + 
                                         "it is an array but the method is not size()",
                                         it.bo.pos);
-            it.type = gScope.getFunction("size", it.pos, false);
+            it.type = gScope.getFunction("size", false);
         } else {
             if(!it.bo.type.isClass() && !it.bo.type.isString())
                 throw new semanticError("[SemanticChecker][method] it is not a class", it.bo.pos);
             classType tmp = (classType) it.bo.type;
             if(!tmp.getScope().containsFunction(it.name, false))
                 throw new semanticError("[SemanticChecker][method] no such method", it.pos);
-            funcType t = tmp.getScope().getFunction(it.name, it.pos, false);
+            funcType t = tmp.getScope().getFunction(it.name, false);
             it.type = t;
         }
     }
