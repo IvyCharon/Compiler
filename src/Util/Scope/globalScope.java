@@ -106,15 +106,15 @@ public class globalScope extends Scope {
 
     }
 
-    public globalScope(Scope parentScope) {
-        super(parentScope);
-    }
-
     public void defineClass(String name, classType t, position pos) {
         if(classes.containsKey(name)) 
             throw new semanticError("re-definition of class " + name, pos);
         classes.put(name, t);
         type.put(name, t);
+    }
+
+    public globalScope(Scope parentScope) {
+        super(parentScope);
     }
 
     public Type getType(String name, position pos) {

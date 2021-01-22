@@ -1,6 +1,5 @@
 package Frontend;
 
-import java.util.ArrayList;
 import java.util.Stack;
 
 import AST.*;
@@ -109,7 +108,7 @@ public class SemanticChecker implements ASTVisitor {
     public void visit(blockStmtNode it){
         if (!it.stmts.isEmpty()) {
             currentScope = new Scope(currentScope);
-            it.stmts.forEach(stmt -> stmt.accept(this));
+            for (StmtNode stmt : it.stmts) stmt.accept(this);
             currentScope = currentScope.parentScope();
         }
     }
@@ -272,7 +271,7 @@ public class SemanticChecker implements ASTVisitor {
                                             it.pos);
                 it.type = gScope.boolType;
             default:
-                throw new semanticError("[SemanticChecker][binary expression] no op", it.pos);
+                break;
         }
     }
     @Override
@@ -301,7 +300,7 @@ public class SemanticChecker implements ASTVisitor {
                                             it.pos);
                 it.type = gScope.boolType;
             default:
-                throw new semanticError("[SemanticChecker][unary expression] no op",it.pos);
+                break;
         }
     }
     @Override
@@ -340,16 +339,11 @@ public class SemanticChecker implements ASTVisitor {
         if(!it.paras.isEmpty())
             it.paras.forEach(t -> t.accept(this));
         funcType func = (funcType)it.funcName.type;
-        ArrayList<varEntity> fparas = func.getScope().getParas();
-        if(fparas.size() != it.paras.size())
+        if(func.getScope().getParas().size() != it.paras.size())
             throw new semanticError("[SemanticChecker][function call] parameters not match", it.pos);
         for(int i = 0;i < it.paras.size();++ i) {
-            if((it.paras.get(i).type.getType() != fparas.get(i).type().getType() 
-                || it.paras.get(i).type.dim() != fparas.get(i).type().dim()) 
-                && !it.paras.get(i).type.isNull())
-                throw new semanticError("[SemanticChecker][function call] " + 
-                                        "parameter type not match",
-                                        it.paras.get(i).pos);
+            if((it.paras.get(i).type.getType() != func.getScope().getParas().get(i).type().getType() || it.paras.get(i).type.dim() != func.getScope().getParas().get(i).type().dim()) && !it.paras.get(i).type.isNull())
+                throw new semanticError("[SemanticChecker][function call] parameter type not match", it.pos);
         }
         it.type = func.retType();    
     }
