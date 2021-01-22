@@ -25,14 +25,15 @@ public class SymbolCollector implements ASTVisitor {
     public void visit(funcDeclNode it) {
         funcType func = new funcType(it.identifier);
         if(gScope == currentScope && gScope.hasType(it.identifier))
-            throw new semanticError("re-definition or default funcs", it.pos);
+            throw new semanticError("[SymbolCollector][function declare] " + 
+                                    "re-definition or default funcs", it.pos);
         it.func = func;
         currentScope.defineFunction(it.identifier, func, it.pos);
     }
     @Override
     public void visit(classDeclNode it) {
         if(currentScope != gScope)
-            throw new semanticError("class not define globally", it.pos);
+            throw new semanticError("[SymbolCollector][class declare] class not define globally", it.pos);
         classType cla = new classType(it.identifier);
         Scope claScope = new Scope(currentScope);
         currentScope = claScope;
@@ -42,9 +43,11 @@ public class SymbolCollector implements ASTVisitor {
         currentScope = currentScope.parentScope();
         gScope.defineClass(it.identifier, cla, it.pos);
         if(gScope.containsVariable(it.identifier, false))
-            throw new semanticError("class name is the same as variable", it.pos);
+            throw new semanticError("[SymbolCollector][class declare] " + 
+                                    "class name is the same as variable", it.pos);
         if(gScope.containsFunction(it.identifier, false))
-            throw new semanticError("class name is the same as function", it.pos);
+            throw new semanticError("[SymbolCollector][class declare] " + 
+                                    "class name is the same as function", it.pos);
     }
     @Override
     public void visit(singleVarDeclNode it) {}
@@ -104,8 +107,6 @@ public class SymbolCollector implements ASTVisitor {
 
     @Override
     public void visit(TypeNode it) {}
-    @Override
-    public void visit(simpleTypeNode it) {}
 
     @Override
     public void visit(varNode it) {}

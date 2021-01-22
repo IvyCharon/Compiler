@@ -23,7 +23,7 @@ public class Scope {
 
     public void defineVariable(String name, varEntity t, position pos) {
         if (vars.containsKey(name))
-            throw new semanticError("Semantic Error: variable redefine", pos);
+            throw new semanticError("[Scope][define variable] variable redefine", pos);
         vars.put(name, t);
     }
 
@@ -34,16 +34,21 @@ public class Scope {
         else return false;
     }
 
-    public Type getVariable(String name, boolean lookUpon) {
-        if (vars.containsKey(name)) return vars.get(name).type();
-        else if (parentScope != null && lookUpon)
-            return parentScope.getVariable(name, true);
-        return null;
+    public varEntity getVariable(String name, position pos, boolean lookUpon) {
+        if(vars.containsKey(name)) return vars.get(name);
+        else if(lookUpon && parentScope != null) return parentScope.getVariable(name, pos, lookUpon);
+        else throw new semanticError("[Scope][get variable] no such variable", pos);
+    }
+
+    public Type getVariableType(String name, position pos, boolean lookUpon) {
+        if(vars.containsKey(name)) return vars.get(name).type();
+        else if(lookUpon && parentScope != null) return parentScope.getVariableType(name, pos, lookUpon);
+        else throw new semanticError("[Scope][get variable type] no such variable", pos);
     }
 
     public void defineFunction(String name, funcType f, position pos) {
         if(funcs.containsKey(name))
-            throw new semanticError("multiple definition of " + name, pos);
+            throw new semanticError("[Scope][define function] function redefine", pos);
         funcs.put(name, f);
     }
 
@@ -54,23 +59,10 @@ public class Scope {
         else return false;
     }
 
-    public funcType getFunction(String name, boolean lookUpon) {
+    public funcType getFunction(String name, position pos, boolean lookUpon) {
         if (funcs.containsKey(name)) return funcs.get(name);
         else if (parentScope != null && lookUpon)
-            return parentScope.getFunction(name, true);
-        return null;
+            return parentScope.getFunction(name, pos, true);
+        else throw new semanticError("[Scope][get variable type] no such function", pos);
     }
-
-    public Type getMemberType(String name, position pos, boolean lookUpon) {
-        if(vars.containsKey(name)) return vars.get(name).type();
-        else if(lookUpon && parentScope != null) return parentScope.getMemberType(name, pos, lookUpon);
-        else throw new semanticError("no such member type: " + name, pos);
-    }
-
-    public varEntity getMember(String name, position pos, boolean lookUpon) {
-        if(vars.containsKey(name)) return vars.get(name);
-        else if(lookUpon && parentScope != null) return parentScope.getMember(name, pos, lookUpon);
-        else throw new semanticError("no such member: " + name, pos);
-    }
-    
 }

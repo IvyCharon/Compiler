@@ -45,12 +45,14 @@ public class TypeFilter implements ASTVisitor {
     @Override
     public void visit(singleVarDeclNode it) {
         varEntity tmp = new varEntity(it.identifier, gScope.generateType(it.type));
-        //tmp.type().print();
-        if(tmp.type().isVoid()) throw new semanticError("parameter type is void!", it.pos);
+        if(tmp.type().isVoid()) 
+            throw new semanticError("[TypeFilter][single variable declare] parameter type is void", it.pos);
         if(currentScope instanceof funcScope) {
             it.var = tmp;
             ((funcScope)currentScope).addPara(tmp, it.pos);
-        } else throw new semanticError("sth wrong with para visit", it.pos);
+        } else {
+            throw new semanticError("[TypeFilter][single variable declare] sth wrong with para visit", it.pos);
+        }
     }
     @Override
     public void visit(varDeclNode it) {}
@@ -108,8 +110,6 @@ public class TypeFilter implements ASTVisitor {
 
     @Override
     public void visit(TypeNode it) {}
-    @Override
-    public void visit(simpleTypeNode it) {}
 
     @Override
     public void visit(varNode it) {}

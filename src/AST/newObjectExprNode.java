@@ -3,9 +3,9 @@ package AST;
 import Util.position;
 
 public class newObjectExprNode extends ExprNode {
-    public simpleTypeNode typeNode;
+    public TypeNode typeNode;
 
-    public newObjectExprNode(position pos, simpleTypeNode type) {
+    public newObjectExprNode(position pos, TypeNode type) {
         super(pos, true);
         this.typeNode = type;
     }

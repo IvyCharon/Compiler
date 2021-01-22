@@ -18,9 +18,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
 	@Override public ASTNode visitProgram(MxParser.ProgramContext ctx) {
         ArrayList<ASTNode> tmp = new ArrayList<ASTNode>();
-        for (var t : ctx.programSection()) {
-            tmp.add((ASTNode)visit(t));
-        }
+        ctx.programSection().forEach(t -> tmp.add(visit(t)));
         return new programNode(new position(ctx), tmp);
     }
 	
@@ -47,7 +45,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             tmp.type =  (TypeNode) visit(ctx.type(i));
             paras.add(tmp);
         }
-        
         suite = (blockStmtNode) visit(ctx.suite());
         
         return new funcDeclNode(new position(ctx), type, iden, paras, suite);
@@ -59,12 +56,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<varDeclNode> vars = new ArrayList<varDeclNode>();
 
         identifier = ctx.Identifier().getText();
-        for(var t : ctx.funcDecl()) {
-            funcs.add((funcDeclNode) visit(t));
-        }
-        for(var t : ctx.varDecl()) {
-            vars.add((varDeclNode) visit(t));
-        }
+        ctx.funcDecl().forEach(t -> funcs.add((funcDeclNode)visit(t)));
+        ctx.varDecl().forEach(t -> vars.add((varDeclNode)visit(t)));
         
         return new classDeclNode(new position(ctx), identifier, funcs, vars);
     }
@@ -79,57 +72,47 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             tmp.type = type;
             varList.add(tmp);
         }
+        
         return new varDeclNode(new position(ctx), type, varList);
     }
 
     @Override public ASTNode visitRetType(MxParser.RetTypeContext ctx) {
         if(ctx.Void() != null) 
-            return new simpleTypeNode(new position(ctx), "void");
+            return new TypeNode(new position(ctx), "void", 0);
         else return visit(ctx.type());
     }
 
 	@Override public ASTNode visitSimpleType(MxParser.SimpleTypeContext ctx) {
         if(ctx.Int() != null) {
-            return new simpleTypeNode(new position(ctx), "int");
+            return new TypeNode(new position(ctx), "int", 0);
         } else if(ctx.Bool() != null) {
-            return new simpleTypeNode(new position(ctx), "bool");
+            return new TypeNode(new position(ctx), "bool", 0);
         } else if(ctx.String() != null) {
-            return new simpleTypeNode(new position(ctx), "string");
+            return new TypeNode(new position(ctx), "string", 0);
         } else if(ctx.Identifier() != null) {
-            return new simpleTypeNode(new position(ctx), ctx.Identifier().getText());
+            return new TypeNode(new position(ctx), ctx.Identifier().getText(), 0);
         } else {
             return null;
         }
     }
 	
 	@Override public ASTNode visitType(MxParser.TypeContext ctx) {
-        int dim;
-        if(ctx.LeftBracket() != null) dim = ctx.LeftBracket().size();
-        else dim = 0;
-        String typeName = ((simpleTypeNode)visit(ctx.simpleType())).identifier;
+        int dim = (ctx.LeftBracket() != null) ? ctx.LeftBracket().size() : 0;
+        String typeName = ((TypeNode)visit(ctx.simpleType())).identifier;
         return new TypeNode(new position(ctx), typeName, dim);
     }
 	
 	@Override public ASTNode visitSingleVarDecl(MxParser.SingleVarDeclContext ctx) {
-        String identifier;
-        ExprNode expr;
-
-        identifier = ctx.Identifier().getText();
-        if(ctx.expression() != null)
-            expr = (ExprNode) visit(ctx.expression());
-        else expr = null;
+        String identifier = ctx.Identifier().getText();
+        ExprNode expr = (ctx.expression() != null) ? (ExprNode) visit(ctx.expression()) : null;
         return new singleVarDeclNode(new position(ctx), identifier, expr);
     }
 	
 	@Override public ASTNode visitSuite(MxParser.SuiteContext ctx) {
         ArrayList<StmtNode> stmts = new ArrayList<StmtNode>();
-
-        for (var t : ctx.statement()) {
-            stmts.add((StmtNode) visit(t));
-        }
+        ctx.statement().forEach(t -> stmts.add((StmtNode)visit(t)));
         blockStmtNode tmp = new blockStmtNode(new position(ctx));
         tmp.stmts = stmts;
-
         return tmp;
     }
 	
@@ -182,30 +165,24 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     
 	@Override public ASTNode visitNewArray(MxParser.NewArrayContext ctx) {
         ArrayList<ExprNode> expr = new ArrayList<ExprNode>();
-        String arrName = ((simpleTypeNode)visit(ctx.simpleType())).identifier;
-
-        for (var t : ctx.expression()) {
-            expr.add((ExprNode)visit(t));
-        }
-
+        String arrName = ((TypeNode)visit(ctx.simpleType())).identifier;
+        ctx.expression().forEach(t -> expr.add((ExprNode)visit(t)));
         TypeNode tmp = new TypeNode(new position(ctx), arrName, ctx.LeftBracket().size());
         return new newArrayExprNode(new position(ctx), tmp, expr);
     }
 
     @Override public ASTNode visitErrorNewArray(MxParser.ErrorNewArrayContext ctx) {
-        throw new semanticError("error new array", new position(ctx));
+        throw new semanticError("[ASTBuilder][error new array] mistake way of array new", new position(ctx));
     }
 
     @Override public ASTNode visitNewInitObject(MxParser.NewInitObjectContext ctx) {
         ArrayList<ExprNode> expr = new ArrayList<ExprNode>();
-        for (var t : ctx.expression()) {
-            expr.add((ExprNode) visit(t));
-        }
-        return new newInitObjectExprNode(new position(ctx), (simpleTypeNode) visit(ctx.simpleType()), expr);
+        ctx.expression().forEach(t -> expr.add((ExprNode)visit(t)));
+        return new newInitObjectExprNode(new position(ctx), (TypeNode) visit(ctx.simpleType()), expr);
     }
 	
 	@Override public ASTNode visitNewObject(MxParser.NewObjectContext ctx) {
-        return new newObjectExprNode(new position(ctx), (simpleTypeNode) visit(ctx.simpleType()));
+        return new newObjectExprNode(new position(ctx), (TypeNode) visit(ctx.simpleType()));
     }
 	
 	@Override public ASTNode visitMemberAccess(MxParser.MemberAccessContext ctx) {
@@ -271,10 +248,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ArrayList<ExprNode> paras = new ArrayList<ExprNode>();
 
         tmp = (ExprNode)visit(ctx.funcName);
-
-        for(int i = 1;i < ctx.expression().size();++ i){
-            paras.add((ExprNode)visit(ctx.expression(i)));
-        }
+        ctx.expression().forEach(t -> paras.add((ExprNode)visit(t)));
 
         if(tmp instanceof varNode) {
             funcNode r = new funcNode(tmp.pos, ((varNode)tmp).name);
@@ -283,7 +257,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             methodNode r = new methodNode(tmp.pos, ((memberAccessExprNode)tmp).bo, ((memberAccessExprNode)tmp).iden);
             return new funcCallExprNode(new position(ctx), r, paras);
         } else {
-            throw new semanticError("sth wrong with function call!", new position(ctx));
+            throw new semanticError("[ASTBuilder][function call build] " + 
+                                    "it is not a function",
+                                    new position(ctx));
         }
     }
     

@@ -106,19 +106,19 @@ public class globalScope extends Scope {
 
     }
 
-    public void defineClass(String name, classType t, position pos) {
-        if(classes.containsKey(name)) 
-            throw new semanticError("re-definition of class " + name, pos);
-        classes.put(name, t);
-        type.put(name, t);
-    }
-
     public globalScope(Scope parentScope) {
         super(parentScope);
     }
 
+    public void defineClass(String name, classType t, position pos) {
+        if(classes.containsKey(name)) 
+            throw new semanticError("[globalScope][define class] class redefine", pos);
+        classes.put(name, t);
+        type.put(name, t);
+    }
+
     public Type getType(String name, position pos) {
-        if(!type.containsKey(name)) throw new semanticError("no such Type: " + name, pos);
+        if(!type.containsKey(name)) throw new semanticError("[globalScope][get type] no such Type", pos);
         return type.get(name);
     }
 
@@ -133,7 +133,7 @@ public class globalScope extends Scope {
     }
 
     public classType getClass(String name, position pos) {
-        if(!classes.containsKey(name)) throw new semanticError("no such class", pos);
+        if(!classes.containsKey(name)) throw new semanticError("[globalScope][get class] no such class", pos);
         return classes.get(name);
     }
 }
