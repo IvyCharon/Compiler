@@ -10,6 +10,7 @@ public class funcType extends Type {
     private Type retType;
 
     public funcType(String name) {
+        super(types.Func);
         this.name = name;
     }
 

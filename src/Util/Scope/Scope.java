@@ -34,13 +34,6 @@ public class Scope {
         else return false;
     }
 
-    public Type getVariable(String name, boolean lookUpon) {
-        if (vars.containsKey(name)) return vars.get(name).type();
-        else if (parentScope != null && lookUpon)
-            return parentScope.getVariable(name, true);
-        return null;
-    }
-
     public void defineFunction(String name, funcType f, position pos) {
         if(funcs.containsKey(name))
             throw new semanticError("[Scope][define function] function redefine", pos);
