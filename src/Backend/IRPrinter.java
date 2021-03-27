@@ -7,6 +7,8 @@ import MIR.BasicBlock;
 import MIR.Function;
 import MIR.Module;
 import MIR.IRInst.Inst;
+import MIR.IROperand.globalVariable;
+import Util.Type.classType;
 
 public class IRPrinter {
     private PrintStream out;
@@ -37,17 +39,17 @@ public class IRPrinter {
         module.builtinFunctions.forEach((name, func) -> {
             printBuiltinFuncDecl(func);
         });
+        out.println();
 
-        module.classes.forEach((name, cla) -> {
+        module.classes.forEach((name, cla) -> print(cla));
+        out.println();
 
-        });
-
-        module.globalVars.forEach((name, gVar) -> {
-
-        });
+        module.globalVars.forEach((name, gVar) -> print(gVar));
+        out.println();
 
         module.functions.forEach((name, func) -> {
             print(func);
+            out.println();
         });
     }
 
@@ -55,17 +57,17 @@ public class IRPrinter {
         out.print("define " + func.retType.toString() + " @" + func.name + "(");
         int cnt = 0;
         for(int i = 0; i < func.paras.size(); ++ i) {
-            out.print(func.paras.get(i).type().toString() + " %" + cnt);
+            out.print(func.paras.get(i).type().toString() + " %" + cnt++);
             if(i != func.paras.size() - 1)
                 out.print(", ");
         }
         out.println(") {");
-        
-        cnt = 0;
 
         BasicBlock bb = func.entranceBlock;
         while (bb != null) {
-            out.println("b." + cnt);
+            out.println(bb.name);
+            print(bb);
+            out.println();
             bb = bb.next;
         }
 
@@ -81,5 +83,13 @@ public class IRPrinter {
             inst.print(out);
             inst = inst.next;
         }
+    }
+
+    public void print(classType cla) {
+        out.println(cla.toString());
+    }
+
+    public void print(globalVariable gVar) {
+        out.println(gVar.toString());
     }
 }

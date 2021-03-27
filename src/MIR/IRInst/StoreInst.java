@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import Backend.IRVisitor;
 import MIR.BasicBlock;
 import MIR.IROperand.operand;
+import MIR.IRType.PointerType;
 
 public class StoreInst extends Inst {
     public operand val, addr;
@@ -17,7 +18,12 @@ public class StoreInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("store " + addr.toString() + " " + val.toString());
+        if(addr.type() instanceof PointerType) {
+            out.println("\tstore " + ((PointerType)(addr.type())).baseType.toString() + 
+                        " " + val.toString() + ", " + 
+                        addr.type().toString() + " " + 
+                        addr.toString());
+        }
     }
 
     @Override

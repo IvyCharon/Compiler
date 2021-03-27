@@ -21,7 +21,14 @@ public class PhiInst extends Inst{
 
     @Override
     public void print(PrintStream out) {
+        String o = "\t";
+        o += result.toString() + " = phi " + result.type().toString();
         
+        for(int i = 0; i < opers.size(); ++ i) {
+            if(i != 0) o += ", ";
+            o += "[ " + opers.get(i).toString() + ", " + blocks.get(i).toString() + "]";
+        }
+        out.println(o);
     }
 
     @Override

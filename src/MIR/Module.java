@@ -173,6 +173,7 @@ public class Module {
         retType = new VoidType();
         func = new Function("__init__", retType, paras);
         functions.put("__init__", func);
+
     } 
 
     public globalVariable addString(String s) {

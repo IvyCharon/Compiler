@@ -7,6 +7,7 @@ import Backend.IRVisitor;
 import MIR.BasicBlock;
 import MIR.IROperand.Register;
 import MIR.IROperand.operand;
+import MIR.IRType.PointerType;
 
 public class GetElementPtrInst extends Inst {
     public operand ptr;
@@ -24,7 +25,22 @@ public class GetElementPtrInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("getEle " + " " + result.toString() + " " + ptr.toString());
+        String o = "\t";
+        o += result.toString() + " = getelementptr ";
+        String baseTypeN, pointerTypeN;
+        if(ptr.type() instanceof PointerType) {
+            baseTypeN = ((PointerType)(ptr.type())).baseType.toString();
+            pointerTypeN = ptr.type().toString();
+        } else {
+            baseTypeN = ptr.type().toString();
+            pointerTypeN = baseTypeN + "*";
+        }
+        o += baseTypeN + ", " + pointerTypeN + " " + ptr.toString();
+
+        for(int i = 0; i < index.size(); ++ i) {
+            o += ", " + index.get(i).type().toString() + " " + index.get(i).toString();
+        }
+        out.println(o);
     }
 
     @Override

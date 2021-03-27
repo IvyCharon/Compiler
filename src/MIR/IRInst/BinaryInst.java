@@ -55,10 +55,10 @@ public class BinaryInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("binary " 
+        out.println("\t" + result.toString() + " = " 
                     + toStr(op) + " "
-                    + result.toString() + " " 
-                    + left.toString() + " " 
+                    + result.type().toString() + " " 
+                    + left.toString() + ", " 
                     + right.toString());
     }
 

@@ -2,6 +2,7 @@ import AST.*;
 import Assembly.AssemModule;
 import Backend.ASMPrinter;
 import Backend.IRBuilder;
+import Backend.IRPrinter;
 //import Backend.IRPrinter;
 import Backend.InstSelector;
 import Backend.RegisterAllocator;
@@ -18,7 +19,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-//import java.io.FileInputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -26,7 +27,8 @@ import java.io.PrintStream;
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        InputStream input = System.in;
+        //InputStream input = System.in;
+        InputStream input = new FileInputStream("test.mx");
         PrintStream output = new PrintStream("output.s");
 
         try {
@@ -48,7 +50,7 @@ public class Main {
             new SemanticChecker(gScope).visit(ASTRoot);
 
             new IRBuilder(gScope).visit(ASTRoot);
-            //new IRPrinter(System.out).run(ASTRoot);
+            //new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
 
             AssemModule asmModule = new AssemModule();
             new InstSelector(ASTRoot.module, asmModule).run();

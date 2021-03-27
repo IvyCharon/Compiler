@@ -19,6 +19,6 @@ public class globalVariable extends operand {
 
     @Override
     public String toString() {
-        return name;
+        return "@" + name;
     }
 }

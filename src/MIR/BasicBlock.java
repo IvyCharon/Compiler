@@ -60,4 +60,8 @@ public class BasicBlock {
             dest.precursors.add(this);
         }
     }
+
+    public String toString() {
+        return "%" + name;
+    }
 }

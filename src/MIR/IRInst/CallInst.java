@@ -23,7 +23,17 @@ public class CallInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("call " + (result == null ? "" : result.toString()) + " " + func.name);
+        out.print("\t");
+        String o = "";
+        if(result != null) o += result.toString() + " = ";
+        o += "call " + func.retType.toString() + " ";
+        o += "@" + func.name + "(";
+        for(int i = 0; i < paras.size(); ++ i) {
+            if(i != 0) o += ", ";
+            o += paras.get(i).type().toString() + " " + paras.get(i).toString();
+        }
+        o += ")";
+        out.println(o);
     }
 
     @Override

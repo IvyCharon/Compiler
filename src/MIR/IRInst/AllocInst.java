@@ -19,7 +19,7 @@ public class AllocInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("alloc " + addr.toString());
+        out.println("\t" + addr.toString() + " = alloc " + type.toString());
     }
 
     @Override

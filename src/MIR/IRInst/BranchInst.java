@@ -19,10 +19,11 @@ public class BranchInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
+        out.print("\t");
         if(condition != null)
-            out.println("branch " + condition.toString() + " " + trueBlock.name + " " + (falseBlock == null ? "" : falseBlock.name));
+            out.println("br i1 " + condition.toString() + ", label " + trueBlock.toString() + ", label " + (falseBlock == null ? "" : falseBlock.toString()));
         else 
-            out.println("jump " + trueBlock.name);
+            out.println("br label " + trueBlock.toString());
     }
 
     @Override

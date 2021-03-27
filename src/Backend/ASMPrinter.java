@@ -28,7 +28,7 @@ public class ASMPrinter {
     }
 
     public void printFunc(AssemFunction func) {
-        out.println(";------------------------");
+        //out.println(";------------------------");
         out.println("\t.globl\t" + func.name);
         out.println("\t.type\t" + func.name + ", @function");
         out.println(func.name + ":");

@@ -6,6 +6,7 @@ import Backend.IRVisitor;
 import MIR.BasicBlock;
 import MIR.IROperand.operand;
 import MIR.IRType.IRBaseType;
+import MIR.IRType.VoidType;
 
 public class ReturnInst extends Inst {
     public IRBaseType retType;
@@ -19,7 +20,11 @@ public class ReturnInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("ret " + retType.toString() + " " + val == null ? "" : val.toString());
+        out.print("\t");
+        if(retType instanceof VoidType)
+            out.println("ret void");
+        else 
+            out.println("ret " + retType.toString() + " " + val.toString());
     }
 
     @Override

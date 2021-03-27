@@ -53,10 +53,11 @@ public class CompareInst extends Inst{
 
     @Override
     public void print(PrintStream out) {
-        out.println("cmp " + toStr(op) + " "
-                    + result.toString() + " "
-                    + left.toString() + " "
-                    + right.toString()
+        out.println("\t" + result.toString() +
+                     " = icmp " + toStr(op) +
+                     " " + type.toString() + 
+                     " " + left.toString() + 
+                     ", " + right.toString()
                 );
     }
 

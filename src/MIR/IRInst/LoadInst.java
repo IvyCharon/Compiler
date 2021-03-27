@@ -22,7 +22,7 @@ public class LoadInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("load " + result.toString() + " " + address.toString());
+        out.println("\t" + result.toString() + " = load " + result.type().toString() + ", " + address.type().toString() + " " + address.toString());
     }
 
     @Override
