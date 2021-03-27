@@ -853,6 +853,7 @@ public class IRBuilder implements ASTVisitor {
     public void visit(varNode it) {                 //TO DO
         if(current_function != null) {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
+            if(symbs == null) System.exit(0);
             it.oper = symbs.get(symbs.size() - 1);
         } else {
             System.exit(0);
