@@ -1,11 +1,9 @@
 package Assembly.AssemInst;
 
-import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
 
-public class loadInst extends asmInst {
+public class loadInst extends asmInst { //load addr + imm to reg
     public Register reg, addr;
     public Imm imm;
     public int size;
@@ -15,8 +13,6 @@ public class loadInst extends asmInst {
         this.addr = addr;
         this.imm = imm;
         this.size = size;
-        if(reg instanceof VirtualRegister || reg instanceof AsmGlobalVar) UsedVirReg.add(reg);
-        if(addr instanceof VirtualRegister || addr instanceof AsmGlobalVar) UsedVirReg.add(addr);
     }
 
 

@@ -41,8 +41,6 @@ public class IRBuilder implements ASTVisitor {
 
         this.module = new Module();
 
-        current_function = new Function("__init__", new VoidType(), new ArrayList<>());
-        module.functions.put("__init__", current_function);
     }
 
     public Module module() {
@@ -76,19 +74,28 @@ public class IRBuilder implements ASTVisitor {
         });
         IRBaseType retType = it.func.retType().toIRType();
         Function func = new Function(funcN, retType, paras);
+        func.retVal = new Register(new PointerType(retType), funcN + "_retVal");
+        for(var t : it.paras) {
+            func.symbolAdd(t.identifier, new Register(new PointerType(t.type.type.toIRType()), t.identifier));
+        }
+        module.functions.put(funcN, func);
 
         current_function = func;
         current_block = func.entranceBlock;
-        it.suite.accept(this);
-        current_block.addInst(new BranchInst(current_block, null, current_function.exitBlock, null));
-
-        module.functions.put(funcN, func);
 
         if(it.identifier.equals("main")) {
-            func = module.functions.get("__init__");
-            func.entranceBlock.addInstAtFront(new CallInst(func.entranceBlock, current_function, new ArrayList<>(), null));
+            Register t = new Register(new VoidType(), "call_init");
+            Function f = module.functions.get("__init__");
+            current_block.addInst(new CallInst(current_block, f, new ArrayList<>(), t));
         }
 
+        it.suite.accept(this);
+
+        current_block.addInst(new BranchInst(current_block, null, current_function.retBlock, null));
+        current_block = current_function.retBlock;
+
+        current_block.addInst(new ReturnInst(current_block, retType, current_function.retVal));
+        
         current_function = null;
         current_block = null;
     }
@@ -270,6 +277,7 @@ public class IRBuilder implements ASTVisitor {
             current_block.addInst(new StoreInst(current_block, result, current_function.retVal));
         }
         current_block.addInst(new BranchInst(current_block, null, current_function.exitBlock, null));
+        current_block = current_function.exitBlock;
     }
     @Override
     public void visit(whileStmtNode it) {

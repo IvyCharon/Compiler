@@ -1,16 +1,15 @@
 package Assembly.AssemInst;
 
 import Assembly.Operand.Imm;
-import Assembly.Operand.VirtualRegister;
+import Assembly.Operand.Register;
 
 public class liInst extends asmInst {
-    public VirtualRegister rd;
+    public Register rd;
     public Imm imm;
 
-    public liInst(VirtualRegister rd, Imm imm) {
+    public liInst(Register rd, Imm imm) {
         this.rd = rd;
         this.imm = imm;
-        UsedVirReg.add(rd);
     }
 
     @Override

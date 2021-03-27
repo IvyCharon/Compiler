@@ -1,8 +1,6 @@
 package Assembly.AssemInst;
 
-import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
 import Assembly.Operand.asmOperand;
 
 public class binaryInst extends asmInst {
@@ -15,9 +13,6 @@ public class binaryInst extends asmInst {
         this.rd = rd;
         this.rs1 = rs1;
         this.rs2 = rs2;
-        if(rs1 instanceof VirtualRegister || rs1 instanceof AsmGlobalVar) UsedVirReg.add(rs1);
-        if(rs2 instanceof VirtualRegister || rs2 instanceof AsmGlobalVar) UsedVirReg.add((Register)rs2);
-        if(rd instanceof VirtualRegister || rd instanceof AsmGlobalVar) UsedVirReg.add(rd);
     }
 
     @Override

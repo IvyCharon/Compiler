@@ -38,8 +38,15 @@ public class Function {
             symbols.put(para.name(), tmp);
         }
         entranceBlock = new BasicBlock(name + ".entrance", this);
+        exitBlock = new BasicBlock(name + ".exit", this);
+        retBlock = new BasicBlock(name + ".ret", this);
+
+        entranceBlock.next = exitBlock;
+        exitBlock.pre = entranceBlock;
+        exitBlock.next = retBlock;
+        retBlock.pre = exitBlock;
         //BasicBlockAdd(entranceBlock.name, entranceBlock);
-        exitBlock = entranceBlock;
+        
         //exitBlock = new BasicBlock(name + ".exit", this);
         //exitBlock.pre = entranceBlock; entranceBlock.next = exitBlock;
         //retBlock = new BasicBlock(name + ".ret", this);
@@ -82,14 +89,11 @@ public class Function {
     } */
 
     public void addBasicBlock(BasicBlock bb) {
-        if(entranceBlock == null) 
-            entranceBlock = bb;
-        else {
-            bb.pre = exitBlock;
-            exitBlock.next = bb;
-        }
+        exitBlock.pre.next = bb;
+        bb.pre = exitBlock.pre;
 
-        exitBlock = bb;
+        bb.next = exitBlock;
+        exitBlock.pre = bb;
     }
     
 }

@@ -11,7 +11,6 @@ public class branchInst extends asmInst {
         this.rs = rs;
         this.trueBlock = trueB;
         this.falseBlock = falseB;
-        if(rs instanceof VirtualRegister || rs instanceof AsmGlobalVar) UsedVirReg.add(rs);
     }
 
     @Override

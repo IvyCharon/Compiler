@@ -167,6 +167,12 @@ public class Module {
         retType = new BoolType(1);
         func = new Function("string.bigger_equal", retType, paras);
         builtinFunctions.put("string.bigger_equal", func);
+
+        //init func
+        paras = new ArrayList<>();
+        retType = new VoidType();
+        func = new Function("__init__", retType, paras);
+        functions.put("__init__", func);
     } 
 
     public globalVariable addString(String s) {
