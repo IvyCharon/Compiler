@@ -29,5 +29,9 @@ public class AssemFunction {
             exitBlock = ab;
         }
     }
+
+    public String toString() {
+        return name;
+    }
     
 }

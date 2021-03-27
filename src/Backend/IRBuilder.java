@@ -17,7 +17,7 @@ import MIR.IRType.*;
 import Util.Scope.*;
 import Util.Type.Type;
 import Util.Type.classType;
-import Util.error.runtimeError;
+//import Util.error.runtimeError;
 
 public class IRBuilder implements ASTVisitor {
     private Module module;

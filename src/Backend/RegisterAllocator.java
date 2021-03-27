@@ -76,7 +76,16 @@ public class RegisterAllocator {
                     } else if(inst instanceof luiInst) {
 
                     } else if(inst instanceof mvInst) {
-
+                        if(((mvInst)inst).rs instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((mvInst)inst).rs;
+                            inst.addPreInst(new loadInst(t1, sp, new Imm(tmp.index * 4 + 4), 4));
+                            ((mvInst)inst).rs = t1;
+                        }
+                        if(((mvInst)inst).rd instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((mvInst)inst).rd;
+                            inst.addPreInst(new loadInst(t0, sp, new Imm(tmp.index * 4 + 4), 4));
+                            ((mvInst)inst).rd = t0;
+                        }
                     } else if(inst instanceof storeInst) {
                         if(((storeInst)inst).addr instanceof VirtualRegister) {
                             tmp = (VirtualRegister)((storeInst)inst).addr;

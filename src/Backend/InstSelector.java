@@ -8,6 +8,7 @@ import Assembly.AssemFunction;
 import Assembly.AssemModule;
 import Assembly.AssemInst.binaryInst;
 import Assembly.AssemInst.branchInst;
+import Assembly.AssemInst.callInst;
 import Assembly.AssemInst.jInst;
 import Assembly.AssemInst.liInst;
 import Assembly.AssemInst.loadInst;
@@ -280,9 +281,13 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i))));
             //----- para size > 8 -----
             //TO DO
-            if(inst.result != null) {
-                current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0")));
-            }
+            
+        }
+
+        current_block.addInst(new callInst(functions.get(inst.func)));
+
+        if(inst.result != null) {
+            current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0")));
         }
     }
     @Override
