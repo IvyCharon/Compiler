@@ -363,6 +363,7 @@ public class InstSelector implements IRVisitor {
 
         if(rd instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
+            if(!(inst.addr instanceof MIR.IROperand.Register)) System.exit(0);
             current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.addr)).name)));
             current_block.addInst(new storeInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.addr)).name), 4));
         } else {

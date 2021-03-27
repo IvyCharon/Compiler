@@ -72,10 +72,11 @@ public class IRBuilder implements ASTVisitor {
         it.paras.forEach(t -> {
             paras.add((parameter)(t.var.oper));
         });
-        IRBaseType retType = it.func.retType().toIRType();
+        IRBaseType retType = it.func.retType() == null ? new VoidType() : it.func.retType().toIRType();
         Function func = new Function(funcN, retType, paras);
         func.retVal = new Register(new PointerType(retType), funcN + "_retVal");
         for(var t : it.paras) {
+            if(t.type.type == null) System.exit(0);
             func.symbolAdd(t.identifier, new Register(new PointerType(t.type.type.toIRType()), t.identifier));
         }
         module.functions.put(funcN, func);
@@ -699,7 +700,8 @@ public class IRBuilder implements ASTVisitor {
     public void visit(funcCallExprNode it) {
         Function func;
         if(it.funcName instanceof methodNode) {
-            memberAccessExprNode funcN = ((memberAccessExprNode)it.funcName);
+            System.exit(0);
+            memberAccessExprNode funcN = ((memberAccessExprNode)(it.funcName));
             ExprNode body = funcN.bo;
             Type type = body.type;
             body.accept(this);
@@ -820,6 +822,7 @@ public class IRBuilder implements ASTVisitor {
         ArrayList<operand> index = new ArrayList<>();
         index.add(new ConstInt(32, 0));
         index.add(new ConstInt(32, 0));
+        if(current_block == null) System.exit(0);
         current_block.addInst(new GetElementPtrInst(
             current_block,
             s,
