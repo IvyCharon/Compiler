@@ -170,7 +170,8 @@ public class IRBuilder implements ASTVisitor {
             Register addr = new Register(new PointerType(irType), name + RegNum ++);
             it.var.oper = addr;
         } else {
-            throw new runtimeError("[IRBuilder][visit single var]: var pos is wrong!", it.pos);
+            System.exit(0);
+            //throw new runtimeError("[IRBuilder][visit single var]: var pos is wrong!", it.pos);
         }
     }
     @Override
@@ -395,7 +396,8 @@ public class IRBuilder implements ASTVisitor {
                     } else if(le.isNull() && ri.isNull()) {
 
                     } else {
-                        throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of equal", it.pos);
+                        System.exit(0);
+                        //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of equal", it.pos);
                     }
                     break;
                 case not_equal:
@@ -427,7 +429,8 @@ public class IRBuilder implements ASTVisitor {
                     } else if(le.isNull() && ri.isNull()) {
 
                     } else {    
-                        throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of not equal", it.pos);
+                        System.exit(0);
+                        //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of not equal", it.pos);
                     }
                     break;
                 case mul:
@@ -519,7 +522,8 @@ public class IRBuilder implements ASTVisitor {
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.or, left, right, result));
                     break;
                 default:
-                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    System.exit(0);
+                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
             switch(it.op) {
                 case sub:
@@ -557,7 +561,8 @@ public class IRBuilder implements ASTVisitor {
                     break;
                 
                 default:
-                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    System.exit(0);
+                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
         } else {
             BasicBlock branchBlock, afterBlock, phi1, phi2;
@@ -621,7 +626,8 @@ public class IRBuilder implements ASTVisitor {
                     current_function.BasicBlockAdd(afterBlock.name, afterBlock); */
                     break;
                 default:
-                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    System.exit(0);
+                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
         }
     }
@@ -777,12 +783,14 @@ public class IRBuilder implements ASTVisitor {
                     current_function.symbolAdd(result.name, result);
                 it.oper = result;
             } else {
-                throw new runtimeError("[IRBuilder][visit funcCallExprNode] sth wrong", it.pos);
+                System.exit(0);
+                //throw new runtimeError("[IRBuilder][visit funcCallExprNode] sth wrong", it.pos);
             }
         } else
-            throw new runtimeError("[IRBuilder][visit funcCallExprNode] " + 
-                                       "it is not a function",
-                                       it.pos);
+            System.exit(0);
+            //throw new runtimeError("[IRBuilder][visit funcCallExprNode] " + 
+            //                           "it is not a function",
+            //                           it.pos);
     }
     @Override
     public void visit(assignExprNode it) {
