@@ -417,10 +417,12 @@ public class IRBuilder implements ASTVisitor {
                     break;
                 case smallersmaller:
                     result = new Register(new IntType(32), "smallersmaller");
+                    if(current_block == null) System.exit(0);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.shl, left, right, result));
                     break;
                 case biggerbigger:
                     result = new Register(new IntType(32), "biggerbigger");
+                    if(current_block == null) System.exit(0);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.ashr, left, right, result));
                     break;
                 case smaller:
@@ -752,6 +754,7 @@ public class IRBuilder implements ASTVisitor {
                 if(module.functions.containsKey(fn.funcName)) 
                     func = module.functions.get(fn.funcName);
                 else func = module.builtinFunctions.get(fn.funcName);
+                if(func == null) System.exit(0);
                 IRBaseType retType = func.retType;
                 Register result = retType instanceof VoidType ? null : new Register(retType, "call");
                 ArrayList<operand> paras = new ArrayList<>();
