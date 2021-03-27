@@ -44,7 +44,7 @@ public class TypeFilter implements ASTVisitor {
     }
     @Override
     public void visit(singleVarDeclNode it) {
-        varEntity tmp = new varEntity(it.identifier, gScope.generateType(it.type));
+        varEntity tmp = new varEntity(it.identifier, gScope.generateType(it.type), false);
         if(tmp.type().isVoid()) 
             throw new semanticError("[TypeFilter][single variable declare] parameter type is void", it.pos);
         if(currentScope instanceof funcScope) {

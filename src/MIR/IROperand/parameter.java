@@ -13,4 +13,14 @@ public class parameter extends operand {
     public String name() {
         return name;
     }
+
+    @Override
+    public boolean isConst() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

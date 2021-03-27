@@ -1,5 +1,8 @@
 package MIR.IRType;
 
+import MIR.IROperand.ConstBool;
+import MIR.IROperand.operand;
+
 public class BoolType extends IRBaseType {
     private int size;
 
@@ -10,5 +13,15 @@ public class BoolType extends IRBaseType {
     @Override
     public int size() {
         return size;
+    }
+
+    @Override
+    public operand toOper() {
+        return new ConstBool(1, false);
+    }
+
+    @Override
+    public String toString() {
+        return "i1";
     }
 }

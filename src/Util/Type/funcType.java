@@ -1,5 +1,6 @@
 package Util.Type;
 
+import MIR.Function;
 import Util.position;
 import Util.Entity.varEntity;
 import Util.Scope.*;
@@ -8,6 +9,8 @@ public class funcType extends Type {
     private String name;
     private funcScope scope;
     private Type retType;
+
+    public Function func;
 
     public funcType(String name) {
         super(types.Func);

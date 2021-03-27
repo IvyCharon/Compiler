@@ -83,7 +83,9 @@ public class SemanticChecker implements ASTVisitor {
     }
     @Override
     public void visit(singleVarDeclNode it){
-        varEntity var = new varEntity(it.identifier, gScope.generateType(it.type));
+        varEntity var = new varEntity(it.identifier, gScope.generateType(it.type), currentScope == gScope);
+        if(currentClass != null)
+            var.isMember = true;
         it.var = var;
         if(it.var.type().isVoid())
             throw new semanticError("[SemanticChecker][single variable declare] " + 

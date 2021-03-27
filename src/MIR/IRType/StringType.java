@@ -11,4 +11,9 @@ public class StringType extends IRBaseType {
     public int size() {
         return this.size;
     }
+
+    @Override
+    public String toString() {
+        return "i8*";
+    }
 }

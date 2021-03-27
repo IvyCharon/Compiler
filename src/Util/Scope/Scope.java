@@ -66,4 +66,7 @@ public class Scope {
         else throw new semanticError("[Scope][get member] no such member", pos);
     }
     
+    public HashMap<String, varEntity> vars() {
+        return vars;
+    }
 }

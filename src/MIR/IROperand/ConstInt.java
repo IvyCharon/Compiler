@@ -13,4 +13,14 @@ public class ConstInt extends operand {
     public int value() {
         return this.value;
     }
+
+    @Override
+    public boolean isConst() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return value + "";
+    }
 }

@@ -12,4 +12,8 @@ public abstract class operand {
     public IRBaseType type() {
         return type;
     }
+
+    public abstract boolean isConst();
+
+    public abstract String toString();
 }

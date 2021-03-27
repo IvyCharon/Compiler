@@ -1,4 +1,10 @@
 import AST.*;
+import Assembly.AssemModule;
+import Backend.ASMPrinter;
+import Backend.IRBuilder;
+//import Backend.IRPrinter;
+import Backend.InstSelector;
+import Backend.RegisterAllocator;
 import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
@@ -14,12 +20,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 //import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 
 public class Main {
     public static void main(String[] args) throws Exception{
 
         InputStream input = System.in;
+        PrintStream output = new PrintStream("output.s");
 
         try {
             programNode ASTRoot;
@@ -38,6 +46,15 @@ public class Main {
             new SymbolCollector(gScope).visit(ASTRoot);
             new TypeFilter(gScope).visit(ASTRoot);
             new SemanticChecker(gScope).visit(ASTRoot);
+
+            new IRBuilder(gScope).visit(ASTRoot);
+            //new IRPrinter(System.out).run(ASTRoot);
+
+            AssemModule asmModule = new AssemModule();
+            new InstSelector(ASTRoot.module, asmModule).run();
+            new RegisterAllocator(asmModule).run();
+            new ASMPrinter(output, asmModule).run();
+            
         } catch (error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

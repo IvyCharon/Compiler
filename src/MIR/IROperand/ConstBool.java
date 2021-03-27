@@ -13,4 +13,14 @@ public class ConstBool extends operand {
     public boolean value() {
         return this.value;
     }
+
+    @Override
+    public boolean isConst() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return value + "";
+    }
 }
