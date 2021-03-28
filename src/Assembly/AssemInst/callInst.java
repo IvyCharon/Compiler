@@ -13,4 +13,9 @@ public class callInst extends asmInst {
     public String toString() {
         return "call " + func.toString();
     }
+
+    @Override
+    public void setStackImm(int s) {
+        
+    }
 }

@@ -20,4 +20,10 @@ public class loadInst extends asmInst { //load addr + imm to reg
     public String toString() {
         return "lw " + reg.toString() + ", " + imm.toString() + "(" + addr.toString() + ")";
     }
+
+    @Override
+    public void setStackImm(int s) {
+        if(imm.inStack)
+            imm = new Imm(imm.val + s);
+    }
 }

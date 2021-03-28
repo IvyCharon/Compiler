@@ -13,4 +13,9 @@ public class jInst extends asmInst {
     public String toString() {
         return "j " + dest.name;
     }
+
+    @Override
+    public void setStackImm(int s) {
+        
+    }
 }

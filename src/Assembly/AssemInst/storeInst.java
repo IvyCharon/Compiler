@@ -19,4 +19,10 @@ public class storeInst extends asmInst {    //store addr + imm to reg
     public String toString() {
         return "sw " + reg.toString() + ", " + imm.toString() + "(" + addr.toString() + ")";
     }
+
+    @Override
+    public void setStackImm(int s) {
+        if(imm.inStack)
+            imm = new Imm(imm.val + s);
+    }
 }

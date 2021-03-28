@@ -16,4 +16,10 @@ public class luiInst extends asmInst {
     public String toString() {
         return "lui " + reg.toString() + ", " + imm.toString();
     }
+
+    @Override
+    public void setStackImm(int s) {
+        if(imm.inStack)
+            imm = new Imm(imm.val + s);
+    }
 }

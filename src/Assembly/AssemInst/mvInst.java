@@ -14,4 +14,9 @@ public class mvInst extends asmInst {
     public String toString() {
         return "mv " + rd.toString() + ", " + rs.toString();
     }
+
+    @Override
+    public void setStackImm(int s) {
+        
+    }
 }

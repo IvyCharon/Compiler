@@ -1,11 +1,12 @@
 package Backend;
 
-//import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import Assembly.AssemBlock;
 import Assembly.AssemFunction;
 import Assembly.AssemModule;
+import Assembly.AssemInst.asmInst;
 import Assembly.AssemInst.binaryInst;
 import Assembly.AssemInst.branchInst;
 import Assembly.AssemInst.callInst;
@@ -151,14 +152,17 @@ public class InstSelector implements IRVisitor {
     public void visit(Function func) {
         current_function = assemModule.functions.get(func.name);
         current_block = getAsmBlock(func.entranceBlock);
+
+        //current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(-4, true)));
         
-/*         ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
+        ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
         for(int i = 0;i <= 11; ++ i) {
             VirtualRegister r = new VirtualRegister(assemModule.VirRegCnt ++);
             current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i)));
             calleeSavedReg.add(r);
         }
-        current_block.addInst(new mvInst(new VirtualRegister(assemModule.VirRegCnt ++), assemModule.getPhyReg("ra"))); */
+        VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
+        current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"))); 
 
         int min = func.paras.size() <= 8 ? func.paras.size() : 8;
         for(int i = 0; i < min; ++ i) {
@@ -167,11 +171,23 @@ public class InstSelector implements IRVisitor {
 
         //if paras.size() > 8
         // ----- TO DO -----
+
+        // -----------------
+
         BasicBlock tmp = func.entranceBlock;
         while(tmp != null) {
             this.visit(tmp);
             tmp = tmp.next;
         }
+
+        current_block = getAsmBlock(func.retBlock);
+        
+        for(int i = 0; i <= 11; ++ i) {
+            current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i)));
+        }
+        current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret));
+        current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true)));
+        current_block.addInst(new retInst());
         
     }
     @Override
@@ -359,7 +375,14 @@ public class InstSelector implements IRVisitor {
     }
     @Override
     public void visit(ReturnInst inst) {
-        current_block.addInst(new retInst());
+        if(inst.val != null) {
+            Register ret = getRegFromOper(inst.val);
+            if(ret instanceof AsmGlobalVar) {
+                System.exit(0);
+            } else {
+                current_block.addInst(new mvInst(assemModule.getPhyReg("a0"), ret));
+            }
+        }
     }
     @Override
     public void visit(StoreInst inst) {         //TO DO

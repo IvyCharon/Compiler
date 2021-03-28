@@ -5,4 +5,9 @@ public class retInst extends asmInst {
     public String toString() {
         return "ret";
     }
+
+    @Override
+    public void setStackImm(int s) {
+        
+    }
 }

@@ -1,5 +1,6 @@
 package Assembly.AssemInst;
 
+import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
 import Assembly.Operand.asmOperand;
 
@@ -18,5 +19,11 @@ public class binaryInst extends asmInst {
     @Override
     public String toString() {
         return op + " " + rd.toString() + ", " + rs1.toString() + ", " + rs2.toString();
+    }
+
+    @Override
+    public void setStackImm(int s) {
+        if(rs2 instanceof Imm && ((Imm)rs2).inStack)
+            rs2 = new Imm(((Imm)rs2).val + s);
     }
 }

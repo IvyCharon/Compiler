@@ -30,4 +30,6 @@ abstract public class asmInst {
             tmp.pre = this;
         }
     }
+
+    abstract public void setStackImm(int s);
 }

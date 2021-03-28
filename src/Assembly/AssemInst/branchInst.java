@@ -17,4 +17,9 @@ public class branchInst extends asmInst {
     public String toString() {
         return "bnez " + rs.toString() + ", " + trueBlock.name + "\n\t" + "j " + falseBlock.name;
     }
+
+    @Override
+    public void setStackImm(int s) {
+        
+    }
 }

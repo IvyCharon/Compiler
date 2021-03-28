@@ -16,4 +16,10 @@ public class liInst extends asmInst {
     public String toString() {
         return "li " + rd.toString() + ", " + imm.toString();
     }
+
+    @Override
+    public void setStackImm(int s) {
+        if(imm.inStack)
+            imm = new Imm(imm.val + s);
+    }
 }
