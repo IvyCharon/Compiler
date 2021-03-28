@@ -69,15 +69,15 @@ public class InstSelector implements IRVisitor {
     private Register getRegFromOper(operand oper) {
         if(oper instanceof ConstBool) {
             VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new liInst(ret, new Imm(((ConstBool) oper).value() ? 1 : 0)));
+            current_block.addInst(new liInst(ret, new Imm(((ConstBool) oper).value() ? 1 : 0), current_block));
             return ret;
         } else if(oper instanceof ConstInt) {
             VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new liInst(ret, new Imm(((ConstInt) oper).value())));
+            current_block.addInst(new liInst(ret, new Imm(((ConstInt) oper).value()), current_block));
             return ret;
         } else if(oper instanceof ConstNull) {
             VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new liInst(ret, new Imm(0)));
+            current_block.addInst(new liInst(ret, new Imm(0), current_block));
             return ret;
         } else if(oper instanceof ConstString) {
             return null;
@@ -158,15 +158,15 @@ public class InstSelector implements IRVisitor {
         ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
         for(int i = 0;i <= 11; ++ i) {
             VirtualRegister r = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i)));
+            current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i), current_block));
             calleeSavedReg.add(r);
         }
         VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
-        current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"))); 
+        current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"), current_block)); 
 
         int min = func.paras.size() <= 8 ? func.paras.size() : 8;
         for(int i = 0; i < min; ++ i) {
-            current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(func.paras.get(i))));
+            current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(func.paras.get(i)), current_block));
         }
 
         //if paras.size() > 8
@@ -183,11 +183,11 @@ public class InstSelector implements IRVisitor {
         current_block = getAsmBlock(func.retBlock);
         
         for(int i = 0; i <= 11; ++ i) {
-            current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i)));
+            current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i), current_block));
         }
-        current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret));
-        current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true)));
-        current_block.addInst(new retInst());
+        current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret, current_block));
+        current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true), current_block));
+        current_block.addInst(new retInst(current_block));
         
     }
     @Override
@@ -276,34 +276,34 @@ public class InstSelector implements IRVisitor {
                 };
             }
         }
-        current_block.addInst(new binaryInst(op, rd, rs1, rs2));
+        current_block.addInst(new binaryInst(op, rd, rs1, rs2, current_block));
     }
     @Override
     public void visit(BitCastInst inst) {
-        current_block.addInst(new mvInst(getRegFromOper(inst.result), getRegFromOper(inst.oper)));
+        current_block.addInst(new mvInst(getRegFromOper(inst.result), getRegFromOper(inst.oper), current_block));
     }
     @Override
     public void visit(BranchInst inst) {        //TO DO
         if(inst.condition != null) {
-            current_block.addInst(new branchInst(getRegFromOper(inst.condition), getAsmBlock(inst.trueBlock), getAsmBlock(inst.falseBlock)));
+            current_block.addInst(new branchInst(getRegFromOper(inst.condition), getAsmBlock(inst.trueBlock), getAsmBlock(inst.falseBlock), current_block));
         } else {
-            current_block.addInst(new jInst(getAsmBlock(inst.trueBlock)));
+            current_block.addInst(new jInst(getAsmBlock(inst.trueBlock), current_block));
         }
     }
     @Override
     public void visit(CallInst inst) {          //TO DO
         int min_ = inst.paras.size() < 8 ? inst.paras.size() : 8;
         for(int i = 0; i < min_; ++ i) {
-            current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i))));
+            current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i)), current_block));
             //----- para size > 8 -----
             //TO DO
             
         }
 
-        current_block.addInst(new callInst(functions.get(inst.func)));
+        current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
         if(inst.result != null) {
-            current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0")));
+            current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0"), current_block));
         }
     }
     @Override
@@ -314,41 +314,47 @@ public class InstSelector implements IRVisitor {
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new binaryInst("xor", tmp, 
                                                     getRegFromOper(inst.left), 
-                                                    getRegFromOper(inst.right)));
-                current_block.addInst(new binaryInst("sltui", getRegFromOper(inst.result), tmp, new Imm(1)));
+                                                    getRegFromOper(inst.right),
+                                                    current_block));
+                current_block.addInst(new binaryInst("sltui", getRegFromOper(inst.result), tmp, new Imm(1), current_block));
                 break;
             case ne: //not equal
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new binaryInst("xor", tmp,
                                                     getRegFromOper(inst.left),
-                                                    getRegFromOper(inst.right)));
-                current_block.addInst(new binaryInst("slt", getRegFromOper(inst.result), assemModule.getPhyReg("zero"), tmp));
+                                                    getRegFromOper(inst.right),
+                                                    current_block));
+                current_block.addInst(new binaryInst("slt", getRegFromOper(inst.result), assemModule.getPhyReg("zero"), tmp, current_block));
                 break;
             case sgt: //greater
                 current_block.addInst(new binaryInst("slt", 
                                                     getRegFromOper(inst.result), 
                                                     getRegFromOper(inst.right), 
-                                                    getRegFromOper(inst.left)));
+                                                    getRegFromOper(inst.left),
+                                                    current_block));
                 break;
             case sge: //greater_equal
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new binaryInst("slt", tmp, 
                                                     getRegFromOper(inst.left), 
-                                                    getRegFromOper(inst.right)));
-                current_block.addInst(new binaryInst("xori", getRegFromOper(inst.result), tmp, new Imm(1)));
+                                                    getRegFromOper(inst.right),
+                                                    current_block));
+                current_block.addInst(new binaryInst("xori", getRegFromOper(inst.result), tmp, new Imm(1), current_block));
                 break;
             case slt: //smaller
                 current_block.addInst(new binaryInst("slt", 
                                                     getRegFromOper(inst.result), 
                                                     getRegFromOper(inst.left), 
-                                                    getRegFromOper(inst.right)));
+                                                    getRegFromOper(inst.right),
+                                                    current_block));
                 break;
             case sle: //smaller_equal
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new binaryInst("slt", tmp, 
                                                     getRegFromOper(inst.right), 
-                                                    getRegFromOper(inst.left)));
-                current_block.addInst(new binaryInst("xori", getRegFromOper(inst.result), tmp, new Imm(1)));
+                                                    getRegFromOper(inst.left),
+                                                    current_block));
+                current_block.addInst(new binaryInst("xori", getRegFromOper(inst.result), tmp, new Imm(1), current_block));
                 break;
         }
     }
@@ -363,10 +369,10 @@ public class InstSelector implements IRVisitor {
 
         if(rs instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.address)).name)));
-            current_block.addInst(new loadInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.address)).name), 4));
+            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.address)).name), current_block));
+            current_block.addInst(new loadInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.address)).name), 4, current_block));
         } else {
-            current_block.addInst(new loadInst(rs, rd, new Imm(0), 4));
+            current_block.addInst(new loadInst(rs, rd, new Imm(0), 4, current_block));
         }
     }
     @Override
@@ -380,7 +386,7 @@ public class InstSelector implements IRVisitor {
             if(ret instanceof AsmGlobalVar) {
                 System.exit(0);
             } else {
-                current_block.addInst(new mvInst(assemModule.getPhyReg("a0"), ret));
+                current_block.addInst(new mvInst(assemModule.getPhyReg("a0"), ret, current_block));
             }
         }
     }
@@ -392,10 +398,10 @@ public class InstSelector implements IRVisitor {
         if(rd instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
             if(!(inst.addr instanceof MIR.IROperand.Register)) System.exit(0);
-            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.addr)).name)));
-            current_block.addInst(new storeInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.addr)).name), 4));
+            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.addr)).name), current_block));
+            current_block.addInst(new storeInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.addr)).name), 4, current_block));
         } else {
-            current_block.addInst(new storeInst(rs, rd, new Imm(0), 4));
+            current_block.addInst(new storeInst(rs, rd, new Imm(0), 4, current_block));
         }
     }
 }

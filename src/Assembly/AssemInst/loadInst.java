@@ -1,5 +1,6 @@
 package Assembly.AssemInst;
 
+import Assembly.AssemBlock;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
 
@@ -8,11 +9,12 @@ public class loadInst extends asmInst { //load addr + imm to reg
     public Imm imm;
     public int size;
 
-    public loadInst(Register reg, Register addr, Imm imm, int size) {
+    public loadInst(Register reg, Register addr, Imm imm, int size, AssemBlock b) {
         this.reg = reg;
         this.addr = addr;
         this.imm = imm;
         this.size = size;
+        this.block = b;
     }
 
 

@@ -1,5 +1,6 @@
 package Assembly.AssemInst;
 
+import Assembly.AssemBlock;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
 
@@ -7,9 +8,10 @@ public class luiInst extends asmInst {
     public Register reg;
     public Imm imm;
 
-    public luiInst(Register reg, Imm imm) {
+    public luiInst(Register reg, Imm imm, AssemBlock b) {
         this.reg = reg;
         this.imm = imm;
+        this.block = b;
     }
 
     @Override
