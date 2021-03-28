@@ -302,7 +302,7 @@ public class InstSelector implements IRVisitor {
 
         current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
-        if(inst.result != null) {
+        if(inst.func.retVal != null) {
             current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0"), current_block));
         }
     }
@@ -401,7 +401,7 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.addr)).name), current_block));
             current_block.addInst(new storeInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.addr)).name), 4, current_block));
         } else {
-            current_block.addInst(new storeInst(rs, rd, new Imm(0), 4, current_block));
+            current_block.addInst(new mvInst(rd, rs, current_block));
         }
     }
 }
