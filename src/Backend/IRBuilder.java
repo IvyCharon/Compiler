@@ -866,7 +866,7 @@ public class IRBuilder implements ASTVisitor {
             if(tmp.type() instanceof PointerType) {
                 Register reg = new Register(((PointerType)(tmp.type())).baseType, it.name + RegNum ++);
                 current_block.addInst(new LoadInst(current_block, ((PointerType)(tmp.type())).baseType, tmp, reg));
-                it.oper = reg;
+                it.oper = tmp;
             } else 
                 it.oper = tmp;
         } else {
