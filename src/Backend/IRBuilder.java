@@ -862,7 +862,13 @@ public class IRBuilder implements ASTVisitor {
         if(current_function != null) {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
             if(symbs == null) System.exit(0);
-            it.oper = symbs.get(symbs.size() - 1);
+            operand tmp = symbs.get(symbs.size() - 1);
+            if(tmp.type() instanceof PointerType) {
+                Register reg = new Register(((PointerType)(tmp.type())).baseType, it.name + RegNum ++);
+                current_block.addInst(new LoadInst(current_block, ((PointerType)(tmp.type())).baseType, tmp, reg));
+                it.oper = reg;
+            } else 
+                it.oper = tmp;
         } else {
             System.exit(0);
         }

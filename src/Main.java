@@ -50,7 +50,7 @@ public class Main {
             new SemanticChecker(gScope).visit(ASTRoot);
 
             new IRBuilder(gScope).visit(ASTRoot);
-            //new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
+            new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
 
             AssemModule asmModule = new AssemModule();
             new InstSelector(ASTRoot.module, asmModule).run();
