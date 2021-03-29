@@ -887,6 +887,7 @@ public class IRBuilder implements ASTVisitor {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
             if(symbs == null) {
                 //global variable
+                System.exit(0);
                 operand t = module.globalVars.get(it.name);
                 if(t.type() instanceof PointerType) {
                     Register r = new Register(((PointerType)(t.type())).baseType, it.name + RegNum ++);
