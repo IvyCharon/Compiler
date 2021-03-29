@@ -373,7 +373,7 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new loadInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.address)).name), 4, current_block));
         } else {
             //current_block.addInst(new loadInst(rs, rd, new Imm(0), 4, current_block));
-            current_block.addInst(new mvInst(rd, rs, current_block));
+            current_block.addInst(new mvInst(rs, rd, current_block));
         }
     }
     @Override
