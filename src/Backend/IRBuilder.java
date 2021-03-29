@@ -637,32 +637,38 @@ public class IRBuilder implements ASTVisitor {
         unaryExprNode.unaryOpType op = it.op;
         operand left = it.node.oper;
         operand right = new ConstInt(32, 1);
+        operand addr = it.node.lresult;
         Register result;
         switch(op) {
             case plusplus:  //++x
                 result = new Register(new IntType(32), "unary_plusplus" + RegNum ++);
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.add, left, right, result));
-                current_block.addInst(new StoreInst(current_block, result, left));
+                current_block.addInst(new StoreInst(current_block, result, addr));
                 it.oper = result;
+                it.lresult = addr;
                 current_function.symbolAdd(result.name, result);
                 break;
             case subsub:    //--x
                 result = new Register(new IntType(32), "unary_subsub" + RegNum ++);
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.sub, left, right, result));
-                current_block.addInst(new StoreInst(current_block, result, left));
+                current_block.addInst(new StoreInst(current_block, result, addr));
                 it.oper = result;
+                it.lresult = addr;
                 current_function.symbolAdd(result.name, result);
                 break;
             case posi:      //+x
                 it.oper = left;
+                it.lresult = addr;
                 break;
             case neg:       //-x
                 if(left.isConst()) {
                     it.oper = new ConstInt(32, -((ConstInt)left).value());
+                    it.lresult = addr;
                 } else {
                     result = new Register(new IntType(32), "neg" + RegNum ++);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.sub, new ConstInt(32, 0), left, result));
                     it.oper = result;
+                    it.lresult = addr;
                     current_function.symbolAdd(result.name, result);
                 }
                 break;
@@ -670,12 +676,14 @@ public class IRBuilder implements ASTVisitor {
                 result = new Register(new IntType(32), "not" + RegNum ++);
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.xor, new ConstBool(8, true), left, result));
                 it.oper = result;
+                it.lresult = addr;
                 current_function.symbolAdd(result.name, result);
                 break;
             case bit_opposite:  //~x
                 result = new Register(new IntType(32), "bit_opposite" + RegNum ++);
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.xor, new ConstInt(32, -1), left, result));
                 it.oper = result;
+                it.lresult = addr;
                 current_function.symbolAdd(result.name, result);
                 break;
         }
