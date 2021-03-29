@@ -27,8 +27,11 @@ public class BasicBlock {
     public void addInst(Inst i) {
         if(instHead == null) {
             instHead = i;
-            instTail = instHead;
             i.pre = null; i.next = null;
+        } else if(instTail == null) {
+            instTail = i;
+            instHead.next = instTail;
+            instTail.pre = instHead;
         } else {
             instTail.next = i;
             i.pre = instTail;

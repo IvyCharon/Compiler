@@ -796,7 +796,7 @@ public class IRBuilder implements ASTVisitor {
     public void visit(assignExprNode it) {
         it.left.accept(this);
         it.right.accept(this);
-        current_block.addInst(new StoreInst(current_block, it.right.oper, it.left.oper));
+        current_block.addInst(new StoreInst(current_block, it.right.oper, it.left.lresult));
         it.oper = it.right.oper;
     }
     @Override
@@ -866,7 +866,8 @@ public class IRBuilder implements ASTVisitor {
             if(tmp.type() instanceof PointerType) {
                 Register reg = new Register(((PointerType)(tmp.type())).baseType, it.name + RegNum ++);
                 current_block.addInst(new LoadInst(current_block, ((PointerType)(tmp.type())).baseType, tmp, reg));
-                it.oper = tmp;
+                it.oper = reg;
+                it.lresult = tmp;
             } else 
                 it.oper = tmp;
         } else {

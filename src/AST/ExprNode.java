@@ -8,7 +8,7 @@ public abstract class ExprNode extends ASTNode {
     public Type type;
     public boolean isAssignable = false;
     
-    public operand oper;
+    public operand oper, lresult = null;
 
     public ExprNode(position pos, boolean isA) {
         super(pos);
