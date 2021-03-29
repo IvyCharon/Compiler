@@ -101,6 +101,19 @@ public class RegisterAllocator {
                             maxStack = max(maxStack, tmp.index * 4 + 4);
                             ((mvInst)inst).rd = t0;
                         }
+                    } else if(inst instanceof setzInst) {
+                        if(((setzInst)inst).rs instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((setzInst)inst).rs;
+                            inst.addPreInst(new loadInst(t1, sp, new Imm(tmp.index * 4), 4, inst.block));
+                            maxStack = max(maxStack, tmp.index * 4 + 4);
+                            ((setzInst)inst).rs = t1;
+                        }
+                        if(((setzInst)inst).rd instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((setzInst)inst).rd;
+                            inst.addNextInst(new storeInst(t0, sp, new Imm(tmp.index * 4), 4, inst.block));
+                            maxStack = max(maxStack, tmp.index * 4 + 4);
+                            ((setzInst)inst).rd = t0;
+                        }
                     } else if(inst instanceof storeInst) {
                         if(((storeInst)inst).addr instanceof VirtualRegister) {
                             tmp = (VirtualRegister)((storeInst)inst).addr;

@@ -16,6 +16,7 @@ import Assembly.AssemInst.loadInst;
 import Assembly.AssemInst.luiInst;
 import Assembly.AssemInst.mvInst;
 import Assembly.AssemInst.retInst;
+import Assembly.AssemInst.setzInst;
 import Assembly.AssemInst.storeInst;
 import Assembly.Operand.RelocationImm;
 import Assembly.Operand.AsmGlobalVar;
@@ -316,7 +317,7 @@ public class InstSelector implements IRVisitor {
                                                     getRegFromOper(inst.left), 
                                                     getRegFromOper(inst.right),
                                                     current_block));
-                current_block.addInst(new binaryInst("sltui", getRegFromOper(inst.result), tmp, new Imm(1), current_block));
+                current_block.addInst(new setzInst("beqz", getRegFromOper(inst.result), tmp, current_block));
                 break;
             case ne: //not equal
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
@@ -324,7 +325,7 @@ public class InstSelector implements IRVisitor {
                                                     getRegFromOper(inst.left),
                                                     getRegFromOper(inst.right),
                                                     current_block));
-                current_block.addInst(new binaryInst("slt", getRegFromOper(inst.result), assemModule.getPhyReg("zero"), tmp, current_block));
+                current_block.addInst(new setzInst("bnez", getRegFromOper(inst.result), tmp, current_block));
                 break;
             case sgt: //greater
                 current_block.addInst(new binaryInst("slt", 
