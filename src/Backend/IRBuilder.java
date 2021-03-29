@@ -719,7 +719,7 @@ public class IRBuilder implements ASTVisitor {
             BinaryInst inst = new BinaryInst(current_block, binaryInstOp.sub, left, right, result);
             current_block.addInst(inst);
         }
-        current_block.addInst(new StoreInst(current_block, result, it.node.oper));
+        current_block.addInst(new StoreInst(current_block, result, it.node.lresult));
         it.oper = it.node.oper;
 
         current_function.symbolAdd(result.name, result);
