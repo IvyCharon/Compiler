@@ -45,6 +45,7 @@ import MIR.IRType.BoolType;
 import MIR.IRType.IntType;
 import MIR.IRType.PointerType;
 import Util.position;
+import Util.error.runtimeError;
 import Util.error.semanticError;
 
 public class InstSelector implements IRVisitor {
@@ -228,7 +229,11 @@ public class InstSelector implements IRVisitor {
                     || inst.op == binaryInstOp.or 
                     || inst.op == binaryInstOp.xor) {
                     rs1 = getRegFromOper(inst.right);
-                    rs2 = new Imm(((ConstInt)inst.left).value());
+                    if(inst.left instanceof ConstInt)
+                        rs2 = new Imm(((ConstInt)inst.left).value());
+                    else if(inst.left instanceof ConstBool)
+                        rs2 = new Imm(((ConstBool)inst.left).value() ? 1 : 0);
+                    else throw new runtimeError("[InstSelector][binaryInst] wrong type-1!");
                     op = switch (inst.op) {
                         case add -> "addi";
                         case and -> "andi";
@@ -248,7 +253,11 @@ public class InstSelector implements IRVisitor {
                 }
             } else if(inst.right.isConst()) {
                 rs1 = getRegFromOper(inst.left);
-                rs2 = new Imm(((ConstInt)inst.right).value());
+                if(inst.right instanceof ConstInt)
+                    rs2 = new Imm(((ConstInt)inst.right).value());
+                else if(inst.right instanceof ConstBool)
+                    rs2 = new Imm(((ConstBool)inst.right).value() ? 1 : 0);
+                else throw new runtimeError("[InstSelector][binaryInst] wrong type-2!");
                 if(inst.op == binaryInstOp.sub) 
                     ((Imm)rs2).val = -((Imm)rs2).val;
                 op = switch (inst.op) {
