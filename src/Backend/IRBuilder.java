@@ -570,7 +570,7 @@ public class IRBuilder implements ASTVisitor {
                     //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
         } else {
-            BasicBlock branchBlock, afterBlock, phi1, phi2;
+            /* BasicBlock branchBlock, afterBlock, phi1, phi2;
             ArrayList<operand> opers = new ArrayList<>();
             ArrayList<BasicBlock> blocks = new ArrayList<>();
             switch(it.op) {
@@ -599,8 +599,6 @@ public class IRBuilder implements ASTVisitor {
                     
                     it.oper = result;
                     current_function.symbolAdd(result.name, result);
-                    /* current_function.BasicBlockAdd(branchBlock.name, branchBlock);
-                    current_function.BasicBlockAdd(afterBlock.name, afterBlock); */
                     break;
                 case oror:
                     branchBlock = new BasicBlock("andand" + BlockNum ++, current_function);
@@ -627,13 +625,50 @@ public class IRBuilder implements ASTVisitor {
 
                     it.oper = result;
                     current_function.symbolAdd(result.name, result);
-                    /* current_function.BasicBlockAdd(branchBlock.name, branchBlock);
-                    current_function.BasicBlockAdd(afterBlock.name, afterBlock); */
                     break;
                 default:
                     System.out.println("9");
                     System.exit(0);
                     //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+            } */
+
+            BasicBlock brB, afterB;
+            Register tmp;
+            switch (it.op) {
+                case andand:
+                    brB = new BasicBlock("andand" + BlockNum ++, current_function);
+                    afterB = new BasicBlock("after_andand" + BlockNum ++, current_function);
+                    it.left.accept(this);
+                    current_block.addInst(new BranchInst(current_block, it.left.oper, brB, afterB));
+
+                    current_block = brB;
+                    it.right.accept(this);
+                    current_block.addInst(new BranchInst(current_block, null, afterB, null));
+
+                    current_block = afterB;
+                    tmp = new Register(new BoolType(1), "andand" + RegNum ++);
+                    current_block.addInst(new BinaryInst(current_block, binaryInstOp.and, it.left.oper, it.right.oper, tmp));
+                    it.oper = tmp;
+                    
+                    break;
+                case oror:
+                    brB = new BasicBlock("oror" + BlockNum ++, current_function);
+                    afterB = new BasicBlock("after_oror" + BlockNum ++, current_function);
+                    it.left.accept(this);
+                    current_block.addInst(new BranchInst(current_block, it.left.oper, afterB, brB));
+
+                    current_block = brB;
+                    it.right.accept(this);
+                    current_block.addInst(new BranchInst(current_block, null, afterB, null));
+
+                    current_block = afterB;
+                    tmp = new Register(new BoolType(1), "oror" + RegNum ++);
+                    current_block.addInst(new BinaryInst(current_block, binaryInstOp.or, it.left.oper, it.right.oper, tmp));
+                    it.oper = tmp;
+                    break;
+                default:
+                    System.out.println("9");
+                    System.exit(0);
             }
         }
     }

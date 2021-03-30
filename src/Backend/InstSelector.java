@@ -6,7 +6,6 @@ import java.util.HashMap;
 import Assembly.AssemBlock;
 import Assembly.AssemFunction;
 import Assembly.AssemModule;
-import Assembly.AssemInst.asmInst;
 import Assembly.AssemInst.binaryInst;
 import Assembly.AssemInst.branchInst;
 import Assembly.AssemInst.callInst;
@@ -284,7 +283,7 @@ public class InstSelector implements IRVisitor {
         current_block.addInst(new mvInst(getRegFromOper(inst.result), getRegFromOper(inst.oper), current_block));
     }
     @Override
-    public void visit(BranchInst inst) {        //TO DO
+    public void visit(BranchInst inst) {
         if(inst.condition != null) {
             current_block.addInst(new branchInst(getRegFromOper(inst.condition), getAsmBlock(inst.trueBlock), getAsmBlock(inst.falseBlock), current_block));
         } else {
@@ -379,6 +378,10 @@ public class InstSelector implements IRVisitor {
     }
     @Override
     public void visit(PhiInst inst) {           //TO DO
+        //BasicBlock b1 = inst.blocks.get(0), b2 = inst.blocks.get(1);
+        //AssemBlock ab1 = getAsmBlock(b1), ab2 = getAsmBlock(b2);
+        //VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+
         System.exit(0);
     }
     @Override
@@ -393,7 +396,7 @@ public class InstSelector implements IRVisitor {
         }
     }
     @Override
-    public void visit(StoreInst inst) {         //TO DO
+    public void visit(StoreInst inst) {
         Register rs = getRegFromOper(inst.val);
         Register rd = getRegFromOper(inst.addr);
 
