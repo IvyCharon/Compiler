@@ -27,8 +27,8 @@ import java.io.PrintStream;
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        //InputStream input = System.in;
-        InputStream input = new FileInputStream("test.mx");
+        InputStream input = System.in;
+        //InputStream input = new FileInputStream("test.mx");
         PrintStream output = new PrintStream("output.s");
 
         try {
