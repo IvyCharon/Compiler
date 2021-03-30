@@ -317,7 +317,7 @@ public class InstSelector implements IRVisitor {
                                                     getRegFromOper(inst.left), 
                                                     getRegFromOper(inst.right),
                                                     current_block));
-                current_block.addInst(new setzInst("beqz", getRegFromOper(inst.result), tmp, current_block));
+                current_block.addInst(new setzInst("seqz", getRegFromOper(inst.result), tmp, current_block));
                 break;
             case ne: //not equal
                 tmp = new VirtualRegister(assemModule.VirRegCnt ++);
@@ -325,7 +325,7 @@ public class InstSelector implements IRVisitor {
                                                     getRegFromOper(inst.left),
                                                     getRegFromOper(inst.right),
                                                     current_block));
-                current_block.addInst(new setzInst("bnez", getRegFromOper(inst.result), tmp, current_block));
+                current_block.addInst(new setzInst("snez", getRegFromOper(inst.result), tmp, current_block));
                 break;
             case sgt: //greater
                 current_block.addInst(new binaryInst("slt", 
