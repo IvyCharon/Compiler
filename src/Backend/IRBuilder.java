@@ -649,6 +649,9 @@ public class IRBuilder implements ASTVisitor {
                     tmp = new Register(new BoolType(1), "andand" + RegNum ++);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.and, it.left.oper, it.right.oper, tmp));
                     it.oper = tmp;
+
+                    current_function.addBasicBlock(brB);
+                    current_function.addBasicBlock(afterB);
                     
                     break;
                 case oror:
@@ -665,6 +668,10 @@ public class IRBuilder implements ASTVisitor {
                     tmp = new Register(new BoolType(1), "oror" + RegNum ++);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.or, it.left.oper, it.right.oper, tmp));
                     it.oper = tmp;
+
+                    current_function.addBasicBlock(brB);
+                    current_function.addBasicBlock(afterB);
+                    
                     break;
                 default:
                     System.out.println("9");
