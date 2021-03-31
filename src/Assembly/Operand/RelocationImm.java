@@ -1,14 +1,16 @@
 package Assembly.Operand;
 
 public class RelocationImm extends Imm{
+    public String t;
     public String name;
 
-    public RelocationImm(int val, String name) {
-        super(val);
+    public RelocationImm(String t, String name) {
+        super(0);
+        this.t = t;
         this.name = name;
     }
     
     public String toString() {
-        return name;
+        return "%" + t + "(" + name + ")";
     }
 }

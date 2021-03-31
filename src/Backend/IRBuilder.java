@@ -146,9 +146,7 @@ public class IRBuilder implements ASTVisitor {
             if(it.expr != null) {
                 it.expr.accept(this);
                 init = it.expr.oper;
-                if(!init.isConst()) {
-                    current_block.addInst(new StoreInst(current_block, init, gVar));
-                }
+                current_block.addInst(new StoreInst(current_block, init, gVar));
             } else 
                 init = irType.toOper();
             gVar.init = init;
@@ -671,7 +669,7 @@ public class IRBuilder implements ASTVisitor {
 
                     current_function.addBasicBlock(brB);
                     current_function.addBasicBlock(afterB);
-                    
+
                     break;
                 default:
                     System.out.println("9");
@@ -929,7 +927,8 @@ public class IRBuilder implements ASTVisitor {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
             if(symbs == null) {
                 //global variable
-                System.exit(0);
+                //System.out.println("qwq");
+                //System.exit(0);
                 operand t = module.globalVars.get(it.name);
                 if(t.type() instanceof PointerType) {
                     Register r = new Register(((PointerType)(t.type())).baseType, it.name + RegNum ++);

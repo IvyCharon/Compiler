@@ -88,6 +88,7 @@ public class InstSelector implements IRVisitor {
             regs.put(oper, ret);
             return ret;
         } else if(oper instanceof parameter) {
+            System.out.println("is 1");
             System.exit(0);
             return null;
         } else if(oper instanceof MIR.IROperand.Register) {
@@ -204,6 +205,7 @@ public class InstSelector implements IRVisitor {
 
     @Override
     public void visit(AllocInst inst) {         //TO DO
+        System.out.println("is 2");
         System.exit(0);
     }
     @Override
@@ -369,20 +371,20 @@ public class InstSelector implements IRVisitor {
     }
     @Override
     public void visit(GetElementPtrInst inst) { //TO DO
+        System.out.println("is 3");
         System.exit(0);
     }
     @Override
-    public void visit(LoadInst inst) {
-        Register rs = getRegFromOper(inst.result);
-        Register rd = getRegFromOper(inst.address);
+    public void visit(LoadInst inst) {          //TO DO
+        Register rd = getRegFromOper(inst.result);
+        Register rs = getRegFromOper(inst.address);
 
         if(rs instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
-            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.address)).name), current_block));
-            current_block.addInst(new loadInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.address)).name), 4, current_block));
+            current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
+            current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), 4, current_block));
         } else {
-            //current_block.addInst(new loadInst(rs, rd, new Imm(0), 4, current_block));
-            current_block.addInst(new mvInst(rs, rd, current_block));
+            current_block.addInst(new mvInst(rd, rs, current_block));
         }
     }
     @Override
@@ -390,7 +392,7 @@ public class InstSelector implements IRVisitor {
         //BasicBlock b1 = inst.blocks.get(0), b2 = inst.blocks.get(1);
         //AssemBlock ab1 = getAsmBlock(b1), ab2 = getAsmBlock(b2);
         //VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
-
+        System.out.println("is 4");
         System.exit(0);
     }
     @Override
@@ -398,7 +400,10 @@ public class InstSelector implements IRVisitor {
         if(inst.val != null) {
             Register ret = getRegFromOper(inst.val);
             if(ret instanceof AsmGlobalVar) {
-                System.exit(0);
+                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                current_block.addInst(new luiInst(assemModule.getPhyReg("a0"), new RelocationImm("hi", ((AsmGlobalVar)ret).name), current_block));
+//                System.out.println("is 5");
+//                System.exit(0);
             } else {
                 current_block.addInst(new mvInst(assemModule.getPhyReg("a0"), ret, current_block));
             }
@@ -411,9 +416,9 @@ public class InstSelector implements IRVisitor {
 
         if(rd instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
-            if(!(inst.addr instanceof MIR.IROperand.Register)) System.exit(0);
-            current_block.addInst(new luiInst(vr, new RelocationImm(1, ((MIR.IROperand.Register)(inst.addr)).name), current_block));
-            current_block.addInst(new storeInst(rs, vr, new RelocationImm(0, ((MIR.IROperand.Register)(inst.addr)).name), 4, current_block));
+//            if(!(inst.addr instanceof MIR.IROperand.Register)) {System.out.println("is 6");System.exit(0);}
+            current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
+            current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), 4, current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }

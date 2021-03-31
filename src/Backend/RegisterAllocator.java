@@ -87,7 +87,12 @@ public class RegisterAllocator {
                             ((loadInst)inst).reg = t0;
                         }
                     } else if(inst instanceof luiInst) {
-
+                        if(((luiInst)inst).reg instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((luiInst)inst).reg;
+                            inst.addNextInst(new storeInst(t0, sp, new Imm(tmp.index * 4), 4, inst.block));
+                            maxStack = max(maxStack, tmp.index * 4 + 4);
+                            ((luiInst)inst).reg = t0;
+                        }
                     } else if(inst instanceof mvInst) {
                         if(((mvInst)inst).rs instanceof VirtualRegister) {
                             tmp = (VirtualRegister)((mvInst)inst).rs;
