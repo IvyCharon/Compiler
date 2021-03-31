@@ -28,9 +28,21 @@ public class Main {
     public static void main(String[] args) throws Exception{
 
         InputStream input;
-        if(args.length > 0)
+        boolean ir_print = true;
+        if(args.length > 0) {
             input = System.in;
+            ir_print = false;
+        }
         else input = new FileInputStream("test.mx");
+
+        boolean codegen = true;
+        if(args.length > 0)
+            for(String arg : args) {
+                switch (arg) {
+                    case "-semantic" -> codegen = false;
+                    case "-codegen" -> codegen = true;
+                }
+            }
         
         PrintStream output = new PrintStream("output.s");
 
@@ -53,7 +65,8 @@ public class Main {
             new SemanticChecker(gScope).visit(ASTRoot);
 
             new IRBuilder(gScope).visit(ASTRoot);
-            new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
+            if(ir_print) new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
+            if(!codegen) return;
 
             AssemModule asmModule = new AssemModule();
             new InstSelector(ASTRoot.module, asmModule).run();

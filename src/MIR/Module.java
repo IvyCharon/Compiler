@@ -11,6 +11,7 @@ import MIR.IRType.BoolType;
 import MIR.IRType.IRBaseType;
 import MIR.IRType.IntType;
 import MIR.IRType.PointerType;
+import MIR.IRType.StringType;
 import MIR.IRType.VoidType;
 import Util.Type.classType;
 
@@ -74,28 +75,28 @@ public class Module {
         func = new Function("toString", retType, paras);
         builtinFunctions.put("toString", func);
 
-        //int array.size(array arr)
+        //int __array_size(array arr)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "arr"));
         retType = new IntType(32);
-        func = new Function("array.size", retType, paras);
-        builtinFunctions.put("array.size", func);
+        func = new Function("__array_size", retType, paras);
+        builtinFunctions.put("__array_size", func);
 
-        //int string.length(string str)
+        //int __string_length(string str)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "str"));
         retType = new IntType(32);
-        func = new Function("string.length", retType, paras);
-        builtinFunctions.put("string.length", func);
+        func = new Function("__string_length", retType, paras);
+        builtinFunctions.put("__string_length", func);
 
-        //string string.substring(string str, int left, int right)
+        //string __string_substring(string str, int left, int right)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "str"));
         paras.add(new parameter(new IntType(32), "left"));
         paras.add(new parameter(new IntType(32), "right"));
         retType = new PointerType(new IntType(32));
-        func = new Function("string.substring", retType, paras);
-        builtinFunctions.put("string.substring", func);
+        func = new Function("__string_substring", retType, paras);
+        builtinFunctions.put("__string_substring", func);
 
         //int parseInt(string str)
         paras = new ArrayList<>();
@@ -112,61 +113,68 @@ public class Module {
         func = new Function("ord", retType, paras);
         builtinFunctions.put("ord", func);
         
-        //bool string.add(string s1, string s2)
+        //bool __string_add(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
-        retType = new BoolType(1);
-        func = new Function("string.add", retType, paras);
-        builtinFunctions.put("string.add", func);
+        retType = new PointerType(new IntType(32));
+        func = new Function("__string_add", retType, paras);
+        builtinFunctions.put("__string_add", func);
 
-        //bool string.equal(string s1, string s2)
+        //bool __string_equal(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.equal", retType, paras);
-        builtinFunctions.put("string.equal", func);
+        func = new Function("__string_equal", retType, paras);
+        builtinFunctions.put("__string_equal", func);
 
-        //bool string.not_equal(string s1, string s2)
+        //bool __string_not_equal(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.not_equal", retType, paras);
-        builtinFunctions.put("string.not_equal", func);
+        func = new Function("__string_not_equal", retType, paras);
+        builtinFunctions.put("__string_not_equal", func);
         
         //bool stirng.smaller(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.smaller", retType, paras);
-        builtinFunctions.put("string.smaller", func);
+        func = new Function("__string_smaller", retType, paras);
+        builtinFunctions.put("__string_smaller", func);
 
-        //bool string.bigger(string s1, string s2)
+        //bool __string_bigger(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.bigger", retType, paras);
-        builtinFunctions.put("string.bigger", func);
+        func = new Function("__string_bigger", retType, paras);
+        builtinFunctions.put("__string_bigger", func);
         
-        //bool string.smaller_equal(string s1, string s2)
+        //bool __string_smaller_equal(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.smaller_equal", retType, paras);
-        builtinFunctions.put("string.smaller_equal", func);
+        func = new Function("__string_smaller_equal", retType, paras);
+        builtinFunctions.put("__string_smaller_equal", func);
         
-        //bool string.bigger_equal(string s1, string s2)
+        //bool __string_bigger_equal(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));
         retType = new BoolType(1);
-        func = new Function("string.bigger_equal", retType, paras);
-        builtinFunctions.put("string.bigger_equal", func);
+        func = new Function("__string_bigger_equal", retType, paras);
+        builtinFunctions.put("__string_bigger_equal", func);
+
+        //byte* malloc(int size)
+        paras = new ArrayList<>();
+        paras.add(new parameter(new IntType(32), "size"));
+        retType = new PointerType(new IntType(8));
+        func = new Function("malloc", retType, paras);
+        builtinFunctions.put("malloc", func);
 
         //init func
         paras = new ArrayList<>();
@@ -180,7 +188,7 @@ public class Module {
         if(constStringMap.containsKey(s)) {
             return constStringMap.get(s);
         } else {
-            String name = "string." + constStringMap.size();
+            String name = "__string_" + constStringMap.size();
             globalVariable tmp = new globalVariable(
                 new ArrayType(new IntType(32), s.length()),
                 name,

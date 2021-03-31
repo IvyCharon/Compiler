@@ -16,8 +16,10 @@ import MIR.IROperand.*;
 import MIR.IRType.*;
 import Util.Scope.*;
 import Util.Type.Type;
+import Util.Type.arrayType;
 import Util.Type.classType;
 //import Util.error.runtimeError;
+import Util.error.runtimeError;
 
 public class IRBuilder implements ASTVisitor {
     private Module module;
@@ -734,9 +736,21 @@ public class IRBuilder implements ASTVisitor {
                 break;
         }
     }
+    
+    private Register arrayMalloc(int dim, IRBaseType type, newArrayExprNode it) {
+        Register ptr = new Register(type, "arrayMalloc" + RegNum ++);
+        if(dim == it.expr.size())
+            return ptr;
+        
+        return null;
+    }
+    
     @Override
     public void visit(newArrayExprNode it) {        //TO DO
-        //TO DO
+        IRBaseType type = ((arrayType)(it.type)).tran_IRType();
+        it.expr.forEach(t -> t.accept(this));
+        it.oper = arrayMalloc(0, type, it);
+
         System.out.println("10");
         System.exit(0);
     }
@@ -774,7 +788,7 @@ public class IRBuilder implements ASTVisitor {
         current_function.symbolAdd(result.name, result);
     }
     @Override
-    public void visit(funcCallExprNode it) {
+    public void visit(funcCallExprNode it) {        //TO DO
         Function func;
         if(it.funcName instanceof methodNode) {
             System.out.println("13");
@@ -824,34 +838,31 @@ public class IRBuilder implements ASTVisitor {
             }
         } else if(it.funcName instanceof funcNode) {
             funcNode fn = (funcNode)it.funcName;
-            if(gScope.containsFunction(fn.funcName, false)) {
-                if(module.functions.containsKey(fn.funcName)) 
-                    func = module.functions.get(fn.funcName);
-                else func = module.builtinFunctions.get(fn.funcName);
-                if(func == null) {System.out.println("14");System.exit(0);}
-                IRBaseType retType = func.retType;
-                Register result = retType instanceof VoidType ? null : new Register(retType, "call" + RegNum ++);
-                ArrayList<operand> paras = new ArrayList<>();
-                it.paras.forEach(t -> {
-                    t.accept(this);
-                    paras.add(t.oper);
-                });
-                current_block.addInst(new CallInst(current_block, func, paras, result));
-                if(result != null)
-                    current_function.symbolAdd(result.name, result);
-                it.oper = result;
-            } else {
-                System.out.println("15");
-                System.exit(0);
-                //throw new runtimeError("[IRBuilder][visit funcCallExprNode] sth wrong", it.pos);
+            String funcN = fn.funcName;
+            if(in_class) funcN = current_class.name() + "." + funcN;
+            if(module.functions.containsKey(funcN))
+                func = module.functions.get(funcN);
+            else func = module.builtinFunctions.get(funcN);
+            if(func == null) throw new runtimeError("[IRBuilder][visit func call] no such function!");
+
+            IRBaseType retType = func.retType;
+            Register result = retType instanceof VoidType ? null : new Register(retType, "call" + RegNum ++);
+
+            ArrayList<operand> paras = new ArrayList<>();
+            if(in_class) {
+                //add this
             }
+            it.paras.forEach(t -> {
+                t.accept(this);
+                paras.add(t.oper);
+            });
+            current_block.addInst(new CallInst(current_block, func, paras, result));
+            if(result != null)
+                current_function.symbolAdd(result.name, result);
+            it.oper = result;
         } else {
-            System.out.println("16");System.exit(0);
+            throw new runtimeError("[IRBuilder][visit funcCallExprNode] it is not a function!");
         }
-            
-            //throw new runtimeError("[IRBuilder][visit funcCallExprNode] " + 
-            //                           "it is not a function",
-            //                           it.pos);
     }
     @Override
     public void visit(assignExprNode it) {
@@ -886,7 +897,7 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(boolConstNode it) {
-        it.oper = new ConstBool(8, it.value);
+        it.oper = new ConstBool(1, it.value);
         //TO DO
     }
     @Override
@@ -894,7 +905,7 @@ public class IRBuilder implements ASTVisitor {
         it.oper = new ConstNull();
     }
     @Override
-    public void visit(stringConstNode it) {
+    public void visit(stringConstNode it) {         //TO DO
         String val = it.value;
         val.replace("\\n", "\n");
         val.replace("\\\\", "\\");
