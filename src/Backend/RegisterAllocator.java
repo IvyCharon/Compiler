@@ -132,6 +132,13 @@ public class RegisterAllocator {
                             maxStack = max(maxStack, tmp.index * 4 + 4);
                             ((storeInst)inst).reg = t1;
                         }
+                    } else if(inst instanceof laInst) {
+                        if(((laInst)inst).rd instanceof VirtualRegister) {
+                            tmp = (VirtualRegister)((laInst)inst).rd;
+                            inst.addNextInst(new storeInst(t0, sp, new Imm(tmp.index * 4), 4, inst.block));
+                            maxStack = max(maxStack, tmp.index * 4 + 4);
+                            ((laInst)inst).rd = t0;
+                        }
                     }
                     inst = inst.next;
                 }

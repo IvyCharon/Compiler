@@ -10,6 +10,7 @@ import Assembly.AssemInst.binaryInst;
 import Assembly.AssemInst.branchInst;
 import Assembly.AssemInst.callInst;
 import Assembly.AssemInst.jInst;
+import Assembly.AssemInst.laInst;
 import Assembly.AssemInst.liInst;
 import Assembly.AssemInst.loadInst;
 import Assembly.AssemInst.luiInst;
@@ -317,7 +318,7 @@ public class InstSelector implements IRVisitor {
 
         current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
-        if(inst.func.retVal != null) {
+        if(inst.func.retVal != null && inst.result != null) {
             current_block.addInst(new mvInst(getRegFromOper(inst.result), assemModule.getPhyReg("a0"), current_block));
         }
     }
@@ -375,8 +376,15 @@ public class InstSelector implements IRVisitor {
     }
     @Override
     public void visit(GetElementPtrInst inst) { //TO DO
-        System.out.println("is 3");
-        System.exit(0);
+        Register rd = getRegFromOper(inst.result);
+        if(inst.ptr.type() instanceof PointerType) {
+            Register base = getRegFromOper(inst.ptr);
+
+        } else if(inst.ptr instanceof globalVariable) {
+            current_block.addInst(new laInst(rd, getRegFromOper(inst.ptr)));
+        } else {
+            throw new runtimeError("[InstSelector][visitGetElePtr]wrong ptr!");
+        }
     }
     @Override
     public void visit(LoadInst inst) {          //TO DO
