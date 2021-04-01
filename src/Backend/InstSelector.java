@@ -88,9 +88,13 @@ public class InstSelector implements IRVisitor {
             regs.put(oper, ret);
             return ret;
         } else if(oper instanceof parameter) {
-            System.out.println("is 1");
-            System.exit(0);
-            return null;
+            if(regs.containsKey(oper))
+                return regs.get(oper);
+            else {
+                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                regs.put(oper, tmp);
+                return tmp;
+            }
         } else if(oper instanceof MIR.IROperand.Register) {
             if(regs.containsKey(oper)) 
                 return regs.get(oper);
@@ -400,7 +404,7 @@ public class InstSelector implements IRVisitor {
         if(inst.val != null) {
             Register ret = getRegFromOper(inst.val);
             if(ret instanceof AsmGlobalVar) {
-                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+//                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new luiInst(assemModule.getPhyReg("a0"), new RelocationImm("hi", ((AsmGlobalVar)ret).name), current_block));
 //                System.out.println("is 5");
 //                System.exit(0);

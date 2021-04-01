@@ -74,6 +74,27 @@ public class IRBuilder implements ASTVisitor {
             }
         });
 
+        for(var t : it.decls) {
+            if(t instanceof funcDeclNode) {
+                String funcN = ((funcDeclNode)t).identifier;
+                isParam = true;
+                ((funcDeclNode)t).paras.forEach(para -> para.accept(this));
+                isParam = false;
+                ArrayList<parameter> paras = new ArrayList<>();
+                ((funcDeclNode)t).paras.forEach(para -> {
+                    paras.add((parameter)(para.var.oper));
+                });
+                IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : ((funcDeclNode)t).func.retType().toIRType();
+                Function func = new Function(funcN, retType, paras);
+                func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
+                for(var p : ((funcDeclNode)t).paras) {
+                    //if(p.type.type == null) {System.out.println("1");System.exit(0);}
+                    func.symbolAdd(p.identifier, new Register(new PointerType(p.type.toIRType()), ((funcDeclNode)t).identifier + RegNum ++));
+                }
+                module.functions.put(funcN, func);
+            }
+        }
+
         it.decls.forEach(t -> {
             if(t instanceof funcDeclNode) {
                 t.accept(this);
@@ -94,24 +115,8 @@ public class IRBuilder implements ASTVisitor {
             funcN = it.identifier;
         }
         
-        isParam = true;
-        it.paras.forEach(t -> t.accept(this));
-        isParam = false;
-        ArrayList<parameter> paras = new ArrayList<>();
-        it.paras.forEach(t -> {
-            paras.add((parameter)(t.var.oper));
-        });
-        IRBaseType retType = it.func.retType() == null ? new VoidType() : it.func.retType().toIRType();
-        Function func = new Function(funcN, retType, paras);
-        func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
-        for(var t : it.paras) {
-            if(t.type.type == null) {System.out.println("1");System.exit(0);}
-            func.symbolAdd(t.identifier, new Register(new PointerType(t.type.type.toIRType()), t.identifier + RegNum ++));
-        }
-        module.functions.put(funcN, func);
-
-        current_function = func;
-        current_block = func.entranceBlock;
+        current_function = module.functions.get(funcN);
+        current_block = current_function.entranceBlock;
 
         if(it.identifier.equals("main")) {
             Register t = new Register(new VoidType(), "call_init" + RegNum ++);
@@ -124,7 +129,7 @@ public class IRBuilder implements ASTVisitor {
         current_block.addInst(new BranchInst(current_block, null, current_function.retBlock, null));
         current_block = current_function.retBlock;
 
-        current_block.addInst(new ReturnInst(current_block, retType, current_function.retVal));
+        current_block.addInst(new ReturnInst(current_block, current_function.retType, current_function.retVal));
         
         current_function = null;
         current_block = null;
@@ -133,6 +138,24 @@ public class IRBuilder implements ASTVisitor {
     public void visit(classDeclNode it) {
         current_class = (classType)gScope.getType(it.identifier, it.pos);
         in_class = true;
+        for(var i : it.funcs) {
+            String funcN = it.identifier + "." + i.identifier;
+            isParam = true;
+            i.paras.forEach(t -> t.accept(this));
+            isParam = false;
+            ArrayList<parameter> paras = new ArrayList<>();
+            i.paras.forEach(t -> {
+                paras.add((parameter)(t.var.oper));
+            });
+            IRBaseType retType = i.func.retType() == null ? new VoidType() : i.func.retType().toIRType();
+            Function func = new Function(funcN, retType, paras);
+            func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
+            for(var t : i.paras) {
+                //if(t.type.type == null) {System.out.println("1");System.exit(0);}
+                func.symbolAdd(t.identifier, new Register(new PointerType(t.type.toIRType()), t.identifier + RegNum ++));
+            }
+            module.functions.put(funcN, func);
+        }
         it.funcs.forEach(i -> i.accept(this));
         in_class = false;
         current_class = null;
@@ -357,10 +380,10 @@ public class IRBuilder implements ASTVisitor {
                         current_block.addInst(new BinaryInst(current_block, binaryInstOp.add, left, right, result));
                         break;
                     } else {
-                        Function func = module.builtinFunctions.get("string.add");
+                        Function func = module.builtinFunctions.get("__string_add");
                         ArrayList<operand> paras = new ArrayList<>();
                         paras.add(left); paras.add(right);
-                        result = new Register(new PointerType(new IntType(32)), "string.add" + RegNum ++);
+                        result = new Register(new PointerType(new IntType(32)), "__string_add" + RegNum ++);
                         current_block.addInst(new CallInst(current_block, func, paras, result));
                         break;
                     }
@@ -382,7 +405,7 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "equal" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.eq, left, right, result, right.type()));
                     } else if(le.isString() && ri.isString()) {
-                        Function func = module.builtinFunctions.get("string.equal");
+                        Function func = module.builtinFunctions.get("__string_equal");
                         ArrayList<operand> paras = new ArrayList<>();
                         paras.add(left); paras.add(right);
 
@@ -416,7 +439,7 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "not_equal" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.ne, left, right, result, right.type()));
                     } else if(le.isString() && ri.isString()) {
-                        Function func = module.builtinFunctions.get("string.not_equal");
+                        Function func = module.builtinFunctions.get("__string_not_equal");
                         ArrayList<operand> paras = new ArrayList<>();
                         paras.add(left); paras.add(right);
 
@@ -463,11 +486,11 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "smaller" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.slt, left, right, result, new IntType(32)));
                     } else {
-                        Function func = module.builtinFunctions.get("string.smaller");
+                        Function func = module.builtinFunctions.get("__string_smaller");
                         ArrayList<operand> paras = new ArrayList<>();
 
                         paras.add(left); paras.add(right);
-                        result = new Register(new BoolType(1), "string.smaller" + RegNum ++);
+                        result = new Register(new BoolType(1), "__string_smaller" + RegNum ++);
                         current_block.addInst(new CallInst(current_block, func, paras, result));
                     }
                     break;
@@ -476,11 +499,11 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "bigger" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.sgt, left, right, result, new IntType(32)));
                     } else {
-                        Function func = module.builtinFunctions.get("string.bigger");
+                        Function func = module.builtinFunctions.get("__string_bigger");
                         ArrayList<operand> paras = new ArrayList<>();
 
                         paras.add(left); paras.add(right);
-                        result = new Register(new BoolType(1), "string.bigger" + RegNum ++);
+                        result = new Register(new BoolType(1), "__string_bigger" + RegNum ++);
                         current_block.addInst(new CallInst(current_block, func, paras, result));
                     }
                     break;
@@ -489,11 +512,11 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "smaller_equal" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.sle, left, right, result, new IntType(32)));
                     } else {
-                        Function func = module.builtinFunctions.get("string.smaller_equal");
+                        Function func = module.builtinFunctions.get("__string_smaller_equal");
                         ArrayList<operand> paras = new ArrayList<>();
 
                         paras.add(left); paras.add(right);
-                        result = new Register(new BoolType(1), "string.smaller_equal" + RegNum ++);
+                        result = new Register(new BoolType(1), "__string_smaller_equal" + RegNum ++);
                         current_block.addInst(new CallInst(current_block, func, paras, result));
 
                     }
@@ -503,11 +526,11 @@ public class IRBuilder implements ASTVisitor {
                         result = new Register(new BoolType(1), "bigger_equal" + RegNum ++);
                         current_block.addInst(new CompareInst(current_block, compareInstOp.sge, left, right, result, new IntType(32)));
                     } else {
-                        Function func = module.builtinFunctions.get("string.bigger_equal");
+                        Function func = module.builtinFunctions.get("__string_bigger_equal");
                         ArrayList<operand> paras = new ArrayList<>();
 
                         paras.add(left); paras.add(right);
-                        result = new Register(new BoolType(1), "string.bigger_equal" + RegNum ++);
+                        result = new Register(new BoolType(1), "__string_bigger_equal" + RegNum ++);
                         current_block.addInst(new CallInst(current_block, func, paras, result));
 
                     }
@@ -791,9 +814,9 @@ public class IRBuilder implements ASTVisitor {
     public void visit(funcCallExprNode it) {        //TO DO
         Function func = null;
         if(it.funcName instanceof methodNode) {
-            System.out.println("13");
-            System.exit(0);
-            memberAccessExprNode funcN = ((memberAccessExprNode)(it.funcName));
+            //System.out.println("13");
+            //System.exit(0);
+            methodNode funcN = ((methodNode)(it.funcName));
             ExprNode body = funcN.bo;
             Type type = body.type;
             body.accept(this);
@@ -817,9 +840,9 @@ public class IRBuilder implements ASTVisitor {
                 current_function.symbolAdd(result.name, result);
                 current_function.symbolAdd(size.name, size);
             } else {
-                String name = funcN.iden;
+                String name = funcN.name;
                 if(type.isString())
-                    func = module.builtinFunctions.get("string." + name);
+                    func = module.builtinFunctions.get("__string_" + name);
                 else
                     func = module.functions.get(((classType)type).name() + "." + name);
                 ArrayList<operand> paras = new ArrayList<>();
@@ -856,6 +879,7 @@ public class IRBuilder implements ASTVisitor {
             ArrayList<operand> paras = new ArrayList<>();
             if(in_class) {
                 //add this
+                //add what?!
             }
             it.paras.forEach(t -> {
                 t.accept(this);
@@ -943,8 +967,6 @@ public class IRBuilder implements ASTVisitor {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
             if(symbs == null) {
                 //global variable
-                //System.out.println("qwq");
-                //System.exit(0);
                 operand t = module.globalVars.get(it.name);
                 if(t == null) System.exit(0);
                 if(t.type() instanceof PointerType) {
@@ -964,7 +986,7 @@ public class IRBuilder implements ASTVisitor {
                 it.lresult = tmp;
             } else 
                 it.oper = tmp;
-        } else {
+        } else {    //in class
             System.out.println("22");
             System.exit(0);
         }        

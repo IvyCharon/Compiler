@@ -4,6 +4,7 @@ import AST.*;
 import AST.binaryExprNode.binaryOpType;
 import AST.postfixExprNode.postfixOpType;
 import AST.unaryExprNode.unaryOpType;
+import MIR.IRType.ArrayType;
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
 import Util.position;

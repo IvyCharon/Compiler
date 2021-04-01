@@ -11,7 +11,6 @@ import MIR.IRType.BoolType;
 import MIR.IRType.IRBaseType;
 import MIR.IRType.IntType;
 import MIR.IRType.PointerType;
-import MIR.IRType.StringType;
 import MIR.IRType.VoidType;
 import Util.Type.classType;
 
@@ -102,16 +101,16 @@ public class Module {
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "str"));
         retType = new IntType(32);
-        func = new Function("parseInt", retType, paras);
-        builtinFunctions.put("parseInt", func);
+        func = new Function("__string_parseInt", retType, paras);
+        builtinFunctions.put("__string_parseInt", func);
 
         //int ord(string str, int ord)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "str"));
         paras.add(new parameter(new IntType(32), "ord"));
         retType = new IntType(32);
-        func = new Function("ord", retType, paras);
-        builtinFunctions.put("ord", func);
+        func = new Function("__string_ord", retType, paras);
+        builtinFunctions.put("__string_ord", func);
         
         //string __string_add(string s1, string s2)
         paras = new ArrayList<>();
@@ -137,7 +136,7 @@ public class Module {
         func = new Function("__string_not_equal", retType, paras);
         builtinFunctions.put("__string_not_equal", func);
         
-        //bool stirng.smaller(string s1, string s2)
+        //bool __stirng_smaller(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));

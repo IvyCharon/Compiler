@@ -53,13 +53,13 @@ char* __string_substring(char* str, int left, int right) {
     return tmp;
 }
 
-int parseInt(char* str) {
+int __string_parseInt(char* str) {
     int tmp;
     sscanf(str, "%d", &tmp);
     return tmp;
 }
 
-int ord(char* str, int ord) {
+int __string_ord(char* str, int ord) {
     return str[ord];
 }
 

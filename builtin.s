@@ -285,9 +285,9 @@ _Z18__string_substringPcii:
 	.cfi_endproc
 .LFE23:
 	.size	_Z18__string_substringPcii, .-_Z18__string_substringPcii
-	.globl	_Z8parseIntPc
-	.type	_Z8parseIntPc, @function
-_Z8parseIntPc:
+	.globl	_Z17__string_parseIntPc
+	.type	_Z17__string_parseIntPc, @function
+_Z17__string_parseIntPc:
 .LFB24:
 	.cfi_startproc
 	pushq	%rbp
@@ -317,10 +317,10 @@ _Z8parseIntPc:
 	ret
 	.cfi_endproc
 .LFE24:
-	.size	_Z8parseIntPc, .-_Z8parseIntPc
-	.globl	_Z3ordPci
-	.type	_Z3ordPci, @function
-_Z3ordPci:
+	.size	_Z17__string_parseIntPc, .-_Z17__string_parseIntPc
+	.globl	_Z12__string_ordPci
+	.type	_Z12__string_ordPci, @function
+_Z12__string_ordPci:
 .LFB25:
 	.cfi_startproc
 	pushq	%rbp
@@ -341,7 +341,7 @@ _Z3ordPci:
 	ret
 	.cfi_endproc
 .LFE25:
-	.size	_Z3ordPci, .-_Z3ordPci
+	.size	_Z12__string_ordPci, .-_Z12__string_ordPci
 	.globl	_Z12__string_addPcS_
 	.type	_Z12__string_addPcS_, @function
 _Z12__string_addPcS_:
