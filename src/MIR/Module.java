@@ -113,7 +113,7 @@ public class Module {
         func = new Function("ord", retType, paras);
         builtinFunctions.put("ord", func);
         
-        //bool __string_add(string s1, string s2)
+        //string __string_add(string s1, string s2)
         paras = new ArrayList<>();
         paras.add(new parameter(new PointerType(new IntType(32)), "s1"));
         paras.add(new parameter(new PointerType(new IntType(32)), "s2"));

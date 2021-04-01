@@ -789,7 +789,7 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(funcCallExprNode it) {        //TO DO
-        Function func;
+        Function func = null;
         if(it.funcName instanceof methodNode) {
             System.out.println("13");
             System.exit(0);
@@ -839,10 +839,15 @@ public class IRBuilder implements ASTVisitor {
         } else if(it.funcName instanceof funcNode) {
             funcNode fn = (funcNode)it.funcName;
             String funcN = fn.funcName;
-            if(in_class) funcN = current_class.name() + "." + funcN;
-            if(module.functions.containsKey(funcN))
+            if(in_class && module.functions.containsKey(current_class.name() + "." + funcN)) {
+                func = module.functions.get(current_class.name() + "." + funcN);
+                funcN = current_class.name() + "." + funcN;
+            } else if(module.functions.containsKey(funcN)) {
                 func = module.functions.get(funcN);
-            else func = module.builtinFunctions.get(funcN);
+            } else if(module.builtinFunctions.containsKey(funcN)) {
+                func = module.builtinFunctions.get(funcN);
+            }
+            
             if(func == null) throw new runtimeError("[IRBuilder][visit func call] no such function!");
 
             IRBaseType retType = func.retType;

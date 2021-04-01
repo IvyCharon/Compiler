@@ -1,6 +1,9 @@
 package MIR.IRType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import MIR.Function;
 
 public class ClassType extends IRBaseType {
     public String className;
