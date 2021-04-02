@@ -940,10 +940,9 @@ public class IRBuilder implements ASTVisitor {
         val.replace("\\n", "\n");
         val.replace("\\\\", "\\");
         val.replace("\\\"", "\"");
-        val += "\0";
 
         Register re = new Register(new PointerType(new IntType(32)), "const_string" + RegNum ++);
-        globalVariable s = module.addString(it.value);
+        globalVariable s = module.addString(val);
         ArrayList<operand> index = new ArrayList<>();
         index.add(new ConstInt(32, 0));
         index.add(new ConstInt(32, 0));
