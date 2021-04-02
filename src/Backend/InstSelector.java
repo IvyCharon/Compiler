@@ -173,7 +173,7 @@ public class InstSelector implements IRVisitor {
 
         int min = func.paras.size() <= 8 ? func.paras.size() : 8;
         for(int i = 0; i < min; ++ i) {
-            current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(func.paras.get(i)), current_block));
+            current_block.addInst(new mvInst(getRegFromOper(func.paras.get(i)), assemModule.getPhyReg("a" + i), current_block));
         }
 
         //if paras.size() > 8
@@ -311,10 +311,12 @@ public class InstSelector implements IRVisitor {
         int min_ = inst.paras.size() < 8 ? inst.paras.size() : 8;
         for(int i = 0; i < min_; ++ i) {
             current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i)), current_block));
-            //----- para size > 8 -----
-            //TO DO
+            
             
         }
+
+        //----- para size > 8 -----
+        //TO DO
 
         current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
