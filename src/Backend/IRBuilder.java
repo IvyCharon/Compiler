@@ -87,9 +87,10 @@ public class IRBuilder implements ASTVisitor {
                 IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : ((funcDeclNode)t).func.retType().toIRType();
                 Function func = new Function(funcN, retType, paras);
                 func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
-                for(var p : ((funcDeclNode)t).paras) {
+                for(var p : paras) {
                     //if(p.type.type == null) {System.out.println("1");System.exit(0);}
-                    func.symbolAdd(p.identifier, new Register(new PointerType(p.type.toIRType()), ((funcDeclNode)t).identifier + RegNum ++));
+                    func.symbolAdd(p.name(), p);
+                    //func.symbolAdd(p.identifier, new Register(new PointerType(p.type.toIRType()), p.identifier + RegNum ++));
                 }
                 module.functions.put(funcN, func);
             }
@@ -178,7 +179,7 @@ public class IRBuilder implements ASTVisitor {
             module.globalVars.put(gVar.name, gVar);
             it.var.oper = gVar;
         } else if(isParam) {
-            it.var.oper = new parameter(irType, name);
+            it.var.oper = new parameter(new PointerType(irType), name);
         } else if(current_function != null) {
             Register addr = new Register(new PointerType(irType), name + RegNum ++);
             current_function.symbolAdd(name, addr);
