@@ -30,7 +30,7 @@ public class AsmGlobalVar extends Register {
 
     public AsmGlobalVar(String name, String stringVal) {
         this.name = name;
-        this.stringVal = stringVal;
+        this.stringVal = stringVal.substring(1, stringVal.length() - 1);
         this.gvType = type.String;
     }
 

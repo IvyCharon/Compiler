@@ -935,7 +935,8 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(stringConstNode it) {         //TO DO
-        String val = it.value;
+        int si = it.value.length();
+        String val = it.value.substring(1, si - 1);
         val.replace("\\n", "\n");
         val.replace("\\\\", "\\");
         val.replace("\\\"", "\"");

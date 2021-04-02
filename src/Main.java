@@ -36,13 +36,13 @@ public class Main {
         else input = new FileInputStream("test.mx");
 
         boolean codegen = true;
-        //if(args.length > 0)
-        //    for(String arg : args) {
-        //        switch (arg) {
-        //            case "-semantic" -> codegen = false;
-        //            case "-codegen" -> codegen = true;
-        //        }
-        //    }
+        if(args.length > 0)
+            for(String arg : args) {
+                switch (arg) {
+                    case "-semantic" -> codegen = false;
+                    case "-codegen" -> codegen = true;
+                }
+            }
         
         PrintStream output = new PrintStream("output.s");
 

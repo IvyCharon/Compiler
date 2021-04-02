@@ -7,6 +7,7 @@ import Assembly.AssemFunction;
 import Assembly.AssemModule;
 import Assembly.AssemInst.asmInst;
 import Assembly.Operand.AsmGlobalVar;
+import Assembly.Operand.AsmGlobalVar.type;
 import MIR.IROperand.ConstString;
 
 public class ASMPrinter {
@@ -22,8 +23,9 @@ public class ASMPrinter {
         out.println("\t.text");
         asmModule.functions.forEach((name, func) -> printFunc(func));
 
-        asmModule.globalVars.forEach((name, gVar) -> printGlobalVar(gVar));
+        out.println();
 
+        asmModule.globalVars.forEach((name, gVar) -> printGlobalVar(gVar));
         
     }
 
@@ -50,10 +52,21 @@ public class ASMPrinter {
     }
 
     public void printGlobalVar(AsmGlobalVar gVar) {
-
-    }
-
-    public void printConstString(ConstString str) {
-        
+        if(gVar.gvType == type.Int) {
+            out.println("\t.p2align\t2");
+            out.println(gVar.name + ":");
+            out.println("\t.word\t" + gVar.intVal);
+        } else if(gVar.gvType == type.Bool) {
+            out.println(gVar.name + ":");
+            out.println("\t.byte\t" + gVar.boolVal);
+        } else if(gVar.gvType == type.String) {
+            out.println(gVar.name + ":");
+            String o = gVar.stringVal;
+            o = o.replace("\\", "\\\\");
+            o = o.replace("\n", "\\n");
+            o = o.replace("\"", "\\\"");
+            out.println("\t.asciz\t\"" + o + "\"");
+        }
+        out.println();
     }
 }
