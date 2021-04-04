@@ -137,7 +137,7 @@ public class IRBuilder implements ASTVisitor {
                     else 
                         retType = toIRType(func.type);
                     
-                    funcN = ((classDeclNode)t).identifier + func.identifier;
+                    funcN = ((classDeclNode)t).identifier + "." + func.identifier;
                     parameter classPtr = new parameter(new PointerType(ct), "this");
                     paras.add(classPtr);
                     for(var para : func.paras) {
