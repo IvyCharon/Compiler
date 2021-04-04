@@ -19,6 +19,7 @@ import Assembly.AssemInst.retInst;
 import Assembly.AssemInst.setzInst;
 import Assembly.AssemInst.storeInst;
 import Assembly.Operand.RelocationImm;
+import Assembly.Operand.AddrImm;
 import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
@@ -41,13 +42,10 @@ import MIR.IRInst.ReturnInst;
 import MIR.IRInst.StoreInst;
 import MIR.IRInst.BinaryInst.binaryInstOp;
 import MIR.IROperand.*;
-import MIR.IRType.ArrayType;
-import MIR.IRType.BoolType;
-import MIR.IRType.IntType;
+import MIR.IRType.ClassType;
+import MIR.IRType.IRBaseType;
 import MIR.IRType.PointerType;
-import Util.position;
 import Util.error.runtimeError;
-import Util.error.semanticError;
 
 public class InstSelector implements IRVisitor {
     public Module irModule;
@@ -55,6 +53,7 @@ public class InstSelector implements IRVisitor {
     public HashMap<Function, AssemFunction> functions = new HashMap<>();
     public HashMap<BasicBlock, AssemBlock> blocks = new HashMap<>();
     public HashMap<operand, Register> regs = new HashMap<>();
+    public HashMap<Register, AddrImm> addrImmMap = new HashMap<>();
 
     public AssemFunction current_function = null;
     public AssemBlock current_block = null;
@@ -133,18 +132,6 @@ public class InstSelector implements IRVisitor {
             } else {
                 gV = new AsmGlobalVar(name, 0);
             }
-
-            /* if(var.type() instanceof IntType) {
-                gV = new AsmGlobalVar(name, ((ConstInt) init).value());
-            } else if(var.type() instanceof BoolType) {
-                gV = new AsmGlobalVar(name, ((ConstBool) init).value());
-            } else if(var.type() instanceof ArrayType) {
-                gV = new AsmGlobalVar(name, ((ConstString) init).value());
-            } else if(var.type() instanceof PointerType) {
-                gV = new AsmGlobalVar(name, 0);
-            } else {
-                throw new semanticError("qwq", new position(0,0));
-            } */
 
             assemModule.globalVars.put(gV.name, gV);
 
@@ -391,7 +378,20 @@ public class InstSelector implements IRVisitor {
         Register rd = getRegFromOper(inst.result);
         if(inst.ptr.type() instanceof PointerType) {
             Register base = getRegFromOper(inst.ptr);
+            if(((PointerType)(inst.ptr.type())).baseType instanceof ClassType) {
+                ClassType cla = (ClassType)((PointerType)(inst.ptr.type())).baseType;
+                int index = ((ConstInt)(inst.index.get(1))).value();
+                int off = cla.sizeOffset(index);
+                IRBaseType t = cla.getMemType(index);
+                if(t instanceof PointerType) {
 
+                } else {
+                    addrImmMap.put(rd, new AddrImm(base, off));
+                }
+            } else {
+                //TO DO
+                System.exit(0);
+            }
         } else if(inst.ptr instanceof globalVariable) {
             current_block.addInst(new laInst(rd, getRegFromOper(inst.ptr)));
         } else {
@@ -406,7 +406,10 @@ public class InstSelector implements IRVisitor {
         if(rs instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
-            current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), 4, current_block));
+            current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
+        } else if(addrImmMap.containsKey(rs)) {
+            AddrImm tmpI = addrImmMap.get(rs);
+            current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
@@ -424,10 +427,7 @@ public class InstSelector implements IRVisitor {
         if(inst.val != null) {
             Register ret = getRegFromOper(inst.val);
             if(ret instanceof AsmGlobalVar) {
-//                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
                 current_block.addInst(new luiInst(assemModule.getPhyReg("a0"), new RelocationImm("hi", ((AsmGlobalVar)ret).name), current_block));
-//                System.out.println("is 5");
-//                System.exit(0);
             } else {
                 current_block.addInst(new mvInst(assemModule.getPhyReg("a0"), ret, current_block));
             }
@@ -442,7 +442,7 @@ public class InstSelector implements IRVisitor {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
 //            if(!(inst.addr instanceof MIR.IROperand.Register)) {System.out.println("is 6");System.exit(0);}
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
-            current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), 4, current_block));
+            current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }

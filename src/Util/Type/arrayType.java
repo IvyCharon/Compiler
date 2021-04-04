@@ -17,14 +17,6 @@ public class arrayType extends Type {
         return type;
     }
 
-    public IRBaseType tran_IRType() {
-        IRBaseType base = type.toIRType();
-        for(int i = 0; i < dim; ++i) {
-            base = new PointerType(base);
-        }
-        return base;
-    }
-
     @Override
     public int dim() {
         return dim;

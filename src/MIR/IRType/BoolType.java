@@ -12,7 +12,7 @@ public class BoolType extends IRBaseType {
 
     @Override
     public int size() {
-        return size;
+        return 1;
     }
 
     @Override

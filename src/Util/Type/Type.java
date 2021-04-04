@@ -62,25 +62,4 @@ abstract public class Type {
     public types getType() {
         return type;
     }
-
-    public IRBaseType toIRType() {
-        switch(type) {
-            case Int:
-                return new IntType(32);
-            case Bool:
-                return new BoolType(1);
-            case String:
-                return new PointerType(new IntType(32));
-            case Void:
-                return new VoidType();
-            case Class:
-                return new ClassType();//TO DO
-            case Null:
-                return new NullType();
-            case Array:
-                return ((arrayType)this).tran_IRType();
-            default:
-                return null;
-        }
-    }
 }

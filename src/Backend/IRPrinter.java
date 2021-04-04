@@ -8,7 +8,7 @@ import MIR.Function;
 import MIR.Module;
 import MIR.IRInst.Inst;
 import MIR.IROperand.globalVariable;
-import Util.Type.classType;
+import MIR.IRType.ClassType;
 
 public class IRPrinter {
     private PrintStream out;
@@ -85,7 +85,7 @@ public class IRPrinter {
         }
     }
 
-    public void print(classType cla) {
+    public void print(ClassType cla) {
         out.println(cla.toString());
     }
 

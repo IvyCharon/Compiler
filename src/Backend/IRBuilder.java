@@ -26,7 +26,7 @@ public class IRBuilder implements ASTVisitor {
 
     private globalScope gScope;
 
-    private classType current_class;
+    private ClassType current_class;
     private BasicBlock current_block;
     private Function current_function;
 
@@ -51,13 +51,103 @@ public class IRBuilder implements ASTVisitor {
         return module;
     }
 
+    public IRBaseType toIRType(Type type) {
+        switch(type.getType()) {
+            case Int:
+                return new IntType(32);
+            case Bool:
+                return new BoolType(1);
+            case String:
+                return new PointerType(new IntType(8));
+            case Void:
+                return new VoidType();
+            case Class:
+                return new PointerType(module.classes.get(((classType)type).name()));
+            case Null:
+                return new NullType();
+            case Array:
+                return tran_IRType(((arrayType)type));
+            default:
+                return null;
+        }
+    }
+
+    public IRBaseType tran_IRType(arrayType t) {
+        IRBaseType base = toIRType(t.type());
+        for(int i = 0; i < t.dim(); ++i) {
+            base = new PointerType(base);
+        }
+        return base;
+    }
+
+    public IRBaseType toIRType(TypeNode type) {
+        IRBaseType tmp;
+        switch (type.identifier) {
+            case "int":
+                tmp = new IntType(32);
+                break;
+            case "bool":
+                tmp = new BoolType(1);
+                break;
+            case "string":
+                tmp = new PointerType(new IntType(32));
+                break;
+            case "void":
+                tmp = new VoidType();
+                break;
+            case "null":
+                tmp = new NullType();
+                break;
+            default:
+                tmp = new PointerType(module.classes.get(type.identifier));
+                break;
+        }
+        for(int i = 0;i < type.dim;++ i)
+            tmp = new PointerType(tmp);
+        return tmp;
+    }
+
     @Override
-    public void visit(programNode it) {             //TO DO
+    public void visit(programNode it) {
         it.decls.forEach(t -> {
             if(t instanceof classDeclNode) {
-                t.accept(this);
+                ClassType ct = new ClassType(((classDeclNode)t).identifier);
+                module.classes.put(ct.className, ct);
             }
         });
+
+        for(var t : it.decls) {
+            if(t instanceof classDeclNode) {
+                ClassType ct = module.classes.get(((classDeclNode)t).identifier);
+
+                ((classDeclNode)t).vars.forEach(varN -> {
+                    varN.varList.forEach(v -> {
+                        ct.members.put(v.identifier, toIRType(v.type));
+                    });
+                });
+                
+                
+                for(var func : ((classDeclNode)t).funcs) {
+                    IRBaseType retType;
+                    String funcN;
+                    Function f;
+                    ArrayList<parameter> paras = new ArrayList<>();
+                    if(func.type == null)   //constructor
+                        retType = new VoidType();
+                    else 
+                        retType = toIRType(func.type);
+                    
+                    funcN = ((classDeclNode)t).identifier + func.identifier;
+                    parameter classPtr = new parameter(new PointerType(ct), "this");
+                    paras.add(classPtr);
+                    for(var para : func.paras) {
+                        paras.add(new parameter(new PointerType(toIRType(para.type)), para.identifier));
+                    }
+                    f = new Function(funcN, retType, paras);
+                    module.functions.put(funcN, f);
+                }
+            }
+        }
 
         for(var t : it.decls) {
             if(t instanceof funcDeclNode) {
@@ -69,7 +159,7 @@ public class IRBuilder implements ASTVisitor {
                 ((funcDeclNode)t).paras.forEach(para -> {
                     paras.add((parameter)(para.var.oper));
                 });
-                IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : ((funcDeclNode)t).func.retType().toIRType();
+                IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : toIRType(((funcDeclNode)t).type);
                 Function func = new Function(funcN, retType, paras);
                 func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
                 for(var p : paras) {
@@ -97,6 +187,12 @@ public class IRBuilder implements ASTVisitor {
         current_block = null;
 
         it.decls.forEach(t -> {
+            if(t instanceof classDeclNode) {
+                t.accept(this);
+            }
+        });
+
+        it.decls.forEach(t -> {
             if(t instanceof funcDeclNode) {
                 t.accept(this);
             }
@@ -109,7 +205,7 @@ public class IRBuilder implements ASTVisitor {
     public void visit(funcDeclNode it) {
         String funcN;
         if(in_class) {
-            String class_name = current_class.name();
+            String class_name = current_class.className;
             String funcName = it.identifier;
             funcN = class_name + "." + funcName;
         } else {
@@ -139,34 +235,18 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(classDeclNode it) {
-        current_class = (classType)gScope.getType(it.identifier, it.pos);
         in_class = true;
-        for(var i : it.funcs) {
-            String funcN = it.identifier + "." + i.identifier;
-            isParam = true;
-            i.paras.forEach(t -> t.accept(this));
-            isParam = false;
-            ArrayList<parameter> paras = new ArrayList<>();
-            i.paras.forEach(t -> {
-                paras.add((parameter)(t.var.oper));
-            });
-            IRBaseType retType = i.func.retType() == null ? new VoidType() : i.func.retType().toIRType();
-            Function func = new Function(funcN, retType, paras);
-            func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
-            for(var t : i.paras) {
-                //if(t.type.type == null) {System.out.println("1");System.exit(0);}
-                func.symbolAdd(t.identifier, new Register(new PointerType(t.type.toIRType()), t.identifier + RegNum ++));
-            }
-            module.functions.put(funcN, func);
-        }
-        it.funcs.forEach(i -> i.accept(this));
+        current_class = module.classes.get(it.identifier);
+
+        it.vars.forEach(t -> t.accept(this));
+        it.funcs.forEach(t -> t.accept(this));
+
         in_class = false;
         current_class = null;
     }
     @Override
     public void visit(singleVarDeclNode it) {
-        Type type = gScope.generateType(it.type);
-        IRBaseType irType = type.toIRType();
+        IRBaseType irType = toIRType(it.type);
         String name = it.identifier;
         if(it.var.isGlobal) {
             globalVariable gVar = new globalVariable(irType, name, null);
@@ -195,10 +275,9 @@ public class IRBuilder implements ASTVisitor {
         } else if(in_class) {
             Register addr = new Register(new PointerType(irType), name + RegNum ++);
             it.var.oper = addr;
+            current_class.symbolAdd(name, addr);
         } else {
-            System.out.println("2");
-            System.exit(0);
-            //throw new runtimeError("[IRBuilder][visit single var]: var pos is wrong!", it.pos);
+            throw new runtimeError("[IRBuilder][visit single var] var is wrong!", it.pos);
         }
     }
     @Override
@@ -773,7 +852,7 @@ public class IRBuilder implements ASTVisitor {
     
     @Override
     public void visit(newArrayExprNode it) {        //TO DO
-        IRBaseType type = ((arrayType)(it.type)).tran_IRType();
+        IRBaseType type = tran_IRType(((arrayType)(it.type)));
         it.expr.forEach(t -> t.accept(this));
         it.oper = arrayMalloc(0, type, it);
 
@@ -788,9 +867,16 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(newObjectExprNode it) {       //TO DO
-        //TO DO
-        System.out.println("12");
-        System.exit(0);
+        Register mallocReg = new Register(new PointerType(new IntType(32)), "malloc" + RegNum ++);
+        ArrayList<operand> para = new ArrayList<>();
+        ClassType t = module.classes.get(((classType)(it.type)).name());
+        para.add(new ConstInt(32, t.size()));
+        Function func = module.builtinFunctions.get("malloc");
+        current_block.addInst(new CallInst(current_block, func, para, mallocReg));
+
+        Register reg = new Register(t, "newReg" + RegNum ++);
+        current_block.addInst(new BitCastInst(current_block, mallocReg, t, reg));
+        it.oper = reg;
     }
     @Override
     public void visit(postfixExprNode it) {
@@ -817,8 +903,6 @@ public class IRBuilder implements ASTVisitor {
     public void visit(funcCallExprNode it) {        //TO DO
         Function func = null;
         if(it.funcName instanceof methodNode) {
-            //System.out.println("13");
-            //System.exit(0);
             methodNode funcN = ((methodNode)(it.funcName));
             ExprNode body = funcN.bo;
             Type type = body.type;
@@ -904,9 +988,31 @@ public class IRBuilder implements ASTVisitor {
         it.oper = it.right.oper;
     }
     @Override
-    public void visit(memberAccessExprNode it) {    //TO DO
-        System.out.println("17");
-        System.exit(0);
+    public void visit(memberAccessExprNode it) {
+        it.bo.accept(this);
+
+        IRBaseType t = ((PointerType)(toIRType(it.bo.type))).baseType;
+        if(!(t instanceof ClassType)) throw new runtimeError("[IRBuiler]not a class!");
+
+        ClassType cla = (ClassType)t;
+
+        String className = cla.className;
+        if(module.functions.containsKey(className + "." + it.iden)) {   //function
+
+        } else {    //var
+            IRBaseType ty = cla.members.get(it.iden);
+            Register reg = new Register(new PointerType(ty), "memAccess_" + it.iden + RegNum ++);
+            ArrayList<operand> index = new ArrayList<>();
+            int off = cla.memberOff(it.iden);
+            index.add(new ConstInt(32, 0));
+            index.add(new ConstInt(32, off));
+            current_block.addInst(new GetElementPtrInst(current_block, it.bo.oper, index, reg));
+            it.lresult = reg;
+
+            Register lo = new Register(ty, "memAcLo_" + it.iden + RegNum ++);
+            current_block.addInst(new LoadInst(current_block, ty, reg, lo));
+            it.oper = lo;
+        }
     }
     @Override
     public void visit(subscriptExprNode it) {       //TO DO
@@ -965,8 +1071,8 @@ public class IRBuilder implements ASTVisitor {
     public void visit(TypeNode it) {}
 
     @Override
-    public void visit(varNode it) {                 //TO DO
-        if(current_function != null) {
+    public void visit(varNode it) {
+        if((current_function != null && current_class == null) || (current_function != null && (!current_class.members.containsKey(it.name)))) {
             ArrayList<operand> symbs = current_function.symbols.get(it.name);
             if(symbs == null) {
                 //global variable
@@ -986,9 +1092,21 @@ public class IRBuilder implements ASTVisitor {
                 it.lresult = tmp;
             } else 
                 it.oper = tmp;
-        } else {    //in class
-            System.out.println("22");
-            System.exit(0);
+        } else {    //in class, is a class member
+            int off = current_class.memberOff(it.name);
+            Register claAddr = new Register(new PointerType(current_class), current_class.className + RegNum ++);
+            current_block.addInst(new StoreInst(current_block, current_function.paras.get(0), claAddr));        //paras.get(0) is this
+
+            Register reg = new Register(new PointerType(current_class.members.get(it.name)), "memberGet" + RegNum ++);
+            ArrayList<operand> index = new ArrayList<>();
+            index.add(new ConstInt(32, 0));
+            index.add(new ConstInt(32, off));
+            current_block.addInst(new GetElementPtrInst(current_block, claAddr, index, reg));
+            it.lresult = reg;
+
+            Register lo = new Register(current_class.members.get(it.name), "MemLo" + RegNum ++);
+            current_block.addInst(new LoadInst(current_block, lo.type(), reg, lo));
+            it.oper = lo;
         }        
     }
     @Override

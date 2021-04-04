@@ -14,6 +14,6 @@ public class PointerType extends IRBaseType {
 
     @Override
     public String toString() {
-        return "i8*";
+        return baseType.toString() + "*";
     }
 }

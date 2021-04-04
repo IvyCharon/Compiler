@@ -9,18 +9,18 @@ import MIR.IROperand.globalVariable;
 import MIR.IROperand.parameter;
 import MIR.IRType.ArrayType;
 import MIR.IRType.BoolType;
+import MIR.IRType.ClassType;
 import MIR.IRType.IRBaseType;
 import MIR.IRType.IntType;
 import MIR.IRType.PointerType;
 import MIR.IRType.VoidType;
-import Util.Type.classType;
 
 public class Module {
     public LinkedHashMap<String, Function> functions = new LinkedHashMap<>();
     public LinkedHashMap<String, Function> builtinFunctions = new LinkedHashMap<>();
     public LinkedHashMap<String, globalVariable> globalVars = new LinkedHashMap<>();
     public LinkedHashMap<String, globalVariable> constStringMap = new LinkedHashMap<>();
-    public LinkedHashMap<String, classType> classes = new LinkedHashMap<>();
+    public LinkedHashMap<String, ClassType> classes = new LinkedHashMap<>();
 
     public Module() {
         //add builtin function
