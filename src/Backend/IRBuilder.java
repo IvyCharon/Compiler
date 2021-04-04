@@ -53,24 +53,9 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(programNode it) {             //TO DO
-        current_function = module.functions.get("__init__");
-        current_block = current_function.entranceBlock;
-
-        it.decls.forEach(t -> {
-            if(t instanceof varDeclNode) {
-                t.accept(this);
-            }
-        });
-        current_block.addInst(new BranchInst(current_block, null, current_function.retBlock, null));
-        current_block = current_function.retBlock;
-        current_block.addInst(new ReturnInst(current_block, new VoidType(), null));
-
-        current_function = null;
-        current_block = null;
-
         it.decls.forEach(t -> {
             if(t instanceof classDeclNode) {
-                t.accept(this);
+                //t.accept(this);
             }
         });
 
@@ -95,6 +80,21 @@ public class IRBuilder implements ASTVisitor {
                 module.functions.put(funcN, func);
             }
         }
+
+        current_function = module.functions.get("__init__");
+        current_block = current_function.entranceBlock;
+
+        it.decls.forEach(t -> {
+            if(t instanceof varDeclNode) {
+                t.accept(this);
+            }
+        });
+        current_block.addInst(new BranchInst(current_block, null, current_function.retBlock, null));
+        current_block = current_function.retBlock;
+        current_block.addInst(new ReturnInst(current_block, new VoidType(), null));
+
+        current_function = null;
+        current_block = null;
 
         it.decls.forEach(t -> {
             if(t instanceof funcDeclNode) {

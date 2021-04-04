@@ -124,7 +124,17 @@ public class InstSelector implements IRVisitor {
             AsmGlobalVar gV;
             operand init = var.init;
 
-            if(var.type() instanceof IntType) {
+            if(init instanceof ConstInt) {
+                gV = new AsmGlobalVar(name, ((ConstInt) init).value());
+            } else if(init instanceof ConstBool) {
+                gV = new AsmGlobalVar(name, ((ConstBool) init).value());
+            } else if(init instanceof ConstString) {
+                gV = new AsmGlobalVar(name, ((ConstString) init).value());
+            } else {
+                gV = new AsmGlobalVar(name, 0);
+            }
+
+            /* if(var.type() instanceof IntType) {
                 gV = new AsmGlobalVar(name, ((ConstInt) init).value());
             } else if(var.type() instanceof BoolType) {
                 gV = new AsmGlobalVar(name, ((ConstBool) init).value());
@@ -134,7 +144,7 @@ public class InstSelector implements IRVisitor {
                 gV = new AsmGlobalVar(name, 0);
             } else {
                 throw new semanticError("qwq", new position(0,0));
-            }
+            } */
 
             assemModule.globalVars.put(gV.name, gV);
 
