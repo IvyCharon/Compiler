@@ -127,7 +127,7 @@ public class IRBuilder implements ASTVisitor {
 
         it.suite.accept(this);
 
-        current_block.addInst(new BranchInst(current_block, null, current_function.retBlock, null));
+        current_block.addInstAtFront(new BranchInst(current_block, null, current_function.retBlock, null));
         current_block = current_function.retBlock;
 
         current_block.addInst(new ReturnInst(current_block, current_function.retType, current_function.retVal));

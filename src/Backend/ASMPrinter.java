@@ -63,9 +63,9 @@ public class ASMPrinter {
         } else if(gVar.gvType == type.String) {
             out.println(gVar.name + ":");
             String o = gVar.stringVal;
-            o = o.replace("\\", "\\\\");
-            o = o.replace("\n", "\\n");
-            o = o.replace("\"", "\\\"");
+            //o = o.replace("\\", "\\\\");
+            //o = o.replace("\n", "\\n");
+            //o = o.replace("\"", "\\\"");
             out.println("\t.asciz\t\"" + o + "\"");
         }
         out.println();
