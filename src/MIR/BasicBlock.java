@@ -42,8 +42,12 @@ public class BasicBlock {
     public void addInstAtFront(Inst i) {
         if(instHead == null) {
             instHead = i;
-            instTail = instHead;
             i.pre = null; i.next = null;
+        } else if(instTail == null) {
+            instHead.pre = i;
+            i.next = instHead;
+            instHead = i;
+            instTail = instHead.next;
         } else {
             instHead.pre = i;
             i.next = instHead;
