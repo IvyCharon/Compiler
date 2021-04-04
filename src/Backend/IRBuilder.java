@@ -55,7 +55,7 @@ public class IRBuilder implements ASTVisitor {
     public void visit(programNode it) {             //TO DO
         it.decls.forEach(t -> {
             if(t instanceof classDeclNode) {
-                //t.accept(this);
+                t.accept(this);
             }
         });
 
