@@ -169,7 +169,7 @@ public class IRBuilder implements ASTVisitor {
         IRBaseType irType = type.toIRType();
         String name = it.identifier;
         if(it.var.isGlobal) {
-            globalVariable gVar = new globalVariable(new PointerType(irType), name, null);
+            globalVariable gVar = new globalVariable(irType, name, null);
             operand init;
             if(it.expr != null) {
                 it.expr.accept(this);
@@ -972,13 +972,10 @@ public class IRBuilder implements ASTVisitor {
                 //global variable
                 operand t = module.globalVars.get(it.name);
                 if(t == null) System.exit(0);
-                if(t.type() instanceof PointerType) {
-                    Register r = new Register(((PointerType)(t.type())).baseType, it.name + RegNum ++);
-                    current_block.addInst(new LoadInst(current_block, ((PointerType)(t.type())).baseType, t, r));
-                    it.oper = r;
-                    it.lresult = t;
-                } else 
-                    it.oper = t;
+                Register r = new Register(t.type(), it.name + RegNum ++);
+                current_block.addInst(new LoadInst(current_block, t.type(), t, r));
+                it.oper = r;
+                it.lresult = t;
                 return;            
             }
             operand tmp = symbs.get(symbs.size() - 1);
