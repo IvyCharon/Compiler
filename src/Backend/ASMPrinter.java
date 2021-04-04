@@ -23,7 +23,7 @@ public class ASMPrinter {
         out.println("\t.text");
         asmModule.functions.forEach((name, func) -> printFunc(func));
 
-        out.println();
+        out.println(".section	.sdata,\"aw\",@progbits");
 
         asmModule.globalVars.forEach((name, gVar) -> printGlobalVar(gVar));
         
@@ -40,6 +40,7 @@ public class ASMPrinter {
             tmp = tmp.next;
         }
         out.println("\t.size\t" + func.name + ", .-" + func.name);
+        out.println();
     }
 
     public void printBlock(AssemBlock block) {

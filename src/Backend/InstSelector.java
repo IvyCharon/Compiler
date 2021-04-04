@@ -131,7 +131,7 @@ public class InstSelector implements IRVisitor {
             } else if(var.type() instanceof ArrayType) {
                 gV = new AsmGlobalVar(name, ((ConstString) init).value());
             } else if(var.type() instanceof PointerType) {
-                gV = new AsmGlobalVar(name);
+                gV = new AsmGlobalVar(name, 0);
             } else {
                 throw new semanticError("qwq", new position(0,0));
             }
