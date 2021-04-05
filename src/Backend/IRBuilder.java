@@ -6,6 +6,8 @@ import java.util.Stack;
 import AST.*;
 import AST.binaryExprNode.binaryOpType;
 import AST.postfixExprNode.postfixOpType;
+import Assembly.AssemInst.loadInst;
+import Assembly.AssemInst.mvInst;
 import MIR.BasicBlock;
 import MIR.Function;
 import MIR.Module;
@@ -144,6 +146,7 @@ public class IRBuilder implements ASTVisitor {
                         paras.add(new parameter(new PointerType(toIRType(para.type)), para.identifier));
                     }
                     f = new Function(funcN, retType, paras);
+                    f.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum++);
                     module.functions.put(funcN, f);
                 }
             }
@@ -866,7 +869,7 @@ public class IRBuilder implements ASTVisitor {
         System.exit(0);
     }
     @Override
-    public void visit(newObjectExprNode it) {       //TO DO
+    public void visit(newObjectExprNode it) {
         Register mallocReg = new Register(new PointerType(new IntType(32)), "malloc" + RegNum ++);
         ArrayList<operand> para = new ArrayList<>();
         ClassType t = module.classes.get(((classType)(it.type)).name());
@@ -1023,10 +1026,13 @@ public class IRBuilder implements ASTVisitor {
         it.index.accept(this);
     }
     @Override
-    public void visit(thisExprNode it) {            //TO DO
-        //TO DO
-        System.out.println("19");
-        System.exit(0);
+    public void visit(thisExprNode it) {
+        parameter t = (parameter)current_function.paras.get(0);
+        if(!t.name().equals("this"))
+            throw new runtimeError("[IRBuilder] not in method!");
+        Register reg = new Register(t.type(), "ThisPtr" + RegNum++);
+        current_block.addInst(new LoadInst(current_block, t.type(), t, reg));
+        it.oper = reg;
     }
 
     @Override
