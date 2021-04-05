@@ -874,8 +874,8 @@ public class IRBuilder implements ASTVisitor {
         Function func = module.builtinFunctions.get("malloc");
         current_block.addInst(new CallInst(current_block, func, para, mallocReg));
 
-        Register reg = new Register(t, "newReg" + RegNum ++);
-        current_block.addInst(new BitCastInst(current_block, mallocReg, t, reg));
+        Register reg = new Register(toIRType(it.type), "newReg" + RegNum ++);
+        current_block.addInst(new BitCastInst(current_block, mallocReg, toIRType(it.type), reg));
         it.oper = reg;
     }
     @Override

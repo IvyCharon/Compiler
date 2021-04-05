@@ -22,7 +22,7 @@ public class BitCastInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println("\t" + result.toString() + " = bitcast " + oper.toString() + " to " + type.toString());
+        out.println("\t" + result.toString() + " = bitcast " + oper.type().toString() + " "+ oper.toString() + " to " + type.toString());
     }
 
     @Override
