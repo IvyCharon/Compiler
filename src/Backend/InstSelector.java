@@ -443,6 +443,8 @@ public class InstSelector implements IRVisitor {
 //            if(!(inst.addr instanceof MIR.IROperand.Register)) {System.out.println("is 6");System.exit(0);}
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
             current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
+        } else if(addrImmMap.containsKey(rd)) {
+            current_block.addInst(new storeInst(rs, addrImmMap.get(rd).baseReg, addrImmMap.get(rd), current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
