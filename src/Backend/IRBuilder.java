@@ -1049,7 +1049,7 @@ public class IRBuilder implements ASTVisitor {
         it.oper = new ConstNull();
     }
     @Override
-    public void visit(stringConstNode it) {         //TO DO
+    public void visit(stringConstNode it) {
         int si = it.value.length();
         String val = it.value.substring(1, si - 1);
         val.replace("\\n", "\n");
