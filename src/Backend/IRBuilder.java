@@ -6,8 +6,6 @@ import java.util.Stack;
 import AST.*;
 import AST.binaryExprNode.binaryOpType;
 import AST.postfixExprNode.postfixOpType;
-import Assembly.AssemInst.loadInst;
-import Assembly.AssemInst.mvInst;
 import MIR.BasicBlock;
 import MIR.Function;
 import MIR.Module;
@@ -20,12 +18,12 @@ import Util.Scope.*;
 import Util.Type.Type;
 import Util.Type.arrayType;
 import Util.Type.classType;
-//import Util.error.runtimeError;
 import Util.error.runtimeError;
 
 public class IRBuilder implements ASTVisitor {
     private Module module;
 
+    //----- to be deleted -----
     private globalScope gScope;
 
     private ClassType current_class;
@@ -846,27 +844,97 @@ public class IRBuilder implements ASTVisitor {
     }
     
     private Register arrayMalloc(int dim, IRBaseType type, newArrayExprNode it) {
-        Register ptr = new Register(type, "arrayMalloc" + RegNum ++);
-        if(dim == it.expr.size())
+        Register tmp = new Register(new IntType(32), "malloc_tmp" + RegNum ++);
+        current_block.addInst(new BinaryInst(current_block, binaryInstOp.mul, it.expr.get(dim).oper, new ConstInt(32, 4), tmp));
+        Register size_ = new Register(new IntType(32), "malloc_size" + RegNum ++);
+        current_block.addInst(new BinaryInst(current_block, binaryInstOp.add, tmp, new ConstInt(32, 4), size_));
+        Register call_ret = new Register(new PointerType(new IntType(32)), "malloc_call" + RegNum ++);
+        Function func = module.builtinFunctions.get("malloc");
+        ArrayList<operand> paras = new ArrayList<>();
+        paras.add(size_);
+        current_block.addInst(new CallInst(current_block, func, paras, call_ret));
+
+        Register bc = new Register(new PointerType(new IntType(32)), "bitcastTmp" + RegNum ++);
+        current_block.addInst(new BitCastInst(current_block, call_ret, type, bc));
+        current_block.addInst(new StoreInst(current_block, it.expr.get(dim).oper, bc));
+
+        Register arrayHeadAddr = new Register(new PointerType(new IntType(32)), "array_head" + RegNum ++);
+        ArrayList<operand> index = new ArrayList<>();
+        index.add(new ConstInt(32, 1));
+        current_block.addInst(new GetElementPtrInst(current_block, bc, index, arrayHeadAddr));
+
+        Register ptr = new Register(type, "array_head" + RegNum ++);
+        current_block.addInst(new BitCastInst(current_block, arrayHeadAddr, type, ptr));
+
+        if(dim == it.expr.size() - 1)
             return ptr;
         
-        return null;
+        BasicBlock cond = new BasicBlock("cond" + BlockNum ++, current_function);
+        BasicBlock body = new BasicBlock("body" + BlockNum ++, current_function);
+        BasicBlock af = new BasicBlock("after" + BlockNum ++, current_function);
+
+        Register subA = new Register(type, "sub_array" + RegNum ++);
+        ArrayList<operand> index_ = new ArrayList<>();
+        index_.add(new ConstInt(32, 1));
+        current_block.addInst(new GetElementPtrInst(current_block, bc, index_, subA));
+
+        Register subAe = new Register(type, "sub_array_end" + RegNum ++);
+        index_ = new ArrayList<>();
+        index_.add(it.expr.get(dim).oper);
+        current_block.addInst(new GetElementPtrInst(current_block, ptr, index_, subAe));
+
+        current_block.addInst(new BranchInst(current_block, null, cond, null));
+
+        current_block = cond;
+        current_function.addBasicBlock(cond);
+        Register c = new Register(new BoolType(1), "newArray_cond" + RegNum ++);
+        current_block.addInst(new CompareInst(current_block, compareInstOp.slt, subA, subAe, c, type));
+        current_block.addInst(new BranchInst(current_block, c, body, af));
+
+        current_block = body;
+        current_function.addBasicBlock(body);
+        Register subArrayPtr = arrayMalloc(dim - 1, ((PointerType)type).baseType, it);
+        current_block.addInst(new StoreInst(current_block, subArrayPtr, subA));
+        index_ = new ArrayList<>();
+        index_.add(new ConstInt(32, 1));
+        Register subAt = new Register(type, "incr" + RegNum ++);
+        current_block.addInst(new GetElementPtrInst(current_block, subA, index_, subAt));
+        current_block.addInst(new StoreInst(current_block, subA, subAt));
+        current_block.addInst(new BranchInst(current_block, null, cond, null));
+
+        current_block = af;
+        current_function.addBasicBlock(af);
+        
+        return ptr;
     }
     
     @Override
-    public void visit(newArrayExprNode it) {        //TO DO
+    public void visit(newArrayExprNode it) {
         IRBaseType type = tran_IRType(((arrayType)(it.type)));
         it.expr.forEach(t -> t.accept(this));
         it.oper = arrayMalloc(0, type, it);
-
-        System.out.println("10");
-        System.exit(0);
     }
     @Override
-    public void visit(newInitObjectExprNode it) {   //TO DO
-        //TO DO
-        System.out.println("11");
-        System.exit(0);
+    public void visit(newInitObjectExprNode it) {
+        Register mallocReg = new Register(new PointerType(new IntType(32)), "malloc" + RegNum ++);
+        ArrayList<operand> para = new ArrayList<>();
+        ClassType t = module.classes.get(((classType)(it.type)).name());
+        para.add(new ConstInt(32, t.size()));
+        Function func = module.builtinFunctions.get("malloc");
+        current_block.addInst(new CallInst(current_block, func, para, mallocReg));
+
+        Register reg = new Register(toIRType(it.type), "newReg" + RegNum ++);
+        current_block.addInst(new BitCastInst(current_block, mallocReg, toIRType(it.type), reg));
+        it.oper = reg;
+
+        String funcN = ((ClassType)(toIRType(it.type))).className;
+        funcN = funcN + "." + funcN;
+        if(module.functions.containsKey(funcN)) {
+            Function f = module.functions.get(funcN);
+            ArrayList<operand> paras = new ArrayList<>();
+            paras.add(reg);
+            current_block.addInst(new CallInst(current_block, f, paras, null));
+        }
     }
     @Override
     public void visit(newObjectExprNode it) {
@@ -1018,12 +1086,20 @@ public class IRBuilder implements ASTVisitor {
         }
     }
     @Override
-    public void visit(subscriptExprNode it) {       //TO DO
-        //TO DO
-        System.out.println("18");
-        System.exit(0);
+    public void visit(subscriptExprNode it) {
         it.array.accept(this);
         it.index.accept(this);
+
+        Register reg = new Register(it.array.oper.type(), "getEle" + RegNum ++);
+        ArrayList<operand> index = new ArrayList<>();
+        index.add(it.index.oper);
+        current_block.addInst(new GetElementPtrInst(current_block, it.array.oper, index, reg));
+
+        it.lresult = reg;
+
+        Register regl = new Register(((PointerType)it.array.oper.type()).baseType, "getEleL" + RegNum ++);
+        current_block.addInst(new LoadInst(current_block, regl.type(), reg, regl));
+        it.oper = regl;
     }
     @Override
     public void visit(thisExprNode it) {
@@ -1116,15 +1192,11 @@ public class IRBuilder implements ASTVisitor {
         }        
     }
     @Override
-    public void visit(funcNode it) {                //TO DO
-        //TO DO
-        System.out.println("23");
-        System.exit(0);
+    public void visit(funcNode it) {
+        
     }
     @Override
-    public void visit(methodNode it) {              //TO DO
-        //TO DO
-        System.out.println("24");
-        System.exit(0);
+    public void visit(methodNode it) {
+
     }
 }

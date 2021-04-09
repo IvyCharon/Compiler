@@ -10,7 +10,6 @@ public interface IRVisitor {
     void visit(Function func);
     void visit(BasicBlock bb);
 
-    void visit(AllocInst inst);
     void visit(BinaryInst inst);
     void visit(BitCastInst inst);
     void visit(BranchInst inst);

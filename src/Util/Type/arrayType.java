@@ -1,8 +1,5 @@
 package Util.Type;
 
-import MIR.IRType.IRBaseType;
-import MIR.IRType.PointerType;
-
 public class arrayType extends Type {
     private Type type;
     private int dim;

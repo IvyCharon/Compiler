@@ -8,7 +8,6 @@ import Assembly.AssemModule;
 import Assembly.AssemInst.asmInst;
 import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.AsmGlobalVar.type;
-import MIR.IROperand.ConstString;
 
 public class ASMPrinter {
     public PrintStream out;

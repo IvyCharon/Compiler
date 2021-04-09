@@ -1,11 +1,9 @@
 package AST;
 
-import MIR.IRType.*;
 import Util.position;
 
 public class TypeNode extends ASTNode {
     public String identifier;
-    //public Type type;
     public int dim;
 
     public TypeNode(position pos, String iden, int dim) {

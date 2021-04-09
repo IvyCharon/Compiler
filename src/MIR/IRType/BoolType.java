@@ -4,7 +4,7 @@ import MIR.IROperand.ConstBool;
 import MIR.IROperand.operand;
 
 public class BoolType extends IRBaseType {
-    private int size;
+    public int size;
 
     public BoolType(int size) {
         this.size = size;

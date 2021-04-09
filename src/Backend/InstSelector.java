@@ -1,6 +1,5 @@
 package Backend;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import Assembly.AssemBlock;
@@ -28,7 +27,6 @@ import Assembly.Operand.asmOperand;
 import MIR.BasicBlock;
 import MIR.Function;
 import MIR.Module;
-import MIR.IRInst.AllocInst;
 import MIR.IRInst.BinaryInst;
 import MIR.IRInst.BitCastInst;
 import MIR.IRInst.BranchInst;
@@ -205,11 +203,6 @@ public class InstSelector implements IRVisitor {
         }
     }
 
-    @Override
-    public void visit(AllocInst inst) {         //TO DO
-        System.out.println("is 2");
-        System.exit(0);
-    }
     @Override
     public void visit(BinaryInst inst) {
         Register rd = getRegFromOper(inst.result);
@@ -390,8 +383,16 @@ public class InstSelector implements IRVisitor {
                     addrImmMap.put(rd, new AddrImm(base, off));
                 }
             } else {
-                //TO DO
-                System.exit(0);
+                operand index = inst.index.get(0);
+
+                if(index instanceof ConstInt) {
+                    current_block.addInst(new binaryInst("add", rd, base, getRegFromOper(new ConstInt(32, ((ConstInt)index).value() * 4)), current_block));
+                } else {
+                    Register indexT = getRegFromOper(index);
+                    Register tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                    current_block.addInst(new binaryInst("sll", tmp, indexT, new Imm(2), current_block));
+                    current_block.addInst(new binaryInst("add", rd, base, tmp, current_block));
+                }
             }
         } else if(inst.ptr instanceof globalVariable) {
             current_block.addInst(new laInst(rd, getRegFromOper(inst.ptr)));

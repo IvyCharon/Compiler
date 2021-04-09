@@ -1,13 +1,5 @@
 package Util.Type;
 
-import MIR.IRType.BoolType;
-import MIR.IRType.ClassType;
-import MIR.IRType.IRBaseType;
-import MIR.IRType.IntType;
-import MIR.IRType.NullType;
-import MIR.IRType.PointerType;
-import MIR.IRType.VoidType;
-
 abstract public class Type {
     public enum types {Int, Bool, String, Void, Class, Null, Array, Func}
 
