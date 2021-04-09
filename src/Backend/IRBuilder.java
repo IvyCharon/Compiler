@@ -893,7 +893,7 @@ public class IRBuilder implements ASTVisitor {
 
         current_block = body;
         current_function.addBasicBlock(body);
-        Register subArrayPtr = arrayMalloc(dim - 1, ((PointerType)type).baseType, it);
+        Register subArrayPtr = arrayMalloc(dim + 1, ((PointerType)type).baseType, it);
         current_block.addInst(new StoreInst(current_block, subArrayPtr, subA));
         index_ = new ArrayList<>();
         index_.add(new ConstInt(32, 1));
