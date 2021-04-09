@@ -927,7 +927,7 @@ public class IRBuilder implements ASTVisitor {
         current_block.addInst(new BitCastInst(current_block, mallocReg, toIRType(it.type), reg));
         it.oper = reg;
 
-        String funcN = ((ClassType)(toIRType(it.type))).className;
+        String funcN = ((classType)(it.type)).name();
         funcN = funcN + "." + funcN;
         if(module.functions.containsKey(funcN)) {
             Function f = module.functions.get(funcN);
