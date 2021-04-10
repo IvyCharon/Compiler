@@ -9,6 +9,7 @@ import MIR.IRType.PointerType;
 
 public class StoreInst extends Inst {
     public operand val, addr;
+    public boolean ptr = false;
     
     public StoreInst(BasicBlock bb, operand val, operand addr) {
         super(bb);

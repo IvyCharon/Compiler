@@ -411,10 +411,10 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
         } else if(addrImmMap.containsKey(rs)) {
             AddrImm tmpI = addrImmMap.get(rs);
-            //if(tmpI != null)
-                current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
-            //else 
-            //    current_block.addInst(new loadInst(rd, rs, new AddrImm(rs, 0), current_block));
+            current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
+        } else if(inst.address.isArray) {
+            AddrImm tmpIm = new AddrImm(rs, 0);
+            current_block.addInst(new storeInst(rd, tmpIm.baseReg, tmpIm, current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
@@ -445,15 +445,14 @@ public class InstSelector implements IRVisitor {
 
         if(rd instanceof AsmGlobalVar) {
             VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
-//            if(!(inst.addr instanceof MIR.IROperand.Register)) {System.out.println("is 6");System.exit(0);}
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
             current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
         } else if(addrImmMap.containsKey(rd)) {
             AddrImm tmpI = addrImmMap.get(rd);
-            //if(tmpI != null)
-                current_block.addInst(new storeInst(rs, tmpI.baseReg, tmpI, current_block));
-            //else
-            //    current_block.addInst(new storeInst(rs, rd, new AddrImm(rd, 0), current_block));
+            current_block.addInst(new storeInst(rs, tmpI.baseReg, tmpI, current_block));
+        } else if(inst.addr.isArray) {
+            AddrImm tmpIm = new AddrImm(rd, 0);
+            current_block.addInst(new storeInst(rs, tmpIm.baseReg, tmpIm, current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }

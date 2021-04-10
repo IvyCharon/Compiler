@@ -14,7 +14,6 @@ import MIR.IRInst.BinaryInst.binaryInstOp;
 import MIR.IRInst.CompareInst.compareInstOp;
 import MIR.IROperand.*;
 import MIR.IRType.*;
-import Util.Scope.*;
 import Util.Type.Type;
 import Util.Type.arrayType;
 import Util.Type.classType;
@@ -22,9 +21,6 @@ import Util.error.runtimeError;
 
 public class IRBuilder implements ASTVisitor {
     private Module module;
-
-    //----- to be deleted -----
-    private globalScope gScope;
 
     private ClassType current_class;
     private BasicBlock current_block;
@@ -38,8 +34,7 @@ public class IRBuilder implements ASTVisitor {
 
     private int BlockNum = 0, RegNum = 0;
 
-    public IRBuilder(globalScope gScope) {
-        this.gScope = gScope;
+    public IRBuilder() {
         this.current_block = null;
         this.current_class = null;
 
@@ -855,6 +850,7 @@ public class IRBuilder implements ASTVisitor {
         current_block.addInst(new CallInst(current_block, func, paras, call_ret));
 
         Register bc = new Register(new PointerType(new IntType(32)), "bitcastTmp" + RegNum ++);
+        bc.isArray = true;
         current_block.addInst(new BitCastInst(current_block, call_ret, type, bc));
         current_block.addInst(new StoreInst(current_block, it.expr.get(dim).oper, bc));
 
@@ -894,6 +890,7 @@ public class IRBuilder implements ASTVisitor {
         current_block = body;
         current_function.addBasicBlock(body);
         Register subArrayPtr = arrayMalloc(dim + 1, ((PointerType)type).baseType, it);
+        subA.isArray = true;
         current_block.addInst(new StoreInst(current_block, subArrayPtr, subA));
         index_ = new ArrayList<>();
         index_.add(new ConstInt(32, 1));
@@ -990,6 +987,7 @@ public class IRBuilder implements ASTVisitor {
                 ArrayList<operand> index = new ArrayList<>();
                 index.add(new ConstInt(32, -1));
                 Register result = new Register(pointer.type(), "elementPtr" + RegNum ++);
+                result.isArray = true;
                 Register size = new Register(new IntType(32), "ArraySize" + RegNum ++);
                 current_block.addInst(new GetElementPtrInst(current_block, pointer, index, result));
                 current_block.addInst(new LoadInst(current_block, new IntType(32), result, size));
@@ -1091,6 +1089,7 @@ public class IRBuilder implements ASTVisitor {
         it.index.accept(this);
 
         Register reg = new Register(it.array.oper.type(), "getEle" + RegNum ++);
+        reg.isArray = true;
         ArrayList<operand> index = new ArrayList<>();
         index.add(it.index.oper);
         current_block.addInst(new GetElementPtrInst(current_block, it.array.oper, index, reg));
@@ -1169,6 +1168,7 @@ public class IRBuilder implements ASTVisitor {
             operand tmp = symbs.get(symbs.size() - 1);
             if(tmp.type() instanceof PointerType) {
                 Register reg = new Register(((PointerType)(tmp.type())).baseType, it.name + RegNum ++);
+                reg.isArray = tmp.isArray;
                 current_block.addInst(new LoadInst(current_block, ((PointerType)(tmp.type())).baseType, tmp, reg));
                 it.oper = reg;
                 it.lresult = tmp;

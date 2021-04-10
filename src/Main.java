@@ -64,7 +64,7 @@ public class Main {
             new TypeFilter(gScope).visit(ASTRoot);
             new SemanticChecker(gScope).visit(ASTRoot);
 
-            new IRBuilder(gScope).visit(ASTRoot);
+            new IRBuilder().visit(ASTRoot);
             if(ir_print) new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
             if(!codegen) return;
 
