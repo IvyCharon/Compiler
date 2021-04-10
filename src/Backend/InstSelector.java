@@ -414,7 +414,7 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
         } else if(inst.address.isArray) {
             AddrImm tmpIm = new AddrImm(rs, 0);
-            current_block.addInst(new storeInst(rd, tmpIm.baseReg, tmpIm, current_block));
+            current_block.addInst(new loadInst(rd, tmpIm.baseReg, tmpIm, current_block));
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
