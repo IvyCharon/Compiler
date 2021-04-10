@@ -390,7 +390,7 @@ public class InstSelector implements IRVisitor {
                 } else {
                     Register indexT = getRegFromOper(index);
                     Register tmp = new VirtualRegister(assemModule.VirRegCnt ++);
-                    current_block.addInst(new binaryInst("sll", tmp, indexT, new Imm(2), current_block));
+                    current_block.addInst(new binaryInst("slli", tmp, indexT, new Imm(2), current_block));
                     current_block.addInst(new binaryInst("add", rd, base, tmp, current_block));
                 }
             }
