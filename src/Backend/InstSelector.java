@@ -238,9 +238,8 @@ public class InstSelector implements IRVisitor {
                 if((inst.op == binaryInstOp.add 
                     || inst.op == binaryInstOp.and 
                     || inst.op == binaryInstOp.or 
-                    || inst.op == binaryInstOp.xor) 
-                    && ((ConstInt)inst.left).value() <= max_imm 
-                    && ((ConstInt)inst.left).value() >= min_imm) {
+                    || inst.op == binaryInstOp.xor) && (inst.left instanceof ConstBool || (inst.right instanceof ConstInt && ((ConstInt)inst.left).value() <= max_imm 
+                    && ((ConstInt)inst.left).value() >= min_imm))) {
                     rs1 = getRegFromOper(inst.right);
                     if(inst.left instanceof ConstInt)
                         rs2 = new Imm(((ConstInt)inst.left).value());
