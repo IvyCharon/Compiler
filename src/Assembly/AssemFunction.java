@@ -9,6 +9,8 @@ public class AssemFunction {
 
     public AssemBlock entranBlock, exitBlock;
 
+    public int VirRegCnt = 0;
+
     public AssemFunction(Function func) {
         this.func = func;
         this.name = func.name;
