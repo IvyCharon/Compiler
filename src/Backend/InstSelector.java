@@ -260,10 +260,14 @@ public class InstSelector implements IRVisitor {
                         case sub -> "sub";
                         case shl -> "sll";
                         case ashr -> "sra";
+                        case add -> "add";
+                        case and -> "and";
+                        case or -> "or";
+                        case xor -> "xor"; 
                         default -> "wrong";
                     };
                 }
-            } else if(inst.right.isConst() && ((ConstInt)inst.right).value() <= max_imm && ((ConstInt)inst.right).value() >= min_imm) {
+            } else if(inst.right.isConst() && (inst.right instanceof ConstBool || (((ConstInt)inst.right).value() <= max_imm && ((ConstInt)inst.right).value() >= min_imm))) {
                 rs1 = getRegFromOper(inst.left);
                 if(inst.right instanceof ConstInt)
                     rs2 = new Imm(((ConstInt)inst.right).value());
