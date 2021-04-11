@@ -44,4 +44,32 @@ public class AssemBlock {
             instHead = i;
         }
     }
+
+    public void deleteInst(asmInst i) {
+        if(i.pre == null && i.next == null) {
+            instHead = null;
+            instTail = null;
+        } else if(i.pre == null) {
+            if(i.next == instTail) {
+                instHead = i.next;
+                instHead.pre = null; instHead.next = null;
+                instTail = null;
+            } else {
+                instHead = i.next;
+                instHead.pre = null;
+            }
+        } else if(i.next == null) {
+            if(i.pre == instHead) {
+                instHead = i.pre;
+                instHead.pre = null; instHead.next = null;
+                instTail = null;
+            } else {
+                instTail = i.pre;
+                instTail.next = null;
+            }
+        } else {
+            i.pre.next = i.next;
+            i.next.pre = i.pre;
+        }
+    }
 }

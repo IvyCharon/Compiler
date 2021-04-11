@@ -30,9 +30,11 @@ public class RegisterAllocator {
 
     ////////////// TO DO //////////////
     public void run() {
-        asmModule.functions.forEach((name, func) -> {
+        int maxMax = 0;
+        AssemBlock block;
+        for(var func : asmModule.functions.values()) {
             maxStack = 0;
-            AssemBlock block = func.entranBlock;
+            block = func.entranBlock;
             VirtualRegister tmp;
             while(block != null) {
                 asmInst inst = block.instHead;
@@ -157,7 +159,63 @@ public class RegisterAllocator {
             }
             block = func.entranBlock;
             block.addInstAtFront(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(- maxStack - 4), block));
-        });
+            if(maxStack + 4 >= maxMax) maxMax = maxStack + 4;
+            func.maxStack = maxStack;
+        }
+
+        if(maxMax <= 2000) return;
+
+        for(var func : asmModule.functions.values()) {
+            block = func.entranBlock;
+            //first inst: addi sp, sp, off
+            asmInst i = block.instHead;
+            int off = -((Imm)(((binaryInst)i).rs2)).val;
+            int n = off / 2000;
+            if(n == 0) continue;
+            //i.addPreInst(new liInst(asmModule.getPhyReg("s0"), new Imm(0), func.entranBlock));
+            i.addPreInst(new binaryInst("addi", asmModule.getPhyReg("s0"), asmModule.getPhyReg("s0"), new Imm(-2000), func.entranBlock));
+            for(int m = 1;m <= n;++ m) {
+                i.addPreInst(new binaryInst("addi", asmModule.getPhyReg("s" + m), asmModule.getPhyReg("s" + (m-1)), new Imm(-2000), func.entranBlock));
+            }
+            func.entranBlock.deleteInst(i);
+            //// li s0, 0
+            // addi s0, s0, -2000
+            // addi s1, s0, -2000
+            // addi s2, s1, -2000
+
+            int o;
+
+            while(block != null) {
+                i = block.instHead;
+                while(i != null) {
+                    if(i instanceof loadInst && ((loadInst)i).addr == asmModule.getPhyReg("sp")) {
+                        o = ((loadInst)i).imm.val;
+                        int rc = (off - o) / 2000;
+                        Register r = asmModule.getPhyReg("s" + rc);
+                        ((loadInst)i).addr = r;
+                        ((loadInst)i).imm.val = -off + ((loadInst)i).imm.val + (rc + 1) * 2000;
+
+                    } else if(i instanceof storeInst && ((storeInst)i).addr == asmModule.getPhyReg("sp")) {
+                        o = ((storeInst)i).imm.val;
+                        int rc = (off - o) / 2000;
+                        Register r = asmModule.getPhyReg("s" + rc);
+                        ((storeInst)i).addr = r;
+                        ((storeInst)i).imm.val = -off + ((storeInst)i).imm.val + (rc + 1) * 2000; 
+                    }
+                    i = i.next;
+                }
+                block = block.next;
+            }
+            block = func.exitBlock;
+            i = func.exitBlock.instTail.pre;
+            block.deleteInst(i);
+
+            //li s0, 0
+            for(int q = 0; q <= n;++ q) {
+                block.addInstAtFront(new liInst(asmModule.getPhyReg("s" + q), new Imm(0), block));
+            }
+            
+        }
 
     }
 
