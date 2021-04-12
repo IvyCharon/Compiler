@@ -29,11 +29,16 @@ public class Main {
 
         InputStream input;
         boolean ir_print = true;
+        PrintStream output;
         if(args.length > 0) {
             input = System.in;
+            output = new PrintStream("output.s");
             ir_print = false;
         }
-        else input = new FileInputStream("test.mx");
+        else {
+            input = new FileInputStream("test.mx");
+            output = new PrintStream("test.s");
+        } 
 
         boolean codegen = true;
         if(args.length > 0)
@@ -44,7 +49,7 @@ public class Main {
                 }
             }
         
-        PrintStream output = new PrintStream("test.s");
+        
 
         try {
             programNode ASTRoot;
