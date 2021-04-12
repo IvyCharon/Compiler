@@ -172,8 +172,8 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i), current_block));
             calleeSavedReg.add(r);
         } */
-        //VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt++);
-        //current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"), current_block)); 
+        VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt++);
+        current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"), current_block)); 
 
         int min = func.paras.size() <= 8 ? func.paras.size() : 8;
         for(int i = 0; i < min; ++ i) {
@@ -196,7 +196,7 @@ public class InstSelector implements IRVisitor {
         /* for(int i = 0; i <= 11; ++ i) {
             current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i), current_block));
         } */
-        //current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret, current_block));
+        current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret, current_block));
         current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true), current_block));
         current_block.addInst(new retInst(current_block));
         

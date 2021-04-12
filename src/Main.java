@@ -44,7 +44,7 @@ public class Main {
                 }
             }
         
-        PrintStream output = new PrintStream("output.s");
+        PrintStream output = new PrintStream("test.s");
 
         try {
             programNode ASTRoot;

@@ -163,9 +163,11 @@ public class RegisterAllocator {
             func.maxStack = maxStack;
         }
 
-        if(maxMax <= 2000) return;
+        //if(true) return;
+        //System.out.println("qwq");
+        //if(maxMax <= 2000) return;
 
-        for(var func : asmModule.functions.values()) {
+        /* for(var func : asmModule.functions.values()) {
             block = func.entranBlock;
             //first inst: addi sp, sp, off
             asmInst i = block.instHead;
@@ -215,7 +217,7 @@ public class RegisterAllocator {
                 block.addInstAtFront(new liInst(asmModule.getPhyReg("s" + q), new Imm(0), block));
             }
             
-        }
+        } */
 
     }
 
