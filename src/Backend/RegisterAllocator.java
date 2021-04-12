@@ -165,7 +165,59 @@ public class RegisterAllocator {
 
         //if(true) return;
         //System.out.println("qwq");
-        //if(maxMax <= 2000) return;
+        if(maxMax <= 2048) return;
+
+        for(var func : asmModule.functions.values()) {
+            block = func.entranBlock;
+            asmInst i = block.instHead;
+            int off = -((Imm)(((binaryInst)i).rs2)).val;
+            int n = off / 2048;
+            if(n == 0) continue;
+            for(int c = 0; c <= n; ++ c) {
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+                i = i.next;
+                i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
+                i = i.next;
+            }
+            i = block.instHead;
+            func.entranBlock.deleteInst(i);
+
+            ////////////////////////TO DO////////////////////////
+            int o;
+            while(block != null) {
+                i = block.instHead;
+                while(i != null) {
+                    if(i instanceof loadInst && ((loadInst)i).addr == asmModule.getPhyReg("sp")) {
+                        o = ((loadInst)i).imm.val;
+                        int rc = (off - o) / 2048;
+                        Register r = asmModule.getPhyReg("s" + rc);
+                        ((loadInst)i).addr = r;
+                        ((loadInst)i).imm.val = o - off + 2048 * (rc + 1);
+
+                    } else if(i instanceof storeInst && ((storeInst)i).addr == asmModule.getPhyReg("sp")) {
+                        o = ((storeInst)i).imm.val;
+                        int rc = (off - o) / 2000;
+                        Register r = asmModule.getPhyReg("s" + rc);
+                        ((storeInst)i).addr = r;
+                        ((storeInst)i).imm.val = o - off + 2048 * (rc + 1); 
+                    }
+                    i = i.next;
+                }
+                block = block.next;
+            }
+            //////////////////////
+
+            block = func.exitBlock;
+            i = func.exitBlock.instTail.pre;
+
+            for(int q = 0; q <= n; ++ q) {
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+            }
+
+            func.exitBlock.deleteInst(i);
+            
+        }
 
         /* for(var func : asmModule.functions.values()) {
             block = func.entranBlock;

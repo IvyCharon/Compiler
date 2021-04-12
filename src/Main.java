@@ -34,8 +34,7 @@ public class Main {
             input = System.in;
             output = new PrintStream("output.s");
             ir_print = false;
-        }
-        else {
+        } else {
             input = new FileInputStream("test.mx");
             output = new PrintStream("test.s");
         } 
