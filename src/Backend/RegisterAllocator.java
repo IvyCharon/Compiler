@@ -171,7 +171,7 @@ public class RegisterAllocator {
             block = func.entranBlock;
             asmInst i = block.instHead;
             int off = -((Imm)(((binaryInst)i).rs2)).val;
-            int n = off / 2048;
+            int n = Math.floorDiv(off, 2048);
             if(n == 0) continue;
             for(int c = 0; c <= n; ++ c) {
                 i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
@@ -189,14 +189,16 @@ public class RegisterAllocator {
                 while(i != null) {
                     if(i instanceof loadInst && ((loadInst)i).addr == asmModule.getPhyReg("sp")) {
                         o = ((loadInst)i).imm.val;
-                        int rc = (off - o) / 2048;
+                        int rc = Math.floorDiv(off - o, 2048);
+                        if(off - o == 2048 * rc) rc -= 1;
                         Register r = asmModule.getPhyReg("s" + rc);
                         ((loadInst)i).addr = r;
                         ((loadInst)i).imm.val = o - off + 2048 * (rc + 1);
 
                     } else if(i instanceof storeInst && ((storeInst)i).addr == asmModule.getPhyReg("sp")) {
                         o = ((storeInst)i).imm.val;
-                        int rc = (off - o) / 2000;
+                        int rc = Math.floorDiv(off - o, 2048);
+                        if(off - o == 2048 * rc) rc -= 1;
                         Register r = asmModule.getPhyReg("s" + rc);
                         ((storeInst)i).addr = r;
                         ((storeInst)i).imm.val = o - off + 2048 * (rc + 1); 
