@@ -315,8 +315,6 @@ public class InstSelector implements IRVisitor {
         int min_ = inst.paras.size() < 8 ? inst.paras.size() : 8;
         for(int i = 0; i < min_; ++ i) {
             current_block.addInst(new mvInst(assemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i)), current_block));
-            
-            
         }
 
         //----- para size > 8 -----

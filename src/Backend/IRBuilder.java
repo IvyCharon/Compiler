@@ -1034,8 +1034,9 @@ public class IRBuilder implements ASTVisitor {
 
             ArrayList<operand> paras = new ArrayList<>();
             if(in_class) {
-                //add this
-                //add what?!
+                parameter thisPtr = current_function.paras.get(0);
+                if(!thisPtr.name().equals("this")) throw new runtimeError("not in class!");
+                paras.add(thisPtr);
             }
             it.paras.forEach(t -> {
                 t.accept(this);
