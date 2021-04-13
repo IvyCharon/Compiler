@@ -35,6 +35,7 @@ import MIR.IRInst.CompareInst;
 import MIR.IRInst.GetElementPtrInst;
 import MIR.IRInst.Inst;
 import MIR.IRInst.LoadInst;
+import MIR.IRInst.MoveInst;
 import MIR.IRInst.PhiInst;
 import MIR.IRInst.ReturnInst;
 import MIR.IRInst.StoreInst;
@@ -470,5 +471,11 @@ public class InstSelector implements IRVisitor {
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
+    }
+    @Override
+    public void visit(MoveInst inst) {
+        Register rs = getRegFromOper(inst.rs);
+        Register rd = getRegFromOper(inst.rd);
+        current_block.addInst(new mvInst(rd, rs, current_block));
     }
 }

@@ -909,7 +909,7 @@ public class IRBuilder implements ASTVisitor {
         index_.add(new ConstInt(32, 1));
         Register subAt = new Register(type, "incr" + RegNum ++);
         current_block.addInst(new GetElementPtrInst(current_block, subA, index_, subAt));
-        current_block.addInst(new StoreInst(current_block, subA, subAt));
+        current_block.addInst(new MoveInst(current_block, subA, subAt));
         current_block.addInst(new BranchInst(current_block, null, cond, null));
 
         current_block = af;
