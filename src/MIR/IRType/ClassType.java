@@ -1,26 +1,26 @@
 package MIR.IRType;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import MIR.IROperand.operand;
-import Util.error.runtimeError;
+//import MIR.IROperand.operand;
+//import Util.error.runtimeError;
 
-import java.util.HashMap;
+//import java.util.HashMap;
 
 public class ClassType extends IRBaseType {
     public String className;
     //public ArrayList<IRBaseType> memberType = new ArrayList<>();
     //public ArrayList<String> memberName = new ArrayList<>();
     public LinkedHashMap<String, IRBaseType> members = new LinkedHashMap<>();
-    public HashMap<String, ArrayList<operand>> symbols = new HashMap<>();
+    //public HashMap<String, ArrayList<operand>> symbols = new HashMap<>();
 
     public ClassType(String name) {
         this.className = name;
     }
 
-    public void symbolAdd(String key, operand oper) {
+    /* public void symbolAdd(String key, operand oper) {
         if(symbols.containsKey(key)) {
             symbols.get(key).add(oper);
         } else {
@@ -28,17 +28,17 @@ public class ClassType extends IRBaseType {
             value.add(oper);
             symbols.put(key, value);
         }
-    }
+    } */
 
     public String name() {
         return className;
     }
 
-    public operand symbolGet(String name) {
+    /* public operand symbolGet(String name) {
         ArrayList<operand> tmp = symbols.get(name);
         if(tmp == null) throw new runtimeError("[ClassType] no such member!");
         return tmp.get(tmp.size() - 1);
-    }
+    } */
 
     public int memberOff(String name) {
         int i = 0;

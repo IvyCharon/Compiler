@@ -1,7 +1,7 @@
 package MIR;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 
 //import MIR.IRInst.AllocInst;
 //import MIR.IRInst.LoadInst;
@@ -20,7 +20,7 @@ public class Function {
     public ArrayList<parameter> paras;
     public Register retVal;
 
-    public HashMap<String, ArrayList<operand>> symbols = new HashMap<>();
+    //public HashMap<String, ArrayList<operand>> symbols = new HashMap<>();
     //public HashMap<String, ArrayList<BasicBlock>> BBs = new HashMap<>();
 
     public BasicBlock entranceBlock;
@@ -35,7 +35,7 @@ public class Function {
         for(parameter para : paras) {
             tmp = new ArrayList<>();
             tmp.add(para);
-            symbols.put(para.name(), tmp);
+            //symbols.put(para.name(), tmp);
         }
         entranceBlock = new BasicBlock(name + ".entrance", this);
         exitBlock = new BasicBlock(name + ".exit", this);
@@ -68,7 +68,7 @@ public class Function {
         } */
     }
 
-    public void symbolAdd(String key, operand oper) {
+    /* public void symbolAdd(String key, operand oper) {
         if(symbols.containsKey(key)) {
             symbols.get(key).add(oper);
         } else {
@@ -76,7 +76,7 @@ public class Function {
             value.add(oper);
             symbols.put(key, value);
         }
-    }
+    } */
 
     /* public void BasicBlockAdd(String key, BasicBlock bb) {
         if(BBs.containsKey(key)) {

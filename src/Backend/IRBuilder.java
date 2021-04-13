@@ -8,6 +8,7 @@ import AST.binaryExprNode.binaryOpType;
 import AST.postfixExprNode.postfixOpType;
 import MIR.BasicBlock;
 import MIR.Function;
+import MIR.IRScope;
 import MIR.Module;
 import MIR.IRInst.*;
 import MIR.IRInst.BinaryInst.binaryInstOp;
@@ -34,11 +35,15 @@ public class IRBuilder implements ASTVisitor {
 
     private int BlockNum = 0, RegNum = 0;
 
+    private IRScope current_scope;
+
     public IRBuilder() {
         this.current_block = null;
         this.current_class = null;
 
         this.module = new Module();
+
+        current_scope = null;
 
     }
 
@@ -158,11 +163,11 @@ public class IRBuilder implements ASTVisitor {
                 IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : toIRType(((funcDeclNode)t).type);
                 Function func = new Function(funcN, retType, paras);
                 func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
-                for(var p : paras) {
+                /* for(var p : paras) {
                     //if(p.type.type == null) {System.out.println("1");System.exit(0);}
                     func.symbolAdd(p.name(), p);
                     //func.symbolAdd(p.identifier, new Register(new PointerType(p.type.toIRType()), p.identifier + RegNum ++));
-                }
+                } */
                 module.functions.put(funcN, func);
             }
         }
@@ -199,6 +204,7 @@ public class IRBuilder implements ASTVisitor {
 
     @Override
     public void visit(funcDeclNode it) {
+        current_scope = new IRScope(current_scope);
         String funcN;
         if(in_class) {
             String class_name = current_class.className;
@@ -210,6 +216,10 @@ public class IRBuilder implements ASTVisitor {
         
         current_function = module.functions.get(funcN);
         current_block = current_function.entranceBlock;
+
+        for(var para : current_function.paras) {
+            current_scope.operMap.put(para.name(), para);
+        }
 
         if(it.identifier.equals("main")) {
             Register t = new Register(new VoidType(), "call_init" + RegNum ++);
@@ -228,9 +238,11 @@ public class IRBuilder implements ASTVisitor {
         
         current_function = null;
         current_block = null;
+        current_scope = null;
     }
     @Override
     public void visit(classDeclNode it) {
+        current_scope = new IRScope(current_scope);
         in_class = true;
         current_class = module.classes.get(it.identifier);
 
@@ -239,6 +251,7 @@ public class IRBuilder implements ASTVisitor {
 
         in_class = false;
         current_class = null;
+        current_scope = null;
     }
     @Override
     public void visit(singleVarDeclNode it) {
@@ -260,7 +273,8 @@ public class IRBuilder implements ASTVisitor {
             it.var.oper = new parameter(new PointerType(irType), name);
         } else if(current_function != null) {
             Register addr = new Register(new PointerType(irType), name + RegNum ++);
-            current_function.symbolAdd(name, addr);
+            if(!current_scope.operMap.containsKey(name)) current_scope.operMap.put(name, addr);
+            //current_function.symbolAdd(name, addr);
             it.var.oper = addr;
 
             if(it.expr != null) {
@@ -271,7 +285,8 @@ public class IRBuilder implements ASTVisitor {
         } else if(in_class) {
             Register addr = new Register(new PointerType(irType), name + RegNum ++);
             it.var.oper = addr;
-            current_class.symbolAdd(name, addr);
+            current_scope.operMap.put(name, addr);
+            //current_class.symbolAdd(name, addr);
         } else {
             throw new runtimeError("[IRBuilder][visit single var] var is wrong!", it.pos);
         }
@@ -311,7 +326,9 @@ public class IRBuilder implements ASTVisitor {
             current_block.addInst(new BranchInst(current_block, null, Cond, null));
 
             current_block = Cond;
+            current_scope = new IRScope(current_scope);
             it.condition.accept(this);
+            current_scope = current_scope.parentScope;
             operand condResult = it.condition.oper;
             current_block.addInst(new BranchInst(current_block, condResult, Body, AfterFor));
             current_function.addBasicBlock(Cond);
@@ -319,7 +336,9 @@ public class IRBuilder implements ASTVisitor {
             ContinueBlock.push(it.incr != null ? Incr : Cond);
 
             current_block = Body;
+            current_scope = new IRScope(current_scope);
             it.stmts.accept(this);
+            current_scope = current_scope.parentScope;
             if(it.incr != null) 
                 current_block.addInst(new BranchInst(current_block, null, Incr, null));
             else
@@ -329,7 +348,9 @@ public class IRBuilder implements ASTVisitor {
 
             if(it.incr != null) {
                 current_block = Incr;
+                current_scope = new IRScope(current_scope);
                 it.incr.accept(this);
+                current_scope = current_scope.parentScope;
                 current_block.addInst(new BranchInst(current_block, null, Cond, null));
                 current_function.addBasicBlock(Incr);
             }
@@ -339,7 +360,9 @@ public class IRBuilder implements ASTVisitor {
             ContinueBlock.push(it.incr != null ? Incr : Cond);
 
             current_block = Body;
+            current_scope = new IRScope(current_scope);
             it.stmts.accept(this);
+            current_scope = current_scope.parentScope;
             if(it.incr != null) 
                 current_block.addInst(new BranchInst(current_block, null, Incr, null));
             else
@@ -349,7 +372,9 @@ public class IRBuilder implements ASTVisitor {
 
             if(it.incr != null) {
                 current_block = Incr;
+                current_scope = new IRScope(current_scope);
                 it.incr.accept(this);
+                current_scope = current_scope.parentScope;
                 current_block.addInst(new BranchInst(current_block, null, Body, null));
                 current_function.addBasicBlock(Incr);
             }
@@ -380,15 +405,19 @@ public class IRBuilder implements ASTVisitor {
             current_block.addInst(new BranchInst(current_block, Cond, trueBlock, AfterIf));
         
         current_block = trueBlock;
+        current_scope = new IRScope(current_scope);
         it.thenstmt.accept(this);
         current_block.addInst(new BranchInst(current_block, null, AfterIf, null));
         current_function.addBasicBlock(trueBlock);
+        current_scope = current_scope.parentScope;
 
         if(it.elsestmt != null) {
             current_block = falseBlock;
+            current_scope = new IRScope(current_scope);
             it.elsestmt.accept(this);
             current_block.addInst(new BranchInst(current_block, null, AfterIf, null));
             current_function.addBasicBlock(falseBlock);
+            current_scope = current_scope.parentScope;
         }
 
         current_block = AfterIf;
@@ -426,7 +455,9 @@ public class IRBuilder implements ASTVisitor {
         BreakBlock.push(AfterWhile); ContinueBlock.push(AfterWhile);
         
         current_block = Body;
+        current_scope = new IRScope(current_scope);
         it.stmts.accept(this);
+        current_scope = current_scope.parentScope;
         current_block.addInst(new BranchInst(current_block, null, Cond, null));
         current_function.addBasicBlock(Body);
         BreakBlock.pop(); ContinueBlock.pop();
@@ -646,14 +677,14 @@ public class IRBuilder implements ASTVisitor {
                 case smaller_equal:
                 case bigger_equal:
                     it.oper = result;
-                    current_function.symbolAdd(result.name, result);
+                    //current_function.symbolAdd(result.name, result);
                     break;
                 case equal:
                     if(it.left.type.isNull() && it.right.type.isNull()) {
                         it.oper = new ConstBool(1, true);
                     } else {
                         it.oper = result;
-                        current_function.symbolAdd(result.name, result);
+                        //current_function.symbolAdd(result.name, result);
                     }
                     break;
                 case not_equal:
@@ -661,7 +692,7 @@ public class IRBuilder implements ASTVisitor {
                         it.oper = new ConstBool(1, false);
                     } else {
                         it.oper = result;
-                        current_function.symbolAdd(result.name, result);
+                        //current_function.symbolAdd(result.name, result);
                     }
                     break;
                 
@@ -795,7 +826,7 @@ public class IRBuilder implements ASTVisitor {
                 current_block.addInst(new StoreInst(current_block, result, addr));
                 it.oper = result;
                 it.lresult = addr;
-                current_function.symbolAdd(result.name, result);
+                //current_function.symbolAdd(result.name, result);
                 break;
             case subsub:    //--x
                 result = new Register(new IntType(32), "unary_subsub" + RegNum ++);
@@ -803,7 +834,7 @@ public class IRBuilder implements ASTVisitor {
                 current_block.addInst(new StoreInst(current_block, result, addr));
                 it.oper = result;
                 it.lresult = addr;
-                current_function.symbolAdd(result.name, result);
+                //current_function.symbolAdd(result.name, result);
                 break;
             case posi:      //+x
                 it.oper = left;
@@ -818,7 +849,7 @@ public class IRBuilder implements ASTVisitor {
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.sub, new ConstInt(32, 0), left, result));
                     it.oper = result;
                     it.lresult = addr;
-                    current_function.symbolAdd(result.name, result);
+                    //current_function.symbolAdd(result.name, result);
                 }
                 break;
             case not:       //!x
@@ -826,14 +857,14 @@ public class IRBuilder implements ASTVisitor {
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.xor, new ConstBool(8, true), left, result));
                 it.oper = result;
                 it.lresult = addr;
-                current_function.symbolAdd(result.name, result);
+                //current_function.symbolAdd(result.name, result);
                 break;
             case bit_opposite:  //~x
                 result = new Register(new IntType(32), "bit_opposite" + RegNum ++);
                 current_block.addInst(new BinaryInst(current_block, binaryInstOp.xor, new ConstInt(32, -1), left, result));
                 it.oper = result;
                 it.lresult = addr;
-                current_function.symbolAdd(result.name, result);
+                //current_function.symbolAdd(result.name, result);
                 break;
         }
     }
@@ -965,7 +996,7 @@ public class IRBuilder implements ASTVisitor {
         current_block.addInst(new StoreInst(current_block, result, it.node.lresult));
         it.oper = it.node.oper;
 
-        current_function.symbolAdd(result.name, result);
+        //current_function.symbolAdd(result.name, result);
     }
     @Override
     public void visit(funcCallExprNode it) {        //TO DO
@@ -982,7 +1013,7 @@ public class IRBuilder implements ASTVisitor {
                 } else {
                     pointer = new Register(new PointerType(new IntType(32)), "emmm" + RegNum ++);
                     current_block.addInst(new BitCastInst(current_block, body.oper, new PointerType(new IntType(32)), pointer));
-                    current_function.symbolAdd(pointer.name, pointer);
+                    //current_function.symbolAdd(pointer.name, pointer);
                 }
                 ArrayList<operand> index = new ArrayList<>();
                 index.add(new ConstInt(32, -1));
@@ -993,8 +1024,10 @@ public class IRBuilder implements ASTVisitor {
                 current_block.addInst(new LoadInst(current_block, new IntType(32), result, size));
 
                 it.oper = size;
-                current_function.symbolAdd(result.name, result);
-                current_function.symbolAdd(size.name, size);
+                //current_scope.operMap.put(result.name, result);
+                //current_scope.operMap.put(size.name, size);
+                //current_function.symbolAdd(result.name, result);
+                //current_function.symbolAdd(size.name, size);
             } else {
                 String name = funcN.name;
                 if(type.isString())
@@ -1010,8 +1043,8 @@ public class IRBuilder implements ASTVisitor {
                     paras.add(t.oper);
                 });
                 current_block.addInst(new CallInst(current_block, func, paras, result));
-                if(result != null)
-                    current_function.symbolAdd(result.name, result);
+                //if(result != null)
+                //    current_function.symbolAdd(result.name, result);
 
                 it.oper = result;
             }
@@ -1043,8 +1076,8 @@ public class IRBuilder implements ASTVisitor {
                 paras.add(t.oper);
             });
             current_block.addInst(new CallInst(current_block, func, paras, result));
-            if(result != null)
-                current_function.symbolAdd(result.name, result);
+            //if(result != null)
+            //    current_function.symbolAdd(result.name, result);
             it.oper = result;
         } else {
             throw new runtimeError("[IRBuilder][visit funcCallExprNode] it is not a function!");
@@ -1155,8 +1188,11 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(varNode it) {
         if((current_function != null && current_class == null) || (current_function != null && (!current_class.members.containsKey(it.name)))) {
-            ArrayList<operand> symbs = current_function.symbols.get(it.name);
-            if(symbs == null) {
+            operand tmp;
+            if(current_scope != null) tmp = current_scope.getOper(it.name);
+            else tmp = null;
+            //ArrayList<operand> symbs = current_function.symbols.get(it.name);
+            if(tmp == null) {
                 //global variable
                 operand t = module.globalVars.get(it.name);
                 if(t == null) System.exit(0);
@@ -1166,7 +1202,6 @@ public class IRBuilder implements ASTVisitor {
                 it.lresult = t;
                 return;            
             }
-            operand tmp = symbs.get(symbs.size() - 1);
             if(tmp.type() instanceof PointerType) {
                 Register reg = new Register(((PointerType)(tmp.type())).baseType, it.name + RegNum ++);
                 reg.isArray = tmp.isArray;
