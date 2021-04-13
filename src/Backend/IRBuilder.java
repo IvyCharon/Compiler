@@ -163,11 +163,6 @@ public class IRBuilder implements ASTVisitor {
                 IRBaseType retType = ((funcDeclNode)t).func.retType() == null ? new VoidType() : toIRType(((funcDeclNode)t).type);
                 Function func = new Function(funcN, retType, paras);
                 func.retVal = new Register(new PointerType(retType), funcN + "_retVal" + RegNum ++);
-                /* for(var p : paras) {
-                    //if(p.type.type == null) {System.out.println("1");System.exit(0);}
-                    func.symbolAdd(p.name(), p);
-                    //func.symbolAdd(p.identifier, new Register(new PointerType(p.type.toIRType()), p.identifier + RegNum ++));
-                } */
                 module.functions.put(funcN, func);
             }
         }
@@ -529,9 +524,7 @@ public class IRBuilder implements ASTVisitor {
                     } else if(le.isNull() && ri.isNull()) {
 
                     } else {
-                        System.out.println("3");
-                        System.exit(0);
-                        //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of equal", it.pos);
+                        throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of equal", it.pos);
                     }
                     break;
                 case not_equal:
@@ -563,9 +556,7 @@ public class IRBuilder implements ASTVisitor {
                     } else if(le.isNull() && ri.isNull()) {
 
                     } else { 
-                        System.out.println("4");   
-                        System.exit(0);
-                        //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of not equal", it.pos);
+                        throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of not equal", it.pos);
                     }
                     break;
                 case mul:
@@ -582,12 +573,12 @@ public class IRBuilder implements ASTVisitor {
                     break;
                 case smallersmaller:
                     result = new Register(new IntType(32), "smallersmaller" + RegNum ++);
-                    if(current_block == null) {System.out.println("5");System.exit(0);}
+                    if(current_block == null) throw new runtimeError("[IRBuilder][visit binaryExpr Node] no block in <<", it.pos);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.shl, left, right, result));
                     break;
                 case biggerbigger:
                     result = new Register(new IntType(32), "biggerbigger" + RegNum ++);
-                    if(current_block == null) {System.out.println("6");System.exit(0);}
+                    if(current_block == null) throw new runtimeError("[IRBuilder][visit binaryExpr Node] no block in >>", it.pos);
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.ashr, left, right, result));
                     break;
                 case smaller:
@@ -657,9 +648,7 @@ public class IRBuilder implements ASTVisitor {
                     current_block.addInst(new BinaryInst(current_block, binaryInstOp.or, left, right, result));
                     break;
                 default:
-                    System.out.println("7");
-                    System.exit(0);
-                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
             switch(it.op) {
                 case sub:
@@ -692,14 +681,10 @@ public class IRBuilder implements ASTVisitor {
                         it.oper = new ConstBool(1, false);
                     } else {
                         it.oper = result;
-                        //current_function.symbolAdd(result.name, result);
                     }
                     break;
-                
                 default:
-                    System.out.println("8");
-                    System.exit(0);
-                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
         } else {
             /* BasicBlock branchBlock, afterBlock, phi1, phi2;
@@ -759,9 +744,7 @@ public class IRBuilder implements ASTVisitor {
                     current_function.symbolAdd(result.name, result);
                     break;
                 default:
-                    System.out.println("9");
-                    System.exit(0);
-                    //throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
+                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             } */
 
             BasicBlock brB, afterB;
@@ -806,8 +789,7 @@ public class IRBuilder implements ASTVisitor {
 
                     break;
                 default:
-                    System.out.println("9");
-                    System.exit(0);
+                    throw new runtimeError("[IRBuilder][visit binaryExpr Node] wrong type of op", it.pos);
             }
         }
     }
@@ -1066,7 +1048,7 @@ public class IRBuilder implements ASTVisitor {
             Register result = retType instanceof VoidType ? null : new Register(retType, "call" + RegNum ++);
 
             ArrayList<operand> paras = new ArrayList<>();
-            if(in_class) {
+            if(in_class && !module.builtinFunctions.containsKey(funcN) && !module.functions.containsKey(funcN)) {
                 parameter thisPtr = current_function.paras.get(0);
                 if(!thisPtr.name().equals("this")) throw new runtimeError("not in class!");
                 paras.add(thisPtr);
@@ -1170,7 +1152,7 @@ public class IRBuilder implements ASTVisitor {
         ArrayList<operand> index = new ArrayList<>();
         index.add(new ConstInt(32, 0));
         index.add(new ConstInt(32, 0));
-        if(current_block == null) {System.out.println("20");System.exit(0);}
+        if(current_block == null) throw new runtimeError("[IRBuilder][visitStringConst] no block!", it.pos);
         current_block.addInst(new GetElementPtrInst(
             current_block,
             s,
@@ -1195,7 +1177,7 @@ public class IRBuilder implements ASTVisitor {
             if(tmp == null) {
                 //global variable
                 operand t = module.globalVars.get(it.name);
-                if(t == null) System.exit(0);
+                if(t == null) throw new runtimeError("[IRBuilder][visitVarNode] there is no " + it.name, it.pos);
                 Register r = new Register(t.type(), it.name + RegNum ++);
                 current_block.addInst(new LoadInst(current_block, t.type(), t, r));
                 it.oper = r;
