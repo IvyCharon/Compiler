@@ -1048,7 +1048,7 @@ public class IRBuilder implements ASTVisitor {
             Register result = retType instanceof VoidType ? null : new Register(retType, "call" + RegNum ++);
 
             ArrayList<operand> paras = new ArrayList<>();
-            if(in_class && !module.builtinFunctions.containsKey(funcN) && !module.functions.containsKey(funcN)) {
+            if(in_class && !module.builtinFunctions.containsKey(funcN) && module.functions.containsKey(funcN)) {
                 parameter thisPtr = current_function.paras.get(0);
                 if(!thisPtr.name().equals("this")) throw new runtimeError("not in class!");
                 paras.add(thisPtr);
