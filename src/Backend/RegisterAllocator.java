@@ -180,10 +180,12 @@ public class RegisterAllocator {
                     i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
                     i = i.next;
                 }
-                i = block.instHead;
-                func.entranBlock.deleteInst(i);
+                
             }
-            
+
+            i = block.instHead;
+            func.entranBlock.deleteInst(i);
+
             ////////////////////////TO DO////////////////////////
             int o;
             while(block != null) {
@@ -210,18 +212,17 @@ public class RegisterAllocator {
                 block = block.next;
             }
             //////////////////////
-
+            block = func.exitBlock;
+            i = func.exitBlock.instTail.pre;
+            
             if(func.name.equals("main")) {
-                block = func.exitBlock;
-                i = func.exitBlock.instTail.pre;
-
                 for(int q = 0; q <= n; ++ q) {
                     i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
                     i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
                 }
-
-                func.exitBlock.deleteInst(i);
             }
+
+            func.exitBlock.deleteInst(i);
             
         }
 
