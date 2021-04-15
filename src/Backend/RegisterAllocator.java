@@ -173,15 +173,17 @@ public class RegisterAllocator {
             int off = -((Imm)(((binaryInst)i).rs2)).val;
             int n = Math.floorDiv(off, 2048);
             if(n == 0) continue;
-            for(int c = 0; c <= n; ++ c) {
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
-                i = i.next;
-                i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
-                i = i.next;
+            if(func.name.equals("main")) {
+                for(int c = 0; c <= n; ++ c) {
+                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+                    i = i.next;
+                    i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
+                    i = i.next;
+                }
+                i = block.instHead;
+                func.entranBlock.deleteInst(i);
             }
-            i = block.instHead;
-            func.entranBlock.deleteInst(i);
-
+            
             ////////////////////////TO DO////////////////////////
             int o;
             while(block != null) {
@@ -209,15 +211,17 @@ public class RegisterAllocator {
             }
             //////////////////////
 
-            block = func.exitBlock;
-            i = func.exitBlock.instTail.pre;
+            if(func.name.equals("main")) {
+                block = func.exitBlock;
+                i = func.exitBlock.instTail.pre;
 
-            for(int q = 0; q <= n; ++ q) {
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                for(int q = 0; q <= n; ++ q) {
+                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                }
+
+                func.exitBlock.deleteInst(i);
             }
-
-            func.exitBlock.deleteInst(i);
             
         }
 
