@@ -167,12 +167,15 @@ public class RegisterAllocator {
         //System.out.println("qwq");
         if(maxMax <= 2048) return;
 
+        int off = maxMax;
+        int n = Math.floorDiv(off, 2048);
+
         for(var func : asmModule.functions.values()) {
             block = func.entranBlock;
             asmInst i = block.instHead;
-            int off = -((Imm)(((binaryInst)i).rs2)).val;
-            int n = Math.floorDiv(off, 2048);
-            if(n == 0) continue;
+            //int off = -((Imm)(((binaryInst)i).rs2)).val;
+            //int n = Math.floorDiv(off, 2048);
+            //if(n == 0) continue;
             if(func.name.equals("main")) {
                 for(int c = 0; c <= n; ++ c) {
                     i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
