@@ -1,5 +1,6 @@
 package Backend;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import Assembly.AssemBlock;
@@ -70,15 +71,15 @@ public class InstSelector implements IRVisitor {
 
     private Register getRegFromOper(operand oper) {
         if(oper instanceof ConstBool) {
-            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new liInst(ret, new Imm(((ConstBool) oper).value() ? 1 : 0), current_block));
             return ret;
         } else if(oper instanceof ConstInt) {
-            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new liInst(ret, new Imm(((ConstInt) oper).value()), current_block));
             return ret;
         } else if(oper instanceof ConstNull) {
-            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new liInst(ret, new Imm(0), current_block));
             return ret;
         } else if(oper instanceof ConstString) {
@@ -92,7 +93,7 @@ public class InstSelector implements IRVisitor {
             if(regs.containsKey(oper))
                 return regs.get(oper);
             else {
-                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 regs.put(oper, tmp);
                 return tmp;
             }
@@ -100,7 +101,7 @@ public class InstSelector implements IRVisitor {
             if(regs.containsKey(oper)) 
                 return regs.get(oper);
             else {
-                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 regs.put(oper, tmp);
                 return tmp;
             }
@@ -167,13 +168,13 @@ public class InstSelector implements IRVisitor {
 
         //current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(-4, true)));
         
-        /* ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
+        ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
         for(int i = 0;i <= 11; ++ i) {
-            VirtualRegister r = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister r = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i), current_block));
             calleeSavedReg.add(r);
-        } */
-        VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt++);
+        } 
+        VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt++, current_function.VirReg ++);
         current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"), current_block)); 
 
         int min = func.paras.size() <= 8 ? func.paras.size() : 8;
@@ -194,9 +195,9 @@ public class InstSelector implements IRVisitor {
 
         current_block = getAsmBlock(func.retBlock);
         
-        /* for(int i = 0; i <= 11; ++ i) {
+        for(int i = 0; i <= 11; ++ i) {
             current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i), current_block));
-        } */
+        }
         current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret, current_block));
         current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true), current_block));
         current_block.addInst(new retInst(current_block));
@@ -332,7 +333,7 @@ public class InstSelector implements IRVisitor {
         VirtualRegister tmp;
         switch(inst.op) {
             case eq: //equal
-                tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 current_block.addInst(new binaryInst("xor", tmp, 
                                                     getRegFromOper(inst.left), 
                                                     getRegFromOper(inst.right),
@@ -340,7 +341,7 @@ public class InstSelector implements IRVisitor {
                 current_block.addInst(new setzInst("seqz", getRegFromOper(inst.result), tmp, current_block));
                 break;
             case ne: //not equal
-                tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 current_block.addInst(new binaryInst("xor", tmp,
                                                     getRegFromOper(inst.left),
                                                     getRegFromOper(inst.right),
@@ -355,7 +356,7 @@ public class InstSelector implements IRVisitor {
                                                     current_block));
                 break;
             case sge: //greater_equal
-                tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 current_block.addInst(new binaryInst("slt", tmp, 
                                                     getRegFromOper(inst.left), 
                                                     getRegFromOper(inst.right),
@@ -370,7 +371,7 @@ public class InstSelector implements IRVisitor {
                                                     current_block));
                 break;
             case sle: //smaller_equal
-                tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                 current_block.addInst(new binaryInst("slt", tmp, 
                                                     getRegFromOper(inst.right), 
                                                     getRegFromOper(inst.left),
@@ -404,7 +405,7 @@ public class InstSelector implements IRVisitor {
                     current_block.addInst(new binaryInst("add", rd, base, getRegFromOper(new ConstInt(32, ((ConstInt)index).value() * 4)), current_block));
                 } else {
                     Register indexT = getRegFromOper(index);
-                    Register tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+                    Register tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
                     current_block.addInst(new binaryInst("slli", tmp, indexT, new Imm(2), current_block));
                     current_block.addInst(new binaryInst("add", rd, base, tmp, current_block));
                 }
@@ -421,7 +422,7 @@ public class InstSelector implements IRVisitor {
         Register rs = getRegFromOper(inst.address);
 
         if(rs instanceof AsmGlobalVar) {
-            VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
             current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
         } else if(addrImmMap.containsKey(rs)) {
@@ -438,7 +439,7 @@ public class InstSelector implements IRVisitor {
     public void visit(PhiInst inst) {           //TO DO
         //BasicBlock b1 = inst.blocks.get(0), b2 = inst.blocks.get(1);
         //AssemBlock ab1 = getAsmBlock(b1), ab2 = getAsmBlock(b2);
-        //VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++);
+        //VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
         System.out.println("is 4");
         System.exit(0);
     }
@@ -459,7 +460,7 @@ public class InstSelector implements IRVisitor {
         Register rd = getRegFromOper(inst.addr);
 
         if(rd instanceof AsmGlobalVar) {
-            VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++);
+            VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
             current_block.addInst(new storeInst(rs, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.addr)).name), current_block));
         } else if(addrImmMap.containsKey(rd)) {

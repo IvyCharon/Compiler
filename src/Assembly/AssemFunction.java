@@ -11,6 +11,8 @@ public class AssemFunction {
 
     public int maxStack = 0;
 
+    public int VirReg = 0;
+
     public AssemFunction(Function func) {
         this.func = func;
         this.name = func.name;

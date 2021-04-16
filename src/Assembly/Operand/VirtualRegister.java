@@ -4,9 +4,9 @@ public class VirtualRegister extends Register {
     public String name;
     public int index;
 
-    public VirtualRegister(int n) {
+    public VirtualRegister(int n, int ind) {
         this.name = "%" + n;
-        this.index = n;
+        this.index = ind;
     }
     
     @Override
