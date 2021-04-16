@@ -166,14 +166,14 @@ public class InstSelector implements IRVisitor {
         current_function = assemModule.functions.get(func.name);
         current_block = getAsmBlock(func.entranceBlock);
 
-        //current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(-4, true)));
-        
-        ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
+        //current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(-4, true), current_block));
+        current_function.VirReg = 12;
+        /* ArrayList<VirtualRegister> calleeSavedReg = new ArrayList<>();
         for(int i = 0;i <= 11; ++ i) {
             VirtualRegister r = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new mvInst(r, assemModule.getPhyReg("s" + i), current_block));
             calleeSavedReg.add(r);
-        } 
+        }  */
         VirtualRegister ret = new VirtualRegister(assemModule.VirRegCnt++, current_function.VirReg ++);
         current_block.addInst(new mvInst(ret, assemModule.getPhyReg("ra"), current_block)); 
 
@@ -195,9 +195,9 @@ public class InstSelector implements IRVisitor {
 
         current_block = getAsmBlock(func.retBlock);
         
-        for(int i = 0; i <= 11; ++ i) {
+        /* for(int i = 0; i <= 11; ++ i) {
             current_block.addInst(new mvInst(assemModule.getPhyReg("s" + i), calleeSavedReg.get(i), current_block));
-        }
+        } */
         current_block.addInst(new mvInst(assemModule.getPhyReg("ra"), ret, current_block));
         current_block.addInst(new binaryInst("addi", assemModule.getPhyReg("sp"), assemModule.getPhyReg("sp"), new Imm(4, true), current_block));
         current_block.addInst(new retInst(current_block));
@@ -250,6 +250,21 @@ public class InstSelector implements IRVisitor {
                         case xor -> "xori";                    
                         default -> "wrong";
                     };
+                } else if((inst.op == binaryInstOp.shl 
+                    || inst.op == binaryInstOp.ashr)
+                    && (inst.left instanceof ConstBool || (inst.right instanceof ConstInt && ((ConstInt)inst.left).value() <= max_imm 
+                    && ((ConstInt)inst.left).value() >= min_imm))) {
+                        rs1 = getRegFromOper(inst.left);
+                        if(inst.right instanceof ConstInt)
+                            rs2 = new Imm(((ConstInt)inst.right).value());
+                        else if(inst.right instanceof ConstBool)
+                            rs2 = new Imm(((ConstBool)inst.right).value() ? 1 : 0);
+                        else throw new runtimeError("[InstSelector][binaryInst] wrong type-1!");
+                        op = switch (inst.op) {
+                            case shl -> "slli";
+                            case ashr -> "srai";
+                            default -> "wrong";
+                        };
                 } else {
                     rs1 = getRegFromOper(inst.left);
                     rs2 = getRegFromOper(inst.right);

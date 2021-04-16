@@ -147,6 +147,8 @@ public class RegisterAllocator {
                 block = block.next;
             }
 
+            maxStack = maxStack + 12 * 4;
+
             block = func.entranBlock;
 
             while(block != null) {
@@ -172,23 +174,9 @@ public class RegisterAllocator {
 
         for(var func : asmModule.functions.values()) {
             block = func.entranBlock;
-            asmInst i = block.instHead;
+            asmInst i;
             int off = func.maxStack;
-            int n = Math.floorDiv(off, 2048);
-            //if(n == 0) continue;
-            //if(func.name.equals("main")) {
-                for(int c = 0; c <= n; ++ c) {
-                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
-                    i = i.next;
-                    i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
-                    i = i.next;
-                }
-                
-            //}
-
-            i = block.instHead;
-            func.entranBlock.deleteInst(i);
-
+            
             ////////////////////////TO DO////////////////////////
             int o;
             while(block != null) {
@@ -215,17 +203,48 @@ public class RegisterAllocator {
                 block = block.next;
             }
             //////////////////////
+
+            block = func.entranBlock;
+            i = block.instHead;
+
+            int n = Math.floorDiv(off, 2048);
+            for(int s = 0;s <= 11; ++ s) {
+                i.addNextInst(new storeInst(asmModule.getPhyReg("s" + s), asmModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
+                i = i.next;
+            }
+            for(int c = 0; c <= n; ++ c) {
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+                i = i.next;
+                i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
+                i = i.next;
+            }
+
+            i = block.instHead;
+            func.entranBlock.deleteInst(i);
+
+            ///////////////////////////////////////////
             block = func.exitBlock;
             i = func.exitBlock.instTail.pre;
+            asmInst j = i;
             
-            //if(func.name.equals("main")) {
-                for(int q = 0; q <= n; ++ q) {
-                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
-                    i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
-                }
-            //}
+            for(int q = 0; q <= n; ++ q) {
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                i = i.next;
+                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                i = i.next;
+            }
 
-            func.exitBlock.deleteInst(i);
+            for(int s = 0; s <= 11; ++ s) {
+                i.addNextInst(new loadInst(asmModule.getPhyReg("s" + s), asmModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
+                i = i.next;
+            }
+        
+
+            func.exitBlock.deleteInst(j);
+
+            //if(func.name.equals("main")) {
+            //    func.entranBlock.addInstAtFront(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+            //}
             
         }
     }
