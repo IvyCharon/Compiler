@@ -19,7 +19,7 @@ public class MoveInst extends Inst {
 
     @Override
     public void print(PrintStream out) {
-        out.println(rd.toString() + "=" + rs.toString());
+        out.println("\t" + rd.toString() + "=" + rs.toString());
     }
 
     @Override

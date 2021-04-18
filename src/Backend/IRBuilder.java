@@ -429,7 +429,8 @@ public class IRBuilder implements ASTVisitor {
         if(it.val != null) {
             it.val.accept(this);
             operand result = it.val.oper;
-            current_block.addInst(new StoreInst(current_block, result, current_function.retVal));
+            current_block.addInst(new MoveInst(current_block, current_function.retVal, result));
+//            current_block.addInst(new StoreInst(current_block, result, current_function.retVal));
         }
         current_block.addInst(new BranchInst(current_block, null, current_function.exitBlock, null));
         current_block = current_function.exitBlock;
@@ -447,7 +448,7 @@ public class IRBuilder implements ASTVisitor {
         operand conResult = it.con.oper;
         current_block.addInst(new BranchInst(current_block, conResult, Body, AfterWhile));
         current_function.addBasicBlock(Cond);
-        BreakBlock.push(AfterWhile); ContinueBlock.push(AfterWhile);
+        BreakBlock.push(AfterWhile); ContinueBlock.push(Cond);
         
         current_block = Body;
         current_scope = new IRScope(current_scope);
@@ -981,7 +982,7 @@ public class IRBuilder implements ASTVisitor {
         //current_function.symbolAdd(result.name, result);
     }
     @Override
-    public void visit(funcCallExprNode it) {        //TO DO
+    public void visit(funcCallExprNode it) {
         Function func = null;
         if(it.funcName instanceof methodNode) {
             methodNode funcN = ((methodNode)(it.funcName));
@@ -1122,7 +1123,8 @@ public class IRBuilder implements ASTVisitor {
         if(!t.name().equals("this"))
             throw new runtimeError("[IRBuilder] not in method!");
         Register reg = new Register(t.type(), "ThisPtr" + RegNum++);
-        current_block.addInst(new LoadInst(current_block, t.type(), t, reg));
+        current_block.addInst(new MoveInst(current_block, reg, t));
+//        current_block.addInst(new LoadInst(current_block, t.type(), t, reg));
         it.oper = reg;
     }
 
@@ -1195,7 +1197,8 @@ public class IRBuilder implements ASTVisitor {
         } else {    //in class, is a class member
             int off = current_class.memberOff(it.name);
             Register claAddr = new Register(new PointerType(current_class), current_class.className + RegNum ++);
-            current_block.addInst(new StoreInst(current_block, current_function.paras.get(0), claAddr));        //paras.get(0) is this
+            current_block.addInst(new MoveInst(current_block, claAddr, current_function.paras.get(0)));
+//            current_block.addInst(new StoreInst(current_block, current_function.paras.get(0), claAddr));        //paras.get(0) is this
 
             Register reg = new Register(new PointerType(current_class.members.get(it.name)), "memberGet" + RegNum ++);
             ArrayList<operand> index = new ArrayList<>();
