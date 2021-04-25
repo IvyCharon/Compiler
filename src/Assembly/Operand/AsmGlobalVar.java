@@ -12,6 +12,7 @@ public class AsmGlobalVar extends Register {
     public type gvType;
 
     public AsmGlobalVar(String name) {
+        super();
         this.name = name;
         this.gvType = null;
     }

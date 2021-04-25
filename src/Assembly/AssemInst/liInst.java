@@ -1,8 +1,11 @@
 package Assembly.AssemInst;
 
+import java.util.LinkedHashSet;
+
 import Assembly.AssemBlock;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
+import Assembly.Operand.VirtualRegister;
 
 public class liInst extends asmInst {
     public Register rd;
@@ -23,5 +26,33 @@ public class liInst extends asmInst {
     public void setStackImm(int s) {
         if(imm.inStack)
             imm = new Imm(imm.val + s);
+    }
+    
+    @Override
+    public LinkedHashSet<Register> use() {
+        LinkedHashSet<Register> use = new LinkedHashSet<>();
+        return use;
+    }
+
+    @Override
+    public LinkedHashSet<Register> def() {
+        LinkedHashSet<Register> def = new LinkedHashSet<>();
+        if(rd instanceof VirtualRegister) def.add(rd);
+        return def;
+    }
+
+    @Override
+    public Register rd() {
+        return rd;
+    }
+
+    @Override
+    public void replaceUse(Register ori, Register rep) {
+
+    }
+
+    @Override
+    public void replaceDef(Register ori, Register rep) {
+        if(ori == rd) rd = rep;
     }
 }

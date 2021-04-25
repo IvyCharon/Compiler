@@ -1,6 +1,9 @@
 package Assembly.AssemInst;
 
+import java.util.LinkedHashSet;
+
 import Assembly.AssemBlock;
+import Assembly.Operand.Register;
 
 abstract public class asmInst {
     public asmInst pre, next;
@@ -36,5 +39,43 @@ abstract public class asmInst {
         }
     }
 
+    public void replaceSelf(asmInst i) {
+        if(this.pre != null) {
+            this.pre.next = i;
+            i.pre = this.pre;
+        } else {
+            block.instHead = i;
+            i.pre = null;
+        }
+        if(this.next != null) {
+            this.next.pre = i;
+            i.next = this.next;
+        } else {
+            block.instTail = i;
+            i.next = null;
+        }
+    }
+
+    public void deleteSelf() {
+        if(this.pre != null)
+            this.pre.next = this.next;
+        else 
+            block.instHead = this.next;
+        if(this.next != null)
+            this.next.pre = this.pre;
+        else
+            block.instTail = this.pre;
+    }
+
     abstract public void setStackImm(int s);
+
+    abstract public LinkedHashSet<Register> use();
+
+    abstract public LinkedHashSet<Register> def();
+
+    abstract public Register rd();
+
+    abstract public void replaceUse(Register ori, Register rep);
+
+    abstract public void replaceDef(Register ori, Register rep);
 }

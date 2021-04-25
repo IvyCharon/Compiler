@@ -1,6 +1,10 @@
 package Assembly;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+
 import Assembly.AssemInst.asmInst;
+import Assembly.Operand.Register;
 import MIR.BasicBlock;
 
 public class AssemBlock {
@@ -10,6 +14,12 @@ public class AssemBlock {
     public AssemBlock pre, next;
 
     public asmInst instHead = null, instTail = null;
+
+    public ArrayList<AssemBlock> predecessor = new ArrayList<>();
+    public ArrayList<AssemBlock> successor = new ArrayList<>();
+
+    public LinkedHashSet<Register> liveIn = new LinkedHashSet<>();
+    public LinkedHashSet<Register> liveOut = new LinkedHashSet<>();
 
     public AssemBlock(String name, BasicBlock bb) {
         this.name = name;

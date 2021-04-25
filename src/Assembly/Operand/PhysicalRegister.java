@@ -4,6 +4,7 @@ public class PhysicalRegister extends Register {
     public String name;
 
     public PhysicalRegister(String name) {
+        super();
         this.name = name;
     }
 

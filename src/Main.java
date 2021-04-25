@@ -5,11 +5,12 @@ import Backend.IRBuilder;
 import Backend.IRPrinter;
 //import Backend.IRPrinter;
 import Backend.InstSelector;
-import Backend.RegisterAllocator;
+//import Backend.RegisterAllocator;
 import Frontend.ASTBuilder;
 import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
 import Frontend.TypeFilter;
+import Optim.GraphColoringRegisterAllocater;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Util.MxErrorListener;
@@ -48,8 +49,6 @@ public class Main {
                 }
             }
         
-        
-
         try {
             programNode ASTRoot;
             globalScope gScope = new globalScope();
@@ -74,7 +73,8 @@ public class Main {
 
             AssemModule asmModule = new AssemModule();
             new InstSelector(ASTRoot.module, asmModule).run();
-            new RegisterAllocator(asmModule).run();
+            //new RegisterAllocator(asmModule).run();
+            new GraphColoringRegisterAllocater(asmModule).run();
             new ASMPrinter(output, asmModule).run();
             
         } catch (error er) {
