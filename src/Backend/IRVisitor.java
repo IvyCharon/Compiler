@@ -17,7 +17,6 @@ public interface IRVisitor {
     void visit(CompareInst inst);
     void visit(GetElementPtrInst inst);
     void visit(LoadInst inst);
-    void visit(PhiInst inst);
     void visit(ReturnInst inst);
     void visit(StoreInst inst);
     void visit(MoveInst inst);

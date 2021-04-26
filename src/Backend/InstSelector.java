@@ -37,7 +37,6 @@ import MIR.IRInst.GetElementPtrInst;
 import MIR.IRInst.Inst;
 import MIR.IRInst.LoadInst;
 import MIR.IRInst.MoveInst;
-import MIR.IRInst.PhiInst;
 import MIR.IRInst.ReturnInst;
 import MIR.IRInst.StoreInst;
 import MIR.IRInst.BinaryInst.binaryInstOp;
@@ -182,10 +181,11 @@ public class InstSelector implements IRVisitor {
             current_block.addInst(new mvInst(getRegFromOper(func.paras.get(i)), AssemModule.getPhyReg("a" + i), current_block));
         }
 
-        //if paras.size() > 8
-        // ----- TO DO -----
-
-        // -----------------
+        for(int i = 8; i < func.paras.size(); ++ i) {
+            VirtualRegister p = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
+            current_block.addInst(new loadInst(p, AssemModule.getPhyReg("sp"), new Imm(current_function.paraOff, true), current_block));
+            current_function.paraOff += 4;
+        }
 
         BasicBlock tmp = func.entranceBlock;
         while(tmp != null) {
@@ -328,14 +328,16 @@ public class InstSelector implements IRVisitor {
         }
     }
     @Override
-    public void visit(CallInst inst) {          //TO DO
+    public void visit(CallInst inst) {
         int min_ = inst.paras.size() < 8 ? inst.paras.size() : 8;
         for(int i = 0; i < min_; ++ i) {
             current_block.addInst(new mvInst(AssemModule.getPhyReg("a" + i), getRegFromOper(inst.paras.get(i)), current_block));
         }
 
-        //----- para size > 8 -----
-        //TO DO
+        int off = 0;
+        for(int i = 8; i < inst.func.paras.size(); ++ i) {
+            current_block.addInst(new storeInst(getRegFromOper(inst.paras.get(i)), AssemModule.getPhyReg("sp"), new Imm(off ++), current_block));
+        }
 
         current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
@@ -396,7 +398,7 @@ public class InstSelector implements IRVisitor {
         }
     }
     @Override
-    public void visit(GetElementPtrInst inst) { //TO DO
+    public void visit(GetElementPtrInst inst) {
         Register rd = getRegFromOper(inst.result);
         if(inst.ptr.type() instanceof PointerType) {
             Register base = getRegFromOper(inst.ptr);
@@ -432,16 +434,12 @@ public class InstSelector implements IRVisitor {
         }
     }
     @Override
-    public void visit(LoadInst inst) {          //TO DO
+    public void visit(LoadInst inst) {
         Register rd = getRegFromOper(inst.result);
         Register rs = getRegFromOper(inst.address);
 
         if(rs instanceof AsmGlobalVar) {
-            //VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
             current_block.addInst(new loadInst(rd, rs, new Imm(0), current_block));
-            //current_block.addInst(new mvInst(rd, rs, current_block));
-            //current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
-            //current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
         } else if(addrImmMap.containsKey(rs)) {
             AddrImm tmpI = addrImmMap.get(rs);
             current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
@@ -451,14 +449,6 @@ public class InstSelector implements IRVisitor {
         } else {
             current_block.addInst(new mvInst(rd, rs, current_block));
         }
-    }
-    @Override
-    public void visit(PhiInst inst) {           //TO DO
-        //BasicBlock b1 = inst.blocks.get(0), b2 = inst.blocks.get(1);
-        //AssemBlock ab1 = getAsmBlock(b1), ab2 = getAsmBlock(b2);
-        //VirtualRegister tmp = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
-        System.out.println("is 4");
-        System.exit(0);
     }
     @Override
     public void visit(ReturnInst inst) {
