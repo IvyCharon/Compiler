@@ -62,15 +62,12 @@ public class GraphColoringRegisterAllocater {
     private int stackLen = 0;
     private int K = 0;
 
-    private LivenessAnalysis la;
-
     private static int inf = 2147483647;
 
     public GraphColoringRegisterAllocater(AssemModule m) {
         this.module = m;
-        K = module.assignRegs.size();
-        preColored = new HashSet<>(m.PhyRegs.values());
-        la = new LivenessAnalysis(m);
+        K = AssemModule.assignRegs.size();
+        preColored = new HashSet<>(AssemModule.PhyRegs.values());
     }
 
     public void run() {
@@ -88,7 +85,7 @@ public class GraphColoringRegisterAllocater {
     private void runFunc(AssemFunction func) {
         while(true) {
             init();
-            la.runFunc(func);
+            new LivenessAnalysis(func).run();
             build();
             
             initial.forEach(t -> {
@@ -188,7 +185,7 @@ public class GraphColoringRegisterAllocater {
         AssemBlock b = cur_func.entranBlock;
         while(b != null) {
             HashSet<Register> liveReg = new HashSet<>(b.liveOut);
-            asmInst i = b.instHead;
+            asmInst i = b.instTail;
             while(i != null) {
                 if(i instanceof mvInst) {
                     liveReg.removeAll(i.use());
@@ -199,12 +196,12 @@ public class GraphColoringRegisterAllocater {
                 }
                 HashSet<Register> defReg = i.def();
                 liveReg.addAll(defReg);
-                liveReg.add(module.getPhyReg("zero"));
+                liveReg.add(AssemModule.getPhyReg("zero"));
                 for(var def : defReg) 
                     liveReg.forEach(reg -> addEdge(reg, def));
                 liveReg.removeAll(defReg);
                 liveReg.addAll(i.use());
-                i = i.next;
+                i = i.pre;
             }
             b = b.next;
         }
@@ -391,7 +388,7 @@ public class GraphColoringRegisterAllocater {
     private void assignColors() {
         while(!selectStack.isEmpty()) {
             Register r = selectStack.pop();
-            ArrayList<PhysicalRegister> okColor = new ArrayList<>(module.assignRegs);
+            ArrayList<PhysicalRegister> okColor = new ArrayList<>(AssemModule.assignRegs);
             HashSet<Register> colored = new HashSet<>(coloredNodes);
             colored.addAll(preColored);
             r.linkList.forEach(t -> {
@@ -433,17 +430,17 @@ public class GraphColoringRegisterAllocater {
                             spillIntroduce.add(tmp);
                             i.replaceUse(reg, tmp);
                             i.replaceDef(reg, tmp);
-                            i.addPreInst(new loadInst(tmp, module.getPhyReg("sp"), reg.stackOff, b));
-                            i.addNextInst(new storeInst(tmp, module.getPhyReg("sp"), reg.stackOff, b));
+                            i.addPreInst(new loadInst(tmp, AssemModule.getPhyReg("sp"), reg.stackOff, b));
+                            i.addNextInst(new storeInst(tmp, AssemModule.getPhyReg("sp"), reg.stackOff, b));
                         } else {
                             if(i instanceof mvInst && ((mvInst)i).rs == reg && ((mvInst)i).rd.stackOff == null) {
-                                asmInst ii = new loadInst(((mvInst)i).rd, module.getPhyReg("sp"), reg.stackOff, b);
+                                asmInst ii = new loadInst(((mvInst)i).rd, AssemModule.getPhyReg("sp"), reg.stackOff, b);
                                 i.replaceSelf(ii);
                                 i = ii;
                             } else {
                                 VirtualRegister tmp = new VirtualRegister(module.VirRegCnt ++, cur_func.VirReg ++);
                                 spillIntroduce.add(tmp);
-                                i.addPreInst(new loadInst(tmp, module.getPhyReg("sp"), reg.stackOff, b));
+                                i.addPreInst(new loadInst(tmp, AssemModule.getPhyReg("sp"), reg.stackOff, b));
                                 i.replaceUse(reg, tmp);
                             }
                         }
@@ -453,14 +450,14 @@ public class GraphColoringRegisterAllocater {
                     if(reg.stackOff != null) {
                         if(!i.use().contains(reg)) {
                             if(i instanceof mvInst && ((mvInst)i).rs.stackOff == null) {
-                                asmInst ii = new storeInst(((mvInst)i).rs, module.getPhyReg("sp"), reg.stackOff, b);
+                                asmInst ii = new storeInst(((mvInst)i).rs, AssemModule.getPhyReg("sp"), reg.stackOff, b);
                                 i.replaceSelf(ii);
                                 i = ii;
                             } else {
                                 VirtualRegister tmp = new VirtualRegister(module.VirRegCnt ++, cur_func.VirReg ++);
                                 spillIntroduce.add(tmp);
                                 i.replaceDef(reg, tmp);
-                                i.addNextInst(new storeInst(tmp, module.getPhyReg("sp"), reg.stackOff, b));
+                                i.addNextInst(new storeInst(tmp, AssemModule.getPhyReg("sp"), reg.stackOff, b));
                             }
                         }
                     }

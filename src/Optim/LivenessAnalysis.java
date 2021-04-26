@@ -1,25 +1,24 @@
 package Optim;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import Assembly.AssemBlock;
 import Assembly.AssemFunction;
-import Assembly.AssemModule;
 import Assembly.AssemInst.asmInst;
 import Assembly.AssemInst.branchInst;
 import Assembly.AssemInst.jInst;
 import Assembly.Operand.Register;
 
 public class LivenessAnalysis {
-    public AssemModule module;
-    public LinkedHashMap<AssemBlock, LinkedHashSet<Register>> blockUses = new LinkedHashMap<>();
-    public LinkedHashMap<AssemBlock, LinkedHashSet<Register>> blockDefs = new LinkedHashMap<>();
-    public LinkedHashSet<AssemBlock> blockVisited = new LinkedHashSet<>();
+    public AssemFunction func;
+    public HashMap<AssemBlock, HashSet<Register>> blockUses = new HashMap<>();
+    public HashMap<AssemBlock, HashSet<Register>> blockDefs = new HashMap<>();
+    public HashSet<AssemBlock> blockVisited = new HashSet<>();
     
-    public LivenessAnalysis(AssemModule m) {
-        this.module = m;
+    public LivenessAnalysis(AssemFunction f) {
+        func = f;
     }
 
     private void getCFG(AssemFunction func) {
@@ -55,16 +54,16 @@ public class LivenessAnalysis {
         }
     }
 
-    public void runFunc(AssemFunction func) {
+    public void run() {
         getCFG(func);
 
         AssemBlock b = func.entranBlock;
         while(b != null) {
-            LinkedHashSet<Register> u = new LinkedHashSet<>();
-            LinkedHashSet<Register> d = new LinkedHashSet<>();
+            HashSet<Register> u = new HashSet<>();
+            HashSet<Register> d = new HashSet<>();
             asmInst i = b.instHead;
             while(i != null) {
-                LinkedHashSet<Register> tmp = new LinkedHashSet<>(i.use());
+                HashSet<Register> tmp = new HashSet<>(i.use());
                 tmp.removeAll(d);
                 u.addAll(tmp);
                 d.addAll(i.def());
@@ -72,6 +71,8 @@ public class LivenessAnalysis {
             }
             blockUses.put(b, u);
             blockDefs.put(b, d);
+            b.liveIn.clear();
+            b.liveOut.clear();
 
             b = b.next;
         }
@@ -84,13 +85,13 @@ public class LivenessAnalysis {
         if(blockVisited.contains(b)) return;
         blockVisited.add(b);
 
-        LinkedHashSet<Register> lo = new LinkedHashSet<>();
+        HashSet<Register> lo = new HashSet<>();
         b.successor.forEach(s -> {
             lo.addAll(s.liveIn);
         });
         b.liveOut.addAll(lo);
 
-        LinkedHashSet<Register> li = new LinkedHashSet<>(lo);
+        HashSet<Register> li = new HashSet<>(lo);
         li.removeAll(blockDefs.get(b));
         li.addAll(blockUses.get(b));
         li.removeAll(b.liveIn);
@@ -101,9 +102,5 @@ public class LivenessAnalysis {
         }
 
         b.predecessor.forEach(t -> calLiveOut(t));
-    }
-
-    public void run() {
-        module.functions.forEach((name, f) -> runFunc(f));
     }
 }

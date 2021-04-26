@@ -29,7 +29,7 @@ public class branchInst extends asmInst {
     @Override
     public LinkedHashSet<Register> use() {
         LinkedHashSet<Register> use = new LinkedHashSet<>();
-        if(rs instanceof VirtualRegister) use.add(rs);
+        if(!(rs instanceof AsmGlobalVar)) use.add(rs);
         return use;
     }
 

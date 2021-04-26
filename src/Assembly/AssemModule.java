@@ -9,13 +9,13 @@ import Assembly.Operand.PhysicalRegister;
 public class AssemModule {
     public LinkedHashMap<String, AssemFunction> functions = new LinkedHashMap<>(), builtinFunctions = new LinkedHashMap<>();
     public LinkedHashMap<String, AsmGlobalVar> globalVars = new LinkedHashMap<>();
-    public LinkedHashMap<String, PhysicalRegister> PhyRegs = new LinkedHashMap<>();
+    public static LinkedHashMap<String, PhysicalRegister> PhyRegs = new LinkedHashMap<>();
     
     public int VirRegCnt = 0;
 
-    public ArrayList<PhysicalRegister> callerRegs = new ArrayList<>();
-    public ArrayList<PhysicalRegister> calleeRegs = new ArrayList<>();
-    public ArrayList<PhysicalRegister> assignRegs = new ArrayList<>();
+    public static ArrayList<PhysicalRegister> callerRegs = new ArrayList<>();
+    public static ArrayList<PhysicalRegister> calleeRegs = new ArrayList<>();
+    public static ArrayList<PhysicalRegister> assignRegs = new ArrayList<>();
 
     public static String [] PhyRegName = {
         "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -31,9 +31,9 @@ public class AssemModule {
         "t3", "t4", "t5", "t6" //16
     };
     public static String [] assignPhyRegName = {
-        "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "t0", "t1", "t2", //11
-        "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", //11
-        "t3", "t4", "t5", "t6", "ra" //5
+        "t0", "t1", "t2", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", 
+        "t3", "t4", "t5", "t6", 
+        "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "ra"
     };
 
     public AssemModule() {
@@ -41,7 +41,7 @@ public class AssemModule {
             PhyRegs.put(PhyRegName[i], new PhysicalRegister(PhyRegName[i]));
         }
 
-        for(int i = 0; i < 27; ++ i) {
+        for(int i = 0; i < 28; ++ i) {
             assignRegs.add(getPhyReg(assignPhyRegName[i]));
         }
         for(int i = 0; i < 12; ++ i) {
@@ -52,7 +52,7 @@ public class AssemModule {
         }
     }    
 
-    public PhysicalRegister getPhyReg(String name) {
+    public static PhysicalRegister getPhyReg(String name) {
         return PhyRegs.get(name);
     }
 }

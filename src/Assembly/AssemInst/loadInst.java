@@ -3,9 +3,9 @@ package Assembly.AssemInst;
 import java.util.LinkedHashSet;
 
 import Assembly.AssemBlock;
+import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
 
 public class loadInst extends asmInst { //load addr + imm to reg
     public Register reg, addr;
@@ -33,14 +33,14 @@ public class loadInst extends asmInst { //load addr + imm to reg
     @Override
     public LinkedHashSet<Register> use() {
         LinkedHashSet<Register> use = new LinkedHashSet<>();
-        if(addr instanceof VirtualRegister) use.add(addr);
+        if(!(addr instanceof AsmGlobalVar)) use.add(addr);
         return use;
     }
 
     @Override
     public LinkedHashSet<Register> def() {
         LinkedHashSet<Register> def = new LinkedHashSet<>();
-        if(reg instanceof VirtualRegister) def.add(reg);
+        if(!(reg instanceof AsmGlobalVar)) def.add(reg);
         return def;
     }
 

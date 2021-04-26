@@ -3,8 +3,8 @@ package Assembly.AssemInst;
 import java.util.LinkedHashSet;
 
 import Assembly.AssemBlock;
+import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
 
 public class setzInst extends asmInst {
     public String op;
@@ -28,14 +28,14 @@ public class setzInst extends asmInst {
     @Override
     public LinkedHashSet<Register> use() {
         LinkedHashSet<Register> use = new LinkedHashSet<>();
-        if(rs instanceof VirtualRegister) use.add(rs);
+        if(!(rs instanceof AsmGlobalVar)) use.add(rs);
         return use;
     }
 
     @Override
     public LinkedHashSet<Register> def() {
         LinkedHashSet<Register> def = new LinkedHashSet<>();
-        if(rd instanceof VirtualRegister) def.add(rd);
+        if(!(rd instanceof AsmGlobalVar)) def.add(rd);
         return def;
     }
 

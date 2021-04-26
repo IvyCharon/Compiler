@@ -2,8 +2,8 @@ package Assembly.AssemInst;
 
 import java.util.LinkedHashSet;
 
+import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
 
 public class laInst extends asmInst {
     public Register rd, addr;
@@ -24,14 +24,14 @@ public class laInst extends asmInst {
     @Override
     public LinkedHashSet<Register> use() {
         LinkedHashSet<Register> use = new LinkedHashSet<>();
-        if(addr instanceof VirtualRegister) use.add(addr);
+        if(!(addr instanceof AsmGlobalVar)) use.add(addr);
         return use;
     }
 
     @Override
     public LinkedHashSet<Register> def() {
         LinkedHashSet<Register> def = new LinkedHashSet<>();
-        if(rd instanceof VirtualRegister) def.add(rd);
+        if(!(rd instanceof AsmGlobalVar)) def.add(rd);
         return def;
     }
 

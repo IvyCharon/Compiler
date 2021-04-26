@@ -3,10 +3,9 @@ package Assembly.AssemInst;
 import java.util.LinkedHashSet;
 
 import Assembly.AssemBlock;
+import Assembly.Operand.AsmGlobalVar;
 import Assembly.Operand.Imm;
 import Assembly.Operand.Register;
-import Assembly.Operand.VirtualRegister;
-
 public class liInst extends asmInst {
     public Register rd;
     public Imm imm;
@@ -37,7 +36,7 @@ public class liInst extends asmInst {
     @Override
     public LinkedHashSet<Register> def() {
         LinkedHashSet<Register> def = new LinkedHashSet<>();
-        if(rd instanceof VirtualRegister) def.add(rd);
+        if(!(rd instanceof AsmGlobalVar)) def.add(rd);
         return def;
     }
 

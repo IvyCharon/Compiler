@@ -18,10 +18,10 @@ public class RegisterAllocator {
 
     public RegisterAllocator(AssemModule asmM) {
         this.asmModule = asmM;
-        t0 = asmM.getPhyReg("t0");
-        t1 = asmM.getPhyReg("t1");
-        t2 = asmM.getPhyReg("t2");
-        sp = asmM.getPhyReg("sp");
+        t0 = AssemModule.getPhyReg("t0");
+        t1 = AssemModule.getPhyReg("t1");
+        t2 = AssemModule.getPhyReg("t2");
+        sp = AssemModule.getPhyReg("sp");
     }
 
     private int max(int a, int b) {
@@ -160,7 +160,7 @@ public class RegisterAllocator {
                 block = block.next;
             }
             block = func.entranBlock;
-            block.addInstAtFront(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(- maxStack - 4), block));
+            block.addInstAtFront(new binaryInst("addi", AssemModule.getPhyReg("sp"), AssemModule.getPhyReg("sp"), new Imm(- maxStack - 4), block));
             if(maxStack + 4 >= maxMax) maxMax = maxStack + 4;
             func.maxStack = maxStack + 4;
         }
@@ -182,19 +182,19 @@ public class RegisterAllocator {
             while(block != null) {
                 i = block.instHead;
                 while(i != null) {
-                    if(i instanceof loadInst && ((loadInst)i).addr == asmModule.getPhyReg("sp")) {
+                    if(i instanceof loadInst && ((loadInst)i).addr == AssemModule.getPhyReg("sp")) {
                         o = ((loadInst)i).imm.val;
                         int rc = Math.floorDiv(off - o, 2048);
                         if(off - o == 2048 * rc) rc -= 1;
-                        Register r = asmModule.getPhyReg("s" + rc);
+                        Register r = AssemModule.getPhyReg("s" + rc);
                         ((loadInst)i).addr = r;
                         ((loadInst)i).imm.val = o - off + 2048 * (rc + 1);
 
-                    } else if(i instanceof storeInst && ((storeInst)i).addr == asmModule.getPhyReg("sp")) {
+                    } else if(i instanceof storeInst && ((storeInst)i).addr == AssemModule.getPhyReg("sp")) {
                         o = ((storeInst)i).imm.val;
                         int rc = Math.floorDiv(off - o, 2048);
                         if(off - o == 2048 * rc) rc -= 1;
-                        Register r = asmModule.getPhyReg("s" + rc);
+                        Register r = AssemModule.getPhyReg("s" + rc);
                         ((storeInst)i).addr = r;
                         ((storeInst)i).imm.val = o - off + 2048 * (rc + 1); 
                     }
@@ -209,13 +209,13 @@ public class RegisterAllocator {
 
             int n = Math.floorDiv(off, 2048);
             for(int s = 0;s <= 11; ++ s) {
-                i.addNextInst(new storeInst(asmModule.getPhyReg("s" + s), asmModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
+                i.addNextInst(new storeInst(AssemModule.getPhyReg("s" + s), AssemModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
                 i = i.next;
             }
             for(int c = 0; c <= n; ++ c) {
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+                i.addNextInst(new binaryInst("addi", AssemModule.getPhyReg("sp"), AssemModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
                 i = i.next;
-                i.addNextInst(new mvInst(asmModule.getPhyReg("s" + c), asmModule.getPhyReg("sp"), func.entranBlock));
+                i.addNextInst(new mvInst(AssemModule.getPhyReg("s" + c), AssemModule.getPhyReg("sp"), func.entranBlock));
                 i = i.next;
             }
 
@@ -228,14 +228,14 @@ public class RegisterAllocator {
             asmInst j = i;
             
             for(int q = 0; q <= n; ++ q) {
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                i.addNextInst(new binaryInst("addi", AssemModule.getPhyReg("sp"), AssemModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
                 i = i.next;
-                i.addNextInst(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
+                i.addNextInst(new binaryInst("addi", AssemModule.getPhyReg("sp"), AssemModule.getPhyReg("sp"), new Imm(1024), func.exitBlock));
                 i = i.next;
             }
 
             for(int s = 0; s <= 11; ++ s) {
-                i.addNextInst(new loadInst(asmModule.getPhyReg("s" + s), asmModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
+                i.addNextInst(new loadInst(AssemModule.getPhyReg("s" + s), AssemModule.getPhyReg("sp"), new Imm(-4 * s - 4), func.entranBlock));
                 i = i.next;
             }
         
@@ -243,7 +243,7 @@ public class RegisterAllocator {
             func.exitBlock.deleteInst(j);
 
             //if(func.name.equals("main")) {
-            //    func.entranBlock.addInstAtFront(new binaryInst("addi", asmModule.getPhyReg("sp"), asmModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
+            //    func.entranBlock.addInstAtFront(new binaryInst("addi", AssemModule.getPhyReg("sp"), AssemModule.getPhyReg("sp"), new Imm(-2048), func.entranBlock));
             //}
             
         }
