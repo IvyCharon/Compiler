@@ -336,8 +336,11 @@ public class InstSelector implements IRVisitor {
 
         int off = 0;
         for(int i = 8; i < inst.func.paras.size(); ++ i) {
-            current_block.addInst(new storeInst(getRegFromOper(inst.paras.get(i)), AssemModule.getPhyReg("sp"), new Imm(off ++), current_block));
+            current_block.addInst(new storeInst(getRegFromOper(inst.paras.get(i)), AssemModule.getPhyReg("sp"), new Imm(off), current_block));
+            off += 4;
         }
+        if(off > current_function.paraOff)
+            current_function.paraOff = off;
 
         current_block.addInst(new callInst(functions.get(inst.func), current_block));
 
