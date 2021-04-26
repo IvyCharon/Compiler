@@ -33,13 +33,14 @@ public class storeInst extends asmInst {    //store addr + imm to reg
     public LinkedHashSet<Register> use() {
         LinkedHashSet<Register> use = new LinkedHashSet<>();
         if(!(addr instanceof AsmGlobalVar)) use.add(addr);
+        use.add(reg);
         return use;
     }
 
     @Override
     public LinkedHashSet<Register> def() {
         LinkedHashSet<Register> def = new LinkedHashSet<>();
-        if(!(reg instanceof AsmGlobalVar)) def.add(reg);
+        //if(!(reg instanceof AsmGlobalVar)) def.add(reg);
         return def;
     }
 

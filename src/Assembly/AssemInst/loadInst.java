@@ -21,7 +21,10 @@ public class loadInst extends asmInst { //load addr + imm to reg
 
     @Override
     public String toString() {
-        return "lw " + reg.toString() + ", " + imm.toString() + "(" + addr.toString() + ")";
+        if(addr instanceof AsmGlobalVar)
+            return "lw " + reg.toString() + ", " + addr.toString();
+        else
+            return "lw " + reg.toString() + ", " + imm.toString() + "(" + addr.toString() + ")";
     }
 
     @Override

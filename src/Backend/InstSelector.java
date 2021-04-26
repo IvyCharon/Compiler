@@ -437,9 +437,11 @@ public class InstSelector implements IRVisitor {
         Register rs = getRegFromOper(inst.address);
 
         if(rs instanceof AsmGlobalVar) {
-            VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
-            current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
-            current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
+            //VirtualRegister vr = new VirtualRegister(assemModule.VirRegCnt ++, current_function.VirReg ++);
+            current_block.addInst(new loadInst(rd, rs, new Imm(0), current_block));
+            //current_block.addInst(new mvInst(rd, rs, current_block));
+            //current_block.addInst(new luiInst(vr, new RelocationImm("hi", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
+            //current_block.addInst(new loadInst(rd, vr, new RelocationImm("lo", ((MIR.IROperand.globalVariable)(inst.address)).name), current_block));
         } else if(addrImmMap.containsKey(rs)) {
             AddrImm tmpI = addrImmMap.get(rs);
             current_block.addInst(new loadInst(rd, tmpI.baseReg, tmpI, current_block));
