@@ -266,7 +266,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                     return new boolConstNode(new position(ctx), ex1.getBool() && ex2.getBool());
                 else if(ctx.Oror() != null)
                     return new boolConstNode(new position(ctx), ex1.getBool() || ex2.getBool());
-            } else if(ex1 instanceof stringConstNode && ex2 instanceof stringConstNode) {
+            } /* else if(ex1 instanceof stringConstNode && ex2 instanceof stringConstNode) {
                 if(ctx.Add() != null)
                     return new stringConstNode(new position(ctx), ex1.getString() + ex2.getString());
                 else if(ctx.Smaller() != null)
@@ -286,7 +286,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                     return new boolConstNode(new position(ctx), ex1.getString() == null);
                 else if(ctx.Not_equal() != null)
                     return new boolConstNode(new position(ctx), ! (ex1.getString() == null));
-            } else if(ex1 instanceof nullConstNode && ex2 instanceof nullConstNode) {
+            }  */else if(ex1 instanceof nullConstNode && ex2 instanceof nullConstNode) {
                 if(ctx.Equal() != null)
                     return new boolConstNode(new position(ctx), true);
                 else if(ctx.Not_equal() != null)
