@@ -24,8 +24,8 @@ public class HumanIntelligence {
 
     public void run() {
         ReduceUselessBlock();
-        ReduceInitFunc();
-        ReduceSPAddi();
+        //ReduceInitFunc();
+        //ReduceSPAddi();
     }
 
     private void ReduceUselessBlock() {
@@ -35,13 +35,8 @@ public class HumanIntelligence {
             while(b != null) {
                 if(b.instHead == null && b.instTail == null) {
                     uselessBlock.put(b, b.next);
-                    b = b.next;
-                    continue;
-                }
-                if(b.instHead instanceof jInst) {
+                } else if(b.instHead instanceof jInst) {
                     uselessBlock.put(b, ((jInst)b.instHead).dest);
-                    b = b.next;
-                    continue;
                 }
                 b = b.next;
             }
