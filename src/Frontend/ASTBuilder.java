@@ -223,6 +223,76 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 	@Override public ASTNode visitBinaryExpr(MxParser.BinaryExprContext ctx) {
         ExprNode ex1 = (ExprNode) visit(ctx.expression(0));
         ExprNode ex2 = (ExprNode) visit(ctx.expression(1));
+        if(ex1.isConst && ex2.isConst) {
+            if(ex1 instanceof intConstNode && ex2 instanceof intConstNode) {
+                if(ctx.Mul() != null)
+                    return new intConstNode(new position(ctx),ex1.getInt() * ex2.getInt());
+                else if(ctx.Div() != null && ex2.getInt() != 0) 
+                    return new intConstNode(new position(ctx),ex1.getInt() / ex2.getInt());
+                else if(ctx.Mod() != null) 
+                    return new intConstNode(new position(ctx),ex1.getInt() % ex2.getInt());
+                else if(ctx.Add() != null)
+                    return new intConstNode(new position(ctx),ex1.getInt() + ex2.getInt());
+                else if(ctx.Sub() != null) 
+                    return new intConstNode(new position(ctx),ex1.getInt() - ex2.getInt());
+                else if(ctx.Smallersmaller() != null)
+                    return new intConstNode(new position(ctx),ex1.getInt() << ex2.getInt());
+                else if(ctx.Biggerbigger() != null) 
+                    return new intConstNode(new position(ctx),ex1.getInt() >> ex2.getInt());
+                else if(ctx.Smaller() != null)
+                    return new boolConstNode(new position(ctx), ex1.getInt() < ex2.getInt());
+                else if(ctx.Bigger() != null)
+                    return new boolConstNode(new position(ctx), ex1.getInt() > ex2.getInt());
+                else if(ctx.Smaller_equal() != null) 
+                    return new boolConstNode(new position(ctx), ex1.getInt() <= ex2.getInt());
+                else if(ctx.Bigger_equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getInt() >= ex2.getInt());
+                else if(ctx.Equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getInt() == ex2.getInt());
+                else if(ctx.Not_equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getInt() != ex2.getInt());
+                else if(ctx.And() != null)
+                    return new intConstNode(new position(ctx), ex1.getInt() & ex2.getInt());
+                else if(ctx.Xor() != null)
+                    return new intConstNode(new position(ctx), ex1.getInt() ^ ex2.getInt());
+                else if(ctx.Or() != null)
+                    return new intConstNode(new position(ctx), ex1.getInt() | ex2.getInt());
+            } else if(ex1 instanceof boolConstNode && ex2 instanceof boolConstNode) {
+                if(ctx.Equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getBool() == ex2.getBool());
+                else if(ctx.Not_equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getBool() != ex2.getBool());
+                else if(ctx.Andand() != null)
+                    return new boolConstNode(new position(ctx), ex1.getBool() && ex2.getBool());
+                else if(ctx.Oror() != null)
+                    return new boolConstNode(new position(ctx), ex1.getBool() || ex2.getBool());
+            } else if(ex1 instanceof stringConstNode && ex2 instanceof stringConstNode) {
+                if(ctx.Add() != null)
+                    return new stringConstNode(new position(ctx), ex1.getString() + ex2.getString());
+                else if(ctx.Smaller() != null)
+                    return new boolConstNode(new position(ctx), ex1.getString().compareTo(ex2.getString()) < 0);
+                else if(ctx.Bigger() != null)
+                    return new boolConstNode(new position(ctx), ex1.getString().compareTo(ex2.getString()) > 0);
+                else if(ctx.Smaller_equal() != null) 
+                    return new boolConstNode(new position(ctx), ex1.getString().compareTo(ex2.getString()) <= 0);
+                else if(ctx.Bigger_equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getString().compareTo(ex2.getString()) >= 0);
+                else if(ctx.Equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getString().equals(ex2.getString()));
+                else if(ctx.Not_equal() != null)
+                    return new boolConstNode(new position(ctx), ! ex1.getString().equals(ex2.getString()));
+            } else if(ex1 instanceof stringConstNode && ex2 instanceof nullConstNode) {
+                if(ctx.Equal() != null)
+                    return new boolConstNode(new position(ctx), ex1.getString() == null);
+                else if(ctx.Not_equal() != null)
+                    return new boolConstNode(new position(ctx), ! (ex1.getString() == null));
+            } else if(ex1 instanceof nullConstNode && ex2 instanceof nullConstNode) {
+                if(ctx.Equal() != null)
+                    return new boolConstNode(new position(ctx), true);
+                else if(ctx.Not_equal() != null)
+                    return new boolConstNode(new position(ctx), false);
+            }
+        }
         if(ctx.Mul() != null)
             return new binaryExprNode(new position(ctx), binaryOpType.mul, ex1, ex2);
         else if(ctx.Div() != null) 
@@ -316,6 +386,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 	@Override public ASTNode visitAssignExpr(MxParser.AssignExprContext ctx) {
         ExprNode tmp = (ExprNode)visit(ctx.expression(0));
         ExprNode t = (ExprNode)visit(ctx.expression(1));
+        
         return new assignExprNode(new position(ctx), t.isAssignable(), tmp, t);
     }
     

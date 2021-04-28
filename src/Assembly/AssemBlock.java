@@ -82,4 +82,15 @@ public class AssemBlock {
             i.next.pre = i.pre;
         }
     }
+
+    public void deleteSelf(AssemFunction func) {
+        if(this == func.entranBlock) {
+            func.deleteEntranceBlock();
+        } else if(this == func.exitBlock) {
+            func.deleteExitBlock();
+        } else {
+            this.pre.next = this.next;
+            this.next.pre = this.pre;
+        }
+    }
 }

@@ -39,5 +39,28 @@ public class AssemFunction {
     public String toString() {
         return name;
     }
+
+    public void deleteEntranceBlock() {
+        if(entranBlock.next == null)
+            entranBlock = null;
+        else if(entranBlock.next == exitBlock) {
+            entranBlock = exitBlock;
+            entranBlock.pre = null;
+            exitBlock = null;
+        } else {
+            entranBlock = entranBlock.next;
+            entranBlock.pre = null;
+        }
+    }
+
+    public void deleteExitBlock() {
+        if(exitBlock.pre == entranBlock) {
+            exitBlock = null;
+            entranBlock.next = null;
+        } else {
+            exitBlock.pre.next = null;
+            exitBlock = exitBlock.pre;
+        }
+    }
     
 }

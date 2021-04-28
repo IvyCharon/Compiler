@@ -38,6 +38,7 @@ public class ASMPrinter {
             printBlock(tmp);
             tmp = tmp.next;
         }
+
         out.println("\t.size\t" + func.name + ", .-" + func.name);
         out.println();
     }

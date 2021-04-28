@@ -26,7 +26,7 @@ public class BinaryInst extends Inst {
         this.result = result;
     }
 
-    private String toStr(binaryInstOp op) {
+    public String toStr(binaryInstOp op) {
         switch (op) {
             case add:
                 return "add";

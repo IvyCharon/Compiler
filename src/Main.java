@@ -11,6 +11,7 @@ import Frontend.SemanticChecker;
 import Frontend.SymbolCollector;
 import Frontend.TypeFilter;
 import Optim.GraphColoringRegisterAllocater;
+import Optim.HumanIntelligence;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Util.MxErrorListener;
@@ -75,6 +76,7 @@ public class Main {
             new InstSelector(ASTRoot.module, asmModule).run();
             //new RegisterAllocator(asmModule).run();
             new GraphColoringRegisterAllocater(asmModule).run();
+            new HumanIntelligence(asmModule).run();
             new ASMPrinter(output, asmModule).run();
             
         } catch (error er) {

@@ -32,7 +32,7 @@ public class CompareInst extends Inst{
         this.type = type;
     }
 
-    private String toStr(compareInstOp op) {
+    public String toStr(compareInstOp op) {
         switch (op) {
             case eq:
                 return "eq";

@@ -387,12 +387,29 @@ public class IRBuilder implements ASTVisitor {
     }
     @Override
     public void visit(ifStmtNode it) {
+        it.condition.accept(this);
+        operand Cond = it.condition.oper;
+
+        if(Cond instanceof ConstBool) {
+            boolean co = ((ConstBool)Cond).value();
+            if(co) {
+                current_scope = new IRScope(current_scope);
+                it.thenstmt.accept(this);
+                current_scope = current_scope.parentScope;
+                return;
+            } else {
+                if(it.elsestmt != null) {
+                    current_scope = new IRScope(current_scope);
+                    it.elsestmt.accept(this);
+                    current_scope = current_scope.parentScope;
+                }
+                return;
+            }
+        }
+
         BasicBlock trueBlock = new BasicBlock("if_true" + BlockNum ++, current_function);
         BasicBlock falseBlock = it.elsestmt == null ? null : new BasicBlock("if_false" + BlockNum ++, current_function);
         BasicBlock AfterIf = new BasicBlock("after_if" + BlockNum ++, current_function);
-
-        it.condition.accept(this);
-        operand Cond = it.condition.oper;
 
         if(it.elsestmt != null) 
             current_block.addInst(new BranchInst(current_block, Cond, trueBlock, falseBlock));
@@ -1135,7 +1152,6 @@ public class IRBuilder implements ASTVisitor {
     @Override
     public void visit(boolConstNode it) {
         it.oper = new ConstBool(1, it.value);
-        //TO DO
     }
     @Override
     public void visit(nullConstNode it) {
