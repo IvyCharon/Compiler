@@ -7,11 +7,11 @@ import Assembly.AssemBlock;
 import Assembly.AssemFunction;
 import Assembly.AssemModule;
 import Assembly.AssemInst.asmInst;
-import Assembly.AssemInst.binaryInst;
+//import Assembly.AssemInst.binaryInst;
 import Assembly.AssemInst.branchInst;
-import Assembly.AssemInst.callInst;
+//import Assembly.AssemInst.callInst;
 import Assembly.AssemInst.jInst;
-import Assembly.Operand.Imm;
+//import Assembly.Operand.Imm;
 
 public class HumanIntelligence {
     public AssemModule module;
@@ -72,7 +72,7 @@ public class HumanIntelligence {
         }
     }
 
-    private void ReduceInitFunc() {
+    /* private void ReduceInitFunc() {
         AssemFunction init = module.functions.get("__init__");
         if(init.entranBlock.instHead.next instanceof jInst && ((jInst)init.entranBlock.instHead.next).dest == init.exitBlock) {
             AssemFunction ma = module.functions.get("main");
@@ -93,5 +93,5 @@ public class HumanIntelligence {
                 i.deleteSelf();
             } else continue;
         }
-    }
+    } */
 }

@@ -292,7 +292,7 @@ public class GraphColoringRegisterAllocater {
         }
     }
 
-    private boolean checkOK(Register u, Register v) {
+    private boolean checkOK(Register u, Register v) {           //George
         boolean ret = true;
         for(var t : adjacent(v))
             ret &= ok(t, u);
@@ -303,7 +303,7 @@ public class GraphColoringRegisterAllocater {
         return t.degree < K || preColored.contains(t) || edgeSet.contains(new Edge(t, u));
     }
 
-    private boolean conservative(Register u, Register v) {
+    private boolean conservative(Register u, Register v) {      //Briggs
         HashSet<Register> q = new HashSet<>(adjacent(u));
         q.addAll(adjacent(v));
         int cnt = 0;
@@ -398,7 +398,7 @@ public class GraphColoringRegisterAllocater {
             else {
                 r.color = okColor.get(0);
                 coloredNodes.add(r);
-            } 
+            }
         }
         coalescedNodes.forEach(t -> t.color = getAlias(t).color);
     }

@@ -12,6 +12,7 @@ import Frontend.SymbolCollector;
 import Frontend.TypeFilter;
 import Optim.GraphColoringRegisterAllocater;
 import Optim.HumanIntelligence;
+import Optim.Optimize;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Util.MxErrorListener;
@@ -69,14 +70,17 @@ public class Main {
             new SemanticChecker(gScope).visit(ASTRoot);
 
             new IRBuilder().visit(ASTRoot);
+
+            new Optimize(ASTRoot.module).run();
+
             if(ir_print) new IRPrinter(new PrintStream("output.ll")).run(ASTRoot);
             if(!codegen) return;
 
             AssemModule asmModule = new AssemModule();
             new InstSelector(ASTRoot.module, asmModule).run();
             //new RegisterAllocator(asmModule).run();
-            new GraphColoringRegisterAllocater(asmModule).run();
             new HumanIntelligence(asmModule).run();
+            new GraphColoringRegisterAllocater(asmModule).run();
             new ASMPrinter(output, asmModule).run();
             
         } catch (error er) {
